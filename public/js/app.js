@@ -31,6 +31,7 @@ async function boot() {
   wireAudioControls();
   wireAI();
   wireKeyboard();
+  wireMobilePanelClose();
 
   subscribe(onStateChange);
   updateUndoButtons();
@@ -105,9 +106,21 @@ function wireRail() {
 }
 
 function openPanel(name) {
+  const panelEl = $('#panel');
+  const isMobile = window.matchMedia('(max-width: 900px)').matches;
+  const wasActive = document.querySelector(`.rail-btn[data-panel="${name}"]`)?.classList.contains('active');
+  // Auf dem Handy: erneutes Tippen auf das aktive Werkzeug schließt das Panel wieder.
+  if (isMobile && wasActive && panelEl.classList.contains('open')) { panelEl.classList.remove('open'); return; }
   $$('.rail-btn').forEach(b => b.classList.toggle('active', b.dataset.panel === name));
   $$('.panel-page').forEach(p => p.classList.toggle('active', p.dataset.page === name));
-  $('#panel').classList.add('open'); // Mobile
+  panelEl.classList.add('open'); // Mobile: einblenden
+}
+
+// Auf dem Handy: Tippen auf die Vorschau schließt das Werkzeug-Panel.
+function wireMobilePanelClose() {
+  $('.stage').addEventListener('click', () => {
+    if (window.matchMedia('(max-width: 900px)').matches) $('#panel').classList.remove('open');
+  });
 }
 
 // ---- Transport ----

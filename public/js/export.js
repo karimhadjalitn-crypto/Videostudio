@@ -26,6 +26,7 @@ export function initExport() {
 function open() {
   if (!state.clips.length && !state.texts.length) { toast('Nichts zu exportieren – füge zuerst B-Roll hinzu.', 'err'); return; }
   $('#exportProgress').classList.add('hidden');
+  $('#exportResult').classList.add('hidden');
   $('#epFill').style.width = '0%';
   $('#exportStart').disabled = false;
   $('#exportStart').textContent = 'Aufnahme starten';
@@ -111,11 +112,16 @@ function finalize(mime) {
   const blob = new Blob(chunks, { type: mime || 'video/webm' });
   const name = (state.projectName || 'Cinema-Studio').replace(/[^\wäöüÄÖÜ\- ]+/g, '').trim().replace(/\s+/g, '_') || 'Video';
   const res = $('#expRes').value + 'p';
-  download(blob, `${name}_${res}.${ext}`);
-  $('#epLabel').textContent = 'Fertig! ✅';
-  $('#epFill').style.width = '100%';
+  const filename = `${name}_${res}.${ext}`;
+  download(blob, filename);
+
+  // Ergebnis anzeigen (wichtig auf dem Handy: gedrückt halten → sichern)
+  const url = URL.createObjectURL(blob);
+  const vid = $('#resultVideo'); vid.src = url;
+  const dl = $('#resultDownload'); dl.href = url; dl.download = filename;
+  $('#exportProgress').classList.add('hidden');
+  $('#exportResult').classList.remove('hidden');
   $('#exportStart').disabled = false;
-  $('#exportStart').textContent = 'Aufnahme starten';
-  setTimeout(() => modal.classList.add('hidden'), 900);
+  $('#exportStart').textContent = 'Nochmal exportieren';
   toast(`💾 Export fertig als <b>.${ext}</b> (${res}).` + (isMp4 ? '' : ' Hinweis: .webm – für TikTok ggf. in .mp4 umwandeln.'), 'ok', 5200);
 }

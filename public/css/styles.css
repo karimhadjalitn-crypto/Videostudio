@@ -326,6 +326,10 @@ input[type=color] { width: 100%; height: 34px; border: 1px solid var(--line); bo
 .ep-bar { height: 8px; background: var(--bg-4); border-radius: 5px; overflow: hidden; }
 .ep-fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--gold), #f0bd5c); transition: width .2s; }
 .ep-label { font-size: 12px; color: var(--txt-dim); margin-top: 8px; text-align: center; }
+.export-result { display: flex; flex-direction: column; gap: 10px; margin: 6px 0 14px; }
+.export-result video { width: 100%; max-height: 46vh; border-radius: 10px; background: #000; }
+.result-hint { font-size: 12.5px; color: var(--txt-dim); line-height: 1.5; }
+#resultDownload { text-align: center; text-decoration: none; display: block; }
 .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
 .modal-actions .ghost-btn { flex: none; padding: 9px 18px; }
 .modal-actions .primary-btn { padding: 9px 20px; }
