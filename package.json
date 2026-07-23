@@ -1,0 +1,14 @@
+{
+  "name": "cinema-studio",
+  "version": "1.0.0",
+  "description": "Cinema Studio – Videobearbeitungsstudio für faceless TikTok-Content (Psychologie & Bildung)",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}

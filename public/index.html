@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#0b0d10" />
+  <title>Cinema Studio</title>
+  <link rel="icon" href="assets/favicon.svg" />
+  <!-- Edle Schriften (mit System-Fallback, funktioniert auch offline) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Playfair+Display:wght@600;700;900&family=Montserrat:wght@600;800;900&family=Cormorant+Garamond:wght@500;600;700&family=Oswald:wght@500;600&family=Bebas+Neue&family=Anton&display=swap" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <!-- ============ TOPBAR ============ -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">🎬</span>
+      <span class="brand-name">Cinema&nbsp;Studio</span>
+    </div>
+
+    <div class="project-name">
+      <input id="projectName" type="text" value="Neues Projekt" aria-label="Projektname" />
+    </div>
+
+    <div class="format-switch" id="formatSwitch" role="group" aria-label="Format">
+      <button data-ratio="16:9" class="active">16:9</button>
+      <button data-ratio="9:16">9:16</button>
+      <button data-ratio="1:1">1:1</button>
+      <button data-ratio="2.39:1">2.39:1</button>
+    </div>
+
+    <div class="topbar-actions">
+      <button id="undoBtn" class="icon-btn" title="Rückgängig (Strg+Z)" aria-label="Rückgängig">↶</button>
+      <button id="redoBtn" class="icon-btn" title="Wiederholen (Strg+Y)" aria-label="Wiederholen">↷</button>
+      <button id="exportBtn" class="primary-btn" title="Video exportieren">
+        <span class="dot"></span> Exportieren
+      </button>
+    </div>
+  </header>
+
+  <!-- ============ MAIN ============ -->
+  <main class="workspace">
+    <!-- Icon-Leiste -->
+    <nav class="railbar" id="railbar" aria-label="Werkzeuge">
+      <button class="rail-btn active" data-panel="media" title="Medien"><span>🎞️</span><small>Medien</small></button>
+      <button class="rail-btn" data-panel="filters" title="Filter & Farbe"><span>🎨</span><small>Farbe</small></button>
+      <button class="rail-btn" data-panel="text" title="Text & Untertitel"><span>🅣</span><small>Text</small></button>
+      <button class="rail-btn" data-panel="frame" title="Cinema-Frame"><span>🖼️</span><small>Frame</small></button>
+      <button class="rail-btn" data-panel="audio" title="Ton (Voiceover / Naschid)"><span>🎙️</span><small>Ton</small></button>
+      <button class="rail-btn" data-panel="reference" title="Referenzen / Beispiele"><span>📎</span><small>Referenz</small></button>
+    </nav>
+
+    <!-- Werkzeug-Panel -->
+    <section class="panel" id="panel" aria-label="Werkzeug-Einstellungen">
+      <!-- MEDIEN -->
+      <div class="panel-page active" data-page="media">
+        <h2>Medien</h2>
+        <p class="hint">Lade Deine cinematische B-Roll hoch. Du kannst mehrere Clips auf einmal wählen.</p>
+        <label class="dropzone" id="videoDrop">
+          <input id="videoInput" type="file" accept="video/*" multiple hidden />
+          <span class="dz-icon">⬆️</span>
+          <span class="dz-title">Videos hinzufügen</span>
+          <span class="dz-sub">Vom Handy oder Rechner · tippen oder ablegen</span>
+        </label>
+        <button class="auto-edit-btn" id="autoEditBtn" title="Ein Klick: cinematisch-cleaner Look für alle Clips">
+          ✨ Auto-Edit · Cinematic&nbsp;Clean
+        </button>
+        <div class="clip-list" id="clipList"></div>
+      </div>
+
+      <!-- FILTER / FARBE -->
+      <div class="panel-page" data-page="filters">
+        <h2>Filter &amp; Color-Grading</h2>
+        <p class="hint" id="filterHint">Wähle einen Clip in der Timeline, um ihn zu graden.</p>
+        <div class="preset-grid" id="lookGrid"></div>
+        <div class="sliders" id="gradeSliders"></div>
+        <div class="panel-actions">
+          <button class="ghost-btn" id="resetGrade">Zurücksetzen</button>
+          <button class="ghost-btn" id="applyGradeAll">Auf alle Clips anwenden</button>
+        </div>
+      </div>
+
+      <!-- TEXT -->
+      <div class="panel-page" data-page="text">
+        <h2>Text &amp; Untertitel</h2>
+        <div class="quick-text">
+          <button class="add-text-btn" data-style="hook">＋ Hook-Text (Aufmacher)</button>
+          <button class="add-text-btn" data-style="caption">＋ TikTok-Untertitel</button>
+          <button class="add-text-btn" data-style="title">＋ Titel</button>
+          <button class="add-text-btn" data-style="lower">＋ Bauchbinde</button>
+        </div>
+        <div id="textInspector" class="text-inspector hidden"></div>
+        <div class="layer-list" id="textLayerList"></div>
+      </div>
+
+      <!-- FRAME -->
+      <div class="panel-page" data-page="frame">
+        <h2>Cinema-Frame &amp; Format</h2>
+        <div class="switch-row">
+          <label class="switch">
+            <input type="checkbox" id="frameToggle" />
+            <span class="track"></span>
+          </label>
+          <div><strong>Abgerundeter Cinema-Frame</strong><br /><small>Rahmen mit runden Ecken um das Bild</small></div>
+        </div>
+        <div class="sub-control" id="frameControls">
+          <label>Ecken-Radius <output id="radiusOut">28</output>
+            <input type="range" id="frameRadius" min="0" max="80" value="28" />
+          </label>
+          <label>Rahmenbreite <output id="marginOut">3</output>%
+            <input type="range" id="frameMargin" min="0" max="12" value="3" />
+          </label>
+          <label>Rahmenfarbe
+            <input type="color" id="frameColor" value="#000000" />
+          </label>
+        </div>
+        <hr />
+        <div class="switch-row">
+          <label class="switch">
+            <input type="checkbox" id="letterboxToggle" />
+            <span class="track"></span>
+          </label>
+          <div><strong>Cinemascope-Balken</strong><br /><small>Schwarze Kinobalken oben &amp; unten</small></div>
+        </div>
+        <div class="sub-control" id="letterboxControls">
+          <label>Balkenhöhe <output id="lbOut">12</output>%
+            <input type="range" id="letterboxSize" min="4" max="30" value="12" />
+          </label>
+        </div>
+        <hr />
+        <div class="switch-row">
+          <label class="switch">
+            <input type="checkbox" id="safezoneToggle" />
+            <span class="track"></span>
+          </label>
+          <div><strong>TikTok Safe-Zones</strong><br /><small>Zeigt an, wo Buttons &amp; Beschreibung liegen (nur Vorschau)</small></div>
+        </div>
+      </div>
+
+      <!-- AUDIO -->
+      <div class="panel-page" data-page="audio">
+        <h2>Ton</h2>
+        <p class="hint">Voiceover (z.&nbsp;B. ElevenLabs), Naschid oder Ambient-Sounds. Bewusst <strong>ohne Musik-Bibliothek</strong>.</p>
+        <label class="dropzone small" id="audioDrop">
+          <input id="audioInput" type="file" accept="audio/*" multiple hidden />
+          <span class="dz-icon">🎙️</span>
+          <span class="dz-title">Audio hinzufügen</span>
+          <span class="dz-sub">Voiceover · Naschid · Ambient</span>
+        </label>
+        <div class="switch-row compact">
+          <label class="switch">
+            <input type="checkbox" id="muteBroll" />
+            <span class="track"></span>
+          </label>
+          <div><strong>B-Roll stummschalten</strong><br /><small>Nur Voiceover/Naschid hörbar</small></div>
+        </div>
+        <div class="layer-list" id="audioLayerList"></div>
+      </div>
+
+      <!-- REFERENZ -->
+      <div class="panel-page" data-page="reference">
+        <h2>Referenzen &amp; Beispiele</h2>
+        <p class="hint">Füge Beispiel-Videos oder Bilder ein, um mir zu zeigen, was Du meinst. Ich analysiere Farbstimmung &amp; Look – ändere aber <strong>nichts automatisch</strong>. Sag mir dann z.&nbsp;B. „übernimm den Look dieser Referenz".</p>
+        <label class="dropzone small" id="refDrop">
+          <input id="refInput" type="file" accept="video/*,image/*" multiple hidden />
+          <span class="dz-icon">📎</span>
+          <span class="dz-title">Referenz hinzufügen</span>
+          <span class="dz-sub">Video oder Bild · als Vorlage</span>
+        </label>
+        <div class="ref-list" id="refList"></div>
+      </div>
+    </section>
+
+    <!-- Vorschau -->
+    <section class="stage">
+      <div class="stage-inner">
+        <div class="viewer" id="viewer">
+          <canvas id="preview"></canvas>
+          <div class="drag-layer" id="dragLayer"></div>
+          <div class="viewer-empty" id="viewerEmpty">
+            <div class="ve-icon">🎬</div>
+            <div class="ve-title">Willkommen im Cinema Studio</div>
+            <div class="ve-sub">Lade links Deine erste B-Roll hoch, um zu starten.</div>
+          </div>
+        </div>
+      </div>
+      <div class="transport">
+        <button id="skipStart" class="t-btn" title="Zum Anfang">⏮</button>
+        <button id="playPause" class="t-btn play" title="Abspielen (Leertaste)">▶</button>
+        <button id="skipEnd" class="t-btn" title="Zum Ende">⏭</button>
+        <span class="time-code" id="timecode">00:00 / 00:00</span>
+        <span class="spacer"></span>
+        <button id="splitBtn" class="t-btn wide" title="Am Abspielkopf teilen (S)">✂ Teilen</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ TIMELINE ============ -->
+  <section class="timeline" id="timeline" aria-label="Timeline">
+    <div class="tl-toolbar">
+      <span class="tl-label">Timeline</span>
+      <div class="tl-zoom">
+        <button id="zoomOut" class="mini-btn">－</button>
+        <button id="zoomIn" class="mini-btn">＋</button>
+      </div>
+    </div>
+    <div class="tl-scroll" id="tlScroll">
+      <div class="tl-ruler" id="tlRuler"></div>
+      <div class="tl-tracks" id="tlTracks">
+        <div class="tl-track" data-track="video"><div class="tl-track-clips" id="trackVideo"></div></div>
+        <div class="tl-track" data-track="text"><div class="tl-track-clips" id="trackText"></div></div>
+        <div class="tl-track" data-track="audio"><div class="tl-track-clips" id="trackAudio"></div></div>
+      </div>
+      <div class="tl-playhead" id="playhead"></div>
+    </div>
+  </section>
+
+  <!-- ============ KI-BEFEHLSLEISTE ============ -->
+  <section class="ai-bar" aria-label="KI-Assistent">
+    <span class="ai-badge">✨ KI</span>
+    <input id="aiInput" type="text" autocomplete="off"
+      placeholder="Sag mir, was ich tun soll … z.B. „mach es wärmer und cinematisch, schneide die ersten 2 Sekunden weg, füge Hook-Text hinzu“" />
+    <button id="aiSend" class="ai-send">Los</button>
+    <button id="aiHelp" class="ai-help" title="Beispiele">?</button>
+  </section>
+
+  <!-- KI-Feedback -->
+  <div class="toast-wrap" id="toastWrap" aria-live="polite"></div>
+
+  <!-- Export-Dialog -->
+  <div class="modal-backdrop hidden" id="exportModal">
+    <div class="modal">
+      <h3>Video exportieren</h3>
+      <div class="export-opts">
+        <label class="opt">Auflösung
+          <select id="expRes">
+            <option value="2160">4K · 2160p (Ultra HD)</option>
+            <option value="1440">1440p (QHD)</option>
+            <option value="1080" selected>1080p (Full HD)</option>
+            <option value="720">720p (HD)</option>
+          </select>
+        </label>
+        <label class="opt">Qualität
+          <select id="expQuality">
+            <option value="high" selected>Hoch</option>
+            <option value="medium">Mittel</option>
+          </select>
+        </label>
+      </div>
+      <p class="export-note" id="exportNote">Der Export läuft in Echtzeit ab (das Video wird einmal abgespielt und aufgenommen). Bitte den Tab geöffnet lassen.</p>
+      <div class="export-progress hidden" id="exportProgress">
+        <div class="ep-bar"><div class="ep-fill" id="epFill"></div></div>
+        <div class="ep-label" id="epLabel">Aufnahme läuft …</div>
+      </div>
+      <div class="modal-actions">
+        <button class="ghost-btn" id="exportCancel">Abbrechen</button>
+        <button class="primary-btn" id="exportStart">Aufnahme starten</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hilfe-Dialog (KI-Beispiele) -->
+  <div class="modal-backdrop hidden" id="helpModal">
+    <div class="modal">
+      <h3>Was kann ich für Dich tun?</h3>
+      <p class="hint">Tippe einfach in normaler Sprache. Beispiele:</p>
+      <ul class="help-list" id="helpList"></ul>
+      <div class="modal-actions">
+        <button class="primary-btn" id="helpClose">Verstanden</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Referenz-Moodboard (Großansicht) -->
+  <div class="modal-backdrop hidden" id="refModal">
+    <div class="modal ref-modal">
+      <h3 id="refModalTitle">Referenz</h3>
+      <div class="ref-view" id="refView"></div>
+      <div class="ref-analysis" id="refAnalysis"></div>
+      <textarea class="ref-note" id="refNote" placeholder="Notiz: Was gefällt Dir an dieser Referenz? (z.B. „warmer Kontrast, weiche Schatten“)"></textarea>
+      <div class="modal-actions">
+        <button class="ghost-btn" id="refApplyLook">🎨 Look übernehmen</button>
+        <button class="primary-btn" id="refModalClose">Schließen</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
