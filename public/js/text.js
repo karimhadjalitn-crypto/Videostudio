@@ -121,6 +121,33 @@ function buildInspector(tx) {
   });
   inspector.appendChild(alignRow);
 
+  // Position (schnell)
+  inspector.appendChild(el('div', { class: 'ti-field', text: 'Position' }));
+  const posRow = el('div', { class: 'chip-row' });
+  [['Oben', 0.16], ['Mitte', 0.5], ['Unten', 0.84]].forEach(([l, y]) => {
+    const chip = el('button', { class: 'chip' + (Math.abs(tx.y - y) < 0.02 ? ' sel' : ''), text: l });
+    chip.addEventListener('click', () => { tx.y = y; renderNow(); commit(); posRow.querySelectorAll('.chip').forEach(c => c.classList.remove('sel')); chip.classList.add('sel'); });
+    posRow.appendChild(chip);
+  });
+  inspector.appendChild(posRow);
+
+  // Schriftstärke
+  inspector.appendChild(el('div', { class: 'ti-field', text: 'Schriftstärke' }));
+  const weightRow = el('div', { class: 'chip-row' });
+  [['Normal', 500], ['Fett', 700], ['Kräftig', 800], ['Extra', 900]].forEach(([l, w]) => {
+    const chip = el('button', { class: 'chip' + (tx.weight === w ? ' sel' : ''), text: l });
+    chip.addEventListener('click', () => { tx.weight = w; renderNow(); commit(); weightRow.querySelectorAll('.chip').forEach(c => c.classList.remove('sel')); chip.classList.add('sel'); });
+    weightRow.appendChild(chip);
+  });
+  inspector.appendChild(weightRow);
+
+  // Buchstabenabstand
+  const lsOut = el('output', { text: (tx.letterSpacing || 0).toString() });
+  const lsIn = el('input', { type: 'range', min: -5, max: 30, value: tx.letterSpacing || 0 });
+  lsIn.addEventListener('input', () => { tx.letterSpacing = Number(lsIn.value); lsOut.textContent = lsIn.value; renderNow(); });
+  lsIn.addEventListener('change', () => commit());
+  inspector.appendChild(el('label', { class: 'ti-field', text: 'Buchstabenabstand ' }, lsOut, lsIn));
+
   // Animation
   inspector.appendChild(el('div', { class: 'ti-field', text: 'Animation' }));
   const animRow = el('div', { class: 'chip-row' });
@@ -131,10 +158,12 @@ function buildInspector(tx) {
   });
   inspector.appendChild(animRow);
 
-  // Kontur-Schalter
-  const strokeChip = el('button', { class: 'chip' + (tx.stroke ? ' sel' : ''), text: '◻ Kontur (Outline)' });
+  // Kontur + Schatten
+  const strokeChip = el('button', { class: 'chip' + (tx.stroke ? ' sel' : ''), text: '◻ Kontur' });
   strokeChip.addEventListener('click', () => { tx.stroke = !tx.stroke; strokeChip.classList.toggle('sel', tx.stroke); renderNow(); commit(); });
-  inspector.appendChild(el('div', { class: 'chip-row' }, strokeChip));
+  const shadowChip = el('button', { class: 'chip' + (tx.shadow ? ' sel' : ''), text: '☾ Schatten' });
+  shadowChip.addEventListener('click', () => { tx.shadow = !tx.shadow; shadowChip.classList.toggle('sel', tx.shadow); renderNow(); commit(); });
+  inspector.appendChild(el('div', { class: 'chip-row' }, strokeChip, shadowChip));
 }
 
 // ---- Ziehen in der Vorschau ----

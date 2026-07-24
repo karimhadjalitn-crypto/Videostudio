@@ -4,6 +4,7 @@ import { gradeToUniforms } from './looks.js';
 
 let outCanvas, ctx;               // sichtbares Ausgabe-Canvas (2D)
 let glCanvas, gl, program, tex;   // Offscreen WebGL fürs Grading
+let scratch, sctx;                // 2D-Zwischen-Canvas (iOS-kompatible Video-Textur)
 let uLoc = {};
 let noiseCanvas;                  // Filmkorn-Kachel
 
@@ -57,9 +58,14 @@ export function initRenderer(canvasEl) {
   outCanvas = canvasEl;
   ctx = outCanvas.getContext('2d');
 
+  // Zwischen-Canvas: Video wird erst hier gezeichnet, dann als Textur hochgeladen.
+  // (Safari/iPad kann Videos nicht direkt in WebGL laden – über ein Canvas geht es.)
+  scratch = document.createElement('canvas');
+  sctx = scratch.getContext('2d');
+
   glCanvas = document.createElement('canvas');
   gl = glCanvas.getContext('webgl', { premultipliedAlpha: false, preserveDrawingBuffer: true });
-  if (!gl) { console.warn('WebGL nicht verfügbar – Grading deaktiviert.'); return; }
+  if (!gl) { console.warn('WebGL nicht verfügbar – 2D-Fallback aktiv.'); buildNoise(); return; }
 
   program = gl.createProgram();
   gl.attachShader(program, compileShader(gl.VERTEX_SHADER, VERT));
@@ -126,16 +132,29 @@ function roundRect(c, x, y, w, h, r) {
   c.closePath();
 }
 
-// Quelle graden -> glCanvas (Größe = Zielrechteck).
-function gradeSource(srcEl, srcW, srcH, dstW, dstH, grade) {
-  glCanvas.width = dstW;
-  glCanvas.height = dstH;
-  gl.viewport(0, 0, dstW, dstH);
+// Cover-Ausschnitt der Quelle für ein Zielrechteck berechnen.
+function coverCrop(srcW, srcH, dw, dh) {
+  const sAR = srcW / srcH, dAR = dw / dh;
+  let sw, sh, sx, sy;
+  if (sAR > dAR) { sh = srcH; sw = srcH * dAR; sx = (srcW - sw) / 2; sy = 0; }
+  else { sw = srcW; sh = srcW / dAR; sx = 0; sy = (srcH - sh) / 2; }
+  return { sx, sy, sw, sh };
+}
 
-  const srcAR = srcW / srcH, dstAR = dstW / dstH;
-  let sx = 1, sy = 1;
-  if (srcAR > dstAR) sx = dstAR / srcAR; else sy = srcAR / dstAR;
-  gl.uniform2f(uLoc.u_uvScale, sx, sy);
+// Quelle graden -> glCanvas (Größe = Zielrechteck). Cover-Fit passiert im Zwischen-Canvas.
+function gradeSource(srcEl, srcW, srcH, dstW, dstH, grade) {
+  // 1) Video cover-fit in das 2D-Zwischen-Canvas zeichnen (iOS-kompatibel)
+  scratch.width = dstW; scratch.height = dstH;
+  const { sx, sy, sw, sh } = coverCrop(srcW, srcH, dstW, dstH);
+  try {
+    sctx.clearRect(0, 0, dstW, dstH);
+    sctx.drawImage(srcEl, sx, sy, sw, sh, 0, 0, dstW, dstH);
+  } catch (e) { return null; }
+
+  // 2) Als Textur hochladen und graden
+  glCanvas.width = dstW; glCanvas.height = dstH;
+  gl.viewport(0, 0, dstW, dstH);
+  gl.uniform2f(uLoc.u_uvScale, 1, 1);
 
   const u = gradeToUniforms(grade || defaultGrade());
   gl.uniform1f(uLoc.u_exposure, u.exposure);
@@ -151,9 +170,21 @@ function gradeSource(srcEl, srcW, srcH, dstW, dstH, grade) {
 
   gl.bindTexture(gl.TEXTURE_2D, tex);
   try {
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, srcEl);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, scratch);
   } catch (e) { return null; }
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  return u;
+}
+
+// Reiner 2D-Fallback (falls WebGL fehlt): Video direkt zeichnen, Grade genähert per Filter.
+function draw2DFallback(source, dx, dy, dw, dh, grade) {
+  const u = gradeToUniforms(grade || defaultGrade());
+  const bright = Math.pow(2, u.exposure);
+  const { sx, sy, sw, sh } = coverCrop(source.w, source.h, dw, dh);
+  ctx.save();
+  try { ctx.filter = `brightness(${bright.toFixed(3)}) contrast(${u.contrast.toFixed(3)}) saturate(${u.saturation.toFixed(3)})`; } catch (e) {}
+  try { ctx.drawImage(source.el, sx, sy, sw, sh, dx, dy, dw, dh); } catch (e) {}
+  ctx.restore();
   return u;
 }
 
@@ -183,10 +214,17 @@ export function renderFrame(opts) {
 
   // Video
   if (opts.source && opts.source.el && opts.source.w) {
-    const u = gradeSource(opts.source.el, opts.source.w, opts.source.h, Math.max(2, Math.round(cw)), Math.max(2, Math.round(ch)), opts.grade);
+    const dstW = Math.max(2, Math.round(cw)), dstH = Math.max(2, Math.round(ch));
+    let u = null, glOk = false;
+    if (gl) { u = gradeSource(opts.source.el, opts.source.w, opts.source.h, dstW, dstH, opts.grade); glOk = (u !== null); }
     ctx.save();
     if (radius > 0) { roundRect(ctx, cx, cy, cw, ch, radius); ctx.clip(); }
-    ctx.drawImage(glCanvas, cx, cy, cw, ch);
+    if (glOk) {
+      ctx.drawImage(glCanvas, cx, cy, cw, ch);
+    } else {
+      // WebGL nicht möglich -> direkt in 2D zeichnen
+      u = draw2DFallback(opts.source, cx, cy, cw, ch, opts.grade);
+    }
 
     // Vignette
     if (u && u.vignette > 0.001) {
@@ -268,6 +306,7 @@ function drawText(tx, time, W, H) {
   ctx.textAlign = tx.align || 'center';
   ctx.textBaseline = 'middle';
   ctx.font = `${tx.weight || 700} ${fontPx}px ${tx.font || 'Inter'}, Inter, sans-serif`;
+  try { ctx.letterSpacing = ((tx.letterSpacing || 0) / 100 * fontPx).toFixed(2) + 'px'; } catch (e) {}
 
   let text = tx.text || '';
   if (tx.anim === 'typewriter') text = text.slice(0, Math.ceil(text.length * reveal));
@@ -297,8 +336,14 @@ function drawText(tx, time, W, H) {
       ctx.lineWidth = fontPx * 0.14;
       ctx.strokeText(ln, 0, y);
     }
+    if (tx.shadow) {
+      ctx.shadowColor = 'rgba(0,0,0,0.55)';
+      ctx.shadowBlur = fontPx * 0.22;
+      ctx.shadowOffsetY = fontPx * 0.06;
+    }
     ctx.fillStyle = tx.color || '#fff';
     ctx.fillText(ln, 0, y);
+    ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
   });
 
   ctx.restore();
@@ -309,6 +354,7 @@ export function textBounds(tx, W, H) {
   const fontPx = (tx.size / 100) * H;
   ctx.save();
   ctx.font = `${tx.weight || 700} ${fontPx}px ${tx.font || 'Inter'}, sans-serif`;
+  try { ctx.letterSpacing = ((tx.letterSpacing || 0) / 100 * fontPx).toFixed(2) + 'px'; } catch (e) {}
   const lines = (tx.text || '').split('\n');
   let maxW = 40;
   for (const ln of lines) maxW = Math.max(maxW, ctx.measureText(ln).width);

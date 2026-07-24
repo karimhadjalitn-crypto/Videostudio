@@ -110,6 +110,7 @@ export function addText(t) {
     id: uid(), text: 'Neuer Text', start: state.playhead, end: state.playhead + 3,
     x: 0.5, y: 0.5, size: 7, color: '#ffffff', bg: 'none', font: 'Inter',
     weight: 800, align: 'center', anim: 'fade', style: 'title', stroke: true,
+    letterSpacing: 0, shadow: false,
   }, t || {});
   state.texts.push(tx);
   return tx;
