@@ -1,0 +1,20 @@
+{
+  "name": "Arabisch lernen",
+  "short_name": "Arabisch",
+  "description": "Karteikarten, Quiz und Satzstrukturen zum Arabischlernen (Fuṣḥā & Sprechform).",
+  "lang": "de",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#faf6ef",
+  "theme_color": "#12857c",
+  "categories": ["education"],
+  "icons": [
+    { "src": "assets/icons/icon.svg", "type": "image/svg+xml", "sizes": "any" },
+    { "src": "assets/icons/icon-192.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "assets/icons/icon-512.png", "type": "image/png", "sizes": "512x512" },
+    { "src": "assets/icons/icon-512-maskable.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" }
+  ]
+}

@@ -1,0 +1,5 @@
+# Build-Zwischendatei (wird von tools/build_data.py erzeugt)
+tools/_raw_book.json
+# node / test
+node_modules/
+*.log
