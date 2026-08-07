@@ -20,6 +20,7 @@ window.AR = window.AR || {};
       else if (AR.views[view]) { AR.views[view].render(main); }
       else { AR.views.home.render(main); }
       updateTabs(view);
+      updateBadge();
       window.scrollTo(0, 0);
       if (main) main.scrollTop = 0;
     },
@@ -49,6 +50,16 @@ window.AR = window.AR || {};
   function closeSheet() { var o = document.getElementById("overlay"); if (o) o.parentNode.removeChild(o); }
   app.closeSheet = closeSheet;
 
+  function updateBadge() {
+    var badge = document.getElementById("dueBadge");
+    if (!badge) return;
+    try {
+      var due = AR.store.dueCount(AR.data.deckById(app.currentDeck).cards());
+      if (due > 0) { badge.textContent = due > 99 ? "99+" : due; badge.classList.remove("hidden"); }
+      else badge.classList.add("hidden");
+    } catch (e) { badge.classList.add("hidden"); }
+  }
+
   function updateTabs(view) {
     var tabs = document.querySelectorAll(".tab");
     Array.prototype.forEach.call(tabs, function (t) {
@@ -76,6 +87,12 @@ window.AR = window.AR || {};
     var bg = document.getElementById("btnSettings");
     if (bs) bs.addEventListener("click", function () { app.go("stats"); });
     if (bg) bg.addEventListener("click", function () { app.go("settings"); });
+
+    // Globale Tastaturbedienung -> an aktuelle Ansicht weiterreichen
+    document.addEventListener("keydown", function (e) {
+      var v = AR.views[current];
+      if (v && v.onKey) v.onKey(e);
+    });
 
     // Theme-Meta bei Systemwechsel aktualisieren
     if (window.matchMedia) {

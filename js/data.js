@@ -130,9 +130,34 @@ window.AR = window.AR || {};
     return a;
   }
 
+  function sentenceByNr(nr) {
+    var s = D.sentences || [];
+    for (var i = 0; i < s.length; i++) if (s[i].nr === nr) return s[i];
+    return null;
+  }
+
+  // Tokens für den Satz-Baukasten: bei sauberer Ausrichtung die vollen
+  // Fuṣḥā-Tokens (mit allen Harakat, inkl. Endung), sonst die Wort-für-Wort-Tokens.
+  function sentenceTokens(s) {
+    var ft = (s.fusha || "").split(/\s+/).map(function (t) {
+      return t.replace(/^[«»„“"']+|[.،؟!:«»„“"']+$/g, "");
+    }).filter(function (t) { return t; });
+    if (ft.length === s.words.length) {
+      return s.words.map(function (w, i) { return { ar: ft[i], de: w.de, i: i }; });
+    }
+    return s.words.map(function (w, i) { return { ar: w.ar, de: w.de, i: i }; });
+  }
+
+  // Beispielsatz zu einer Vokabel (falls vorhanden)
+  function exampleFor(card) {
+    if (!card.ex || !card.ex.length) return null;
+    return sentenceByNr(card.ex[0]);
+  }
+
   AR.data = {
     raw: D,
     sentences: D.sentences || [],
+    sentenceByNr: sentenceByNr, sentenceTokens: sentenceTokens, exampleFor: exampleFor,
     idioms: D.idioms || [],
     grammar: D.grammar || {},
     meta: D.meta || {},

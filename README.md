@@ -17,6 +17,7 @@ Wiederholungssystem · eigene Wörter hinzufügen · installierbar als App (offl
 - **20 Redewendungen** und eine vollständige Verb-Konjugationstabelle.
 - Jede **Verb-Karte** zeigt **Vergangenheit + Präsens + Zukunft** zusammen.
 - Jede Karte zeigt **Fuṣḥā (mit Harakat)** und die **Sprechform**.
+- Wo möglich ein **Beispielsatz** auf der Karte, mit hervorgehobenem Wort (aus den 100 Satzmustern).
 
 ### Decks
 - Verben (160)
@@ -62,7 +63,7 @@ python3 -m http.server 8000
 
 | Bereich | Beschreibung |
 |---|---|
-| 🃏 **Karteikarten** | Umdrehen, selbst einschätzen (*Nochmal / Gut / Leicht*). Richtung DE→AR, AR→DE oder gemischt. |
+| 🃏 **Karteikarten** | Umdrehen, selbst einschätzen (*Nochmal / Gut / Leicht*). Richtung DE→AR, AR→DE oder gemischt. **Wischen** (rechts = Gut, links = Nochmal, hoch = Leicht) und **Tastatur** (Leer = umdrehen, 1/2/3 = bewerten). |
 | 🎯 **Quiz** | Multiple Choice, speist denselben Fortschritt. |
 | 💬 **Sätze** | **Baukasten** (Wörter ordnen), **Muster** (Satz-Karten), **Ersetzen** (Lückentext + Variante). |
 | ➕ **Neu** | Eigene Wörter **tippen** (mit arabischer Bildschirmtastatur), aus **Datei** (.txt/.csv/.docx) oder per **Bild** (Texterkennung) importieren. |

@@ -8,6 +8,7 @@ AR.views = AR.views || {};
   var el = AR.ui.el, ui = AR.ui, store = AR.store, data = AR.data;
 
   var session = null;
+  function mainEl() { return document.getElementById("main"); }
 
   function start(deckId) {
     var deck = data.deckById(deckId);
@@ -25,7 +26,7 @@ AR.views = AR.views || {};
   }
 
   function nextQ() {
-    session.answered = false;
+    session.answered = false; session.picked = null;
     if (session.remaining.length === 0) { session.current = null; return; }
     var c = session.remaining.shift();
     var dir = data.resolveDirection();
@@ -68,7 +69,13 @@ AR.views = AR.views || {};
     var opts = el("div", { class: "options" });
     session.options.forEach(function (opt) {
       var b = el("button", { class: "opt" + (arOptions ? " ar" : ""), text: opt });
-      b.addEventListener("click", function () { pick(b, opt, main); });
+      if (session.answered) {
+        b.disabled = true;
+        if (data.stripHarakat(opt) === data.stripHarakat(session.correct)) b.classList.add("correct");
+        else if (data.stripHarakat(opt) === data.stripHarakat(session.picked || "")) b.classList.add("wrong");
+      } else {
+        b.addEventListener("click", function () { pick(opt, main); });
+      }
       opts.appendChild(b);
     });
     view.appendChild(opts);
@@ -80,16 +87,11 @@ AR.views = AR.views || {};
     AR.ui.clear(main).appendChild(view);
   }
 
-  function pick(btn, opt, main) {
+  function pick(opt, main) {
     if (session.answered) return;
     session.answered = true;
+    session.picked = opt;
     var correct = (data.stripHarakat(opt) === data.stripHarakat(session.correct));
-    var wrap = btn.parentNode;
-    Array.prototype.forEach.call(wrap.children, function (b) {
-      b.disabled = true;
-      if (data.stripHarakat(b.textContent) === data.stripHarakat(session.correct)) b.classList.add("correct");
-    });
-    if (!correct) btn.classList.add("wrong");
     store.grade(session.current.id, correct ? "good" : "again");
     if (correct) { session.right++; ui.toast("Richtig! 🎉"); }
     else { session.wrong++; }
@@ -112,5 +114,20 @@ AR.views = AR.views || {};
     });
   }
 
-  AR.views.quiz = { render: render, reset: function () { session = null; } };
+  // Tastatur: 1–4 = Antwort wählen; Leer/Enter = Weiter
+  function onKey(e) {
+    if (!session || !session.current) return;
+    if (e.target && /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+    if (!session.answered) {
+      var n = parseInt(e.key, 10);
+      if (n >= 1 && n <= (session.options || []).length) {
+        var opts = document.querySelectorAll(".opt");
+        if (opts[n - 1]) opts[n - 1].click();
+      }
+    } else if (e.key === " " || e.key === "Enter") {
+      e.preventDefault(); nextQ(); draw(mainEl());
+    }
+  }
+
+  AR.views.quiz = { render: render, onKey: onKey, reset: function () { session = null; } };
 })(window.AR);

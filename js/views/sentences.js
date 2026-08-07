@@ -40,7 +40,8 @@ AR.views = AR.views || {};
   /* ---------------- Baukasten ---------------- */
   function newBuild() {
     var s = ALL[Math.floor(Math.random() * ALL.length)];
-    var tokens = s.words.map(function (w, i) { return { ar: w.ar, de: w.de, i: i }; });
+    // volle Fuṣḥā-Tokens (mit Harakat) wenn ausgerichtet, sonst Wort-für-Wort
+    var tokens = data.sentenceTokens(s);
     st.build = { s: s, bank: data.shuffle(tokens), placed: [], checked: false, ok: false };
   }
   function renderBuild(body) {

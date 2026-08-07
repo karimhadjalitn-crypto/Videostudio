@@ -8,6 +8,7 @@ AR.views = AR.views || {};
   var el = AR.ui.el, ui = AR.ui, store = AR.store, data = AR.data;
 
   var session = null;
+  function mainEl() { return document.getElementById("main"); }
 
   function start(deckId) {
     var deck = data.deckById(deckId);
@@ -79,7 +80,19 @@ AR.views = AR.views || {};
 
   function buildCard(c, dir) {
     var flash = el("div", { class: "flash" + (session.flipped ? " flipped" : "") });
-    flash.addEventListener("click", function () { if (!session.flipped) flip(document.getElementById("main")); });
+    var touched = false;
+    flash.addEventListener("click", function () { if (touched) return; if (!session.flipped) flip(mainEl()); });
+    // Wischgesten: nicht umgedreht -> aufdecken; umgedreht -> rechts=Gut, links=Nochmal, hoch=Leicht
+    var sx = 0, sy = 0;
+    flash.addEventListener("touchstart", function (e) { var t = e.touches[0]; sx = t.clientX; sy = t.clientY; }, { passive: true });
+    flash.addEventListener("touchend", function (e) {
+      var t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
+      if (Math.abs(dx) < 45 && Math.abs(dy) < 45) return; // Tap -> click übernimmt
+      touched = true; setTimeout(function () { touched = false; }, 500);
+      if (!session.flipped) { flip(mainEl()); return; }
+      if (Math.abs(dx) > Math.abs(dy)) doGrade(dx > 0 ? "good" : "again", mainEl());
+      else if (dy < 0) doGrade("easy", mainEl());
+    }, { passive: true });
 
     /* Vorderseite */
     var front = el("div", { class: "face front" });
@@ -103,6 +116,8 @@ AR.views = AR.views || {};
       back.appendChild(el("div", { class: "divider" }));
       back.appendChild(fillAnswer(c, true));
     }
+    var ex = data.exampleFor(c);
+    if (ex && !data.isVerb(c)) back.appendChild(exampleBlock(ex, c));
     flash.appendChild(front); flash.appendChild(back);
     return flash;
   }
@@ -133,6 +148,30 @@ AR.views = AR.views || {};
       el("small", { text: label }),
       ui.ar(data.arText(arabic || "—")),
     ]);
+  }
+
+  // Beispielsatz auf der Rückseite (Zielwort hervorgehoben)
+  function exampleBlock(ex, card) {
+    function keyOf(s) {
+      s = data.stripHarakat(s || "").replace(/[.،؟!:«»„“"']/g, "");
+      if (s.indexOf("ال") === 0) s = s.slice(2);
+      return s;
+    }
+    var ck = keyOf(card.fusha);
+    var line = el("div", { class: "ar ex-ar" });
+    (ex.fusha || "").split(/\s+/).forEach(function (tok) {
+      var span = el("span", { text: data.arText(tok) + " " });
+      if (keyOf(tok) === ck) span.className = "ex-hl";
+      line.appendChild(span);
+    });
+    var box = el("div", { class: "example" }, [
+      el("div", { class: "row", style: "justify-content:center;gap:8px" }, [
+        el("span", { class: "ex-label", text: "Im Satz" }), AR.ui.speakButton(ex.fusha)
+      ]),
+      line,
+      el("div", { class: "ex-de", text: ex.gesamt || ex.de })
+    ]);
+    return box;
   }
 
   function typeLabel(c) {
@@ -197,5 +236,19 @@ AR.views = AR.views || {};
     draw(document.getElementById("main"));
   }
 
-  AR.views.flashcards = { render: render, reset: function () { session = null; } };
+  // Tastatur: Leer/Enter = aufdecken bzw. „Gut"; 1=Nochmal, 2=Gut, 3=Leicht
+  function onKey(e) {
+    if (!session || !session.current) return;
+    if (e.target && /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+    var k = e.key;
+    if (!session.flipped) {
+      if (k === " " || k === "Enter" || k === "ArrowUp" || k === "ArrowDown") { e.preventDefault(); flip(mainEl()); }
+    } else {
+      if (k === "1") { e.preventDefault(); doGrade("again", mainEl()); }
+      else if (k === "2" || k === " " || k === "Enter") { e.preventDefault(); doGrade("good", mainEl()); }
+      else if (k === "3") { e.preventDefault(); doGrade("easy", mainEl()); }
+    }
+  }
+
+  AR.views.flashcards = { render: render, onKey: onKey, reset: function () { session = null; } };
 })(window.AR);

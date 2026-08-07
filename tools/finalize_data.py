@@ -304,6 +304,33 @@ for k in karim:
         extras.append((k["de"], k["ar"]))
 
 # ------------------------------------------------------------------ #
+# Beispielsätze mit Vokabeln verknüpfen (für „Im Satz …" auf den Karten)
+# Striktes Matching: nur Harakat/Tatwil + Artikel weg, KEINE Buchstaben-
+# Vereinheitlichung (sonst kollidiert z. B. مَاء „Wasser" mit مَا „was").
+# ------------------------------------------------------------------ #
+def strict(s):
+    s = strip_marks(s).replace(" ", "").strip(".،؟!:")
+    if s.startswith("ال"):
+        s = s[2:]
+    return s
+
+tokmap = {}
+for s in book["sentences"]:
+    for w in s["words"]:
+        tokmap.setdefault(strict(w["ar"]), set()).add(s["nr"])
+    for t in s["fusha"].split():
+        tokmap.setdefault(strict(t), set()).add(s["nr"])
+
+ex_count = 0
+for v in vocab:
+    if v["type"] == "verb":
+        continue  # Verben stehen in Sätzen konjugiert -> kein sauberes Matching
+    nrs = sorted(tokmap.get(strict(v["fusha"]), []))
+    if nrs:
+        v["ex"] = nrs[:2]
+        ex_count += 1
+
+# ------------------------------------------------------------------ #
 # Grammatik / Konjugationsmodell
 # ------------------------------------------------------------------ #
 grammar = {
@@ -363,6 +390,7 @@ with open(os.path.join(DATA, "appdata.js"), "w", encoding="utf-8") as f:
     f.write(";\n")
 
 print("FERTIG.")
+print(f"  Beispielsätze verknüpft mit {ex_count} Vokabeln")
 print(f"  Vokabeln gesamt : {len(vocab)}")
 print(f"  davon Karim     : {meta['counts']['karim_total']}  "
       f"(im Buch gefunden: {len(matched)}, als Extra angelegt: {len(extras)})")

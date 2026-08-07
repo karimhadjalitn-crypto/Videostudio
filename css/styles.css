@@ -354,6 +354,23 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); ou
 .big-emoji { font-size: 40px; }
 .result-check { font-size: 60px; }
 
+/* Beispielsatz auf der Karte */
+.flash { min-height: 360px; }
+.flash .face { overflow-y: auto; }
+.example { width: 100%; border-top: 1px solid var(--border); padding-top: 10px; margin-top: 2px;
+  display: flex; flex-direction: column; gap: 6px; align-items: center; }
+.ex-label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 700; }
+.ex-ar { font-size: 22px; line-height: 1.9; text-align: center; }
+.ex-hl { color: var(--accent-600); font-weight: 700; }
+.ex-de { font-size: 13px; color: var(--muted); text-align: center; }
+
+/* Fällig-Badge in der Tab-Leiste */
+.tab { position: relative; }
+.tab-badge { position: absolute; top: 1px; left: calc(50% + 4px);
+  min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px;
+  background: var(--danger); color: #fff; font-size: 10px; font-weight: 800;
+  display: grid; place-items: center; line-height: 1; box-shadow: 0 0 0 2px var(--surface); }
+
 /* Bottom-Sheet */
 .overlay { position: fixed; inset: 0; z-index: 80; background: rgba(20,16,10,.45);
   display: flex; align-items: flex-end; justify-content: center; animation: fade .2s; }
