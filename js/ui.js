@@ -55,6 +55,22 @@ window.AR = window.AR || {};
     return b;
   }
 
+  /* Favoriten-Stern */
+  function starButton(id, onToggle) {
+    var b = el("button", { class: "starbtn" + (AR.store.isFav(id) ? " on" : ""),
+      "aria-label": "Als Favorit markieren", type: "button",
+      html: AR.store.isFav(id) ? "★" : "☆" });
+    b.addEventListener("click", function (e) {
+      e.stopPropagation();
+      var now = AR.store.toggleFav(id);
+      b.classList.toggle("on", now);
+      b.innerHTML = now ? "★" : "☆";
+      toast(now ? "Zu Favoriten hinzugefügt ⭐" : "Aus Favoriten entfernt");
+      if (onToggle) onToggle(now);
+    });
+    return b;
+  }
+
   /* Status-Chip einer Karte */
   function statusChip(id) {
     var st = AR.store.status(id);
@@ -135,6 +151,23 @@ window.AR = window.AR || {};
     return b;
   }
 
+  /* iOS-Installationsanleitung (Schritte) */
+  function installSteps() {
+    function step(n, node) {
+      return el("div", { class: "row", style: "gap:10px;align-items:flex-start" }, [
+        el("span", { class: "step-n", text: n }),
+        el("div", { style: "flex:1", html: node })
+      ]);
+    }
+    return el("div", { class: "stack", style: "gap:10px" }, [
+      step(1, 'Öffne diese Seite in <b>Safari</b> und tippe unten auf das <b>Teilen-Symbol</b> ' +
+              '<span class="ios-share">□↑</span> (Quadrat mit Pfeil nach oben).'),
+      step(2, 'Wähle <b>„Zum Home-Bildschirm“</b> <span style="opacity:.7">(ggf. etwas nach unten scrollen)</span>.'),
+      step(3, 'Oben rechts auf <b>„Hinzufügen“</b> tippen.'),
+      el("div", { class: "muted", style: "font-size:13px", text: "Danach liegt „Arabisch“ als App auf dem Home-Bildschirm und öffnet im Vollbild – auch offline." })
+    ]);
+  }
+
   /* Session-Abschluss-Bildschirm */
   function doneScreen(opts) {
     return el("div", { class: "card center stack" }, [
@@ -149,6 +182,6 @@ window.AR = window.AR || {};
     el: el, clear: clear, append: append, ar: ar, toast: toast,
     speakButton: speakButton, statusChip: statusChip, progressBar: progressBar,
     arabicKeyboard: arabicKeyboard, insertAtCursor: insertAtCursor,
-    doneScreen: doneScreen
+    starButton: starButton, installSteps: installSteps, doneScreen: doneScreen
   };
 })(window.AR);

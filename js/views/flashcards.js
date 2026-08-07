@@ -44,6 +44,7 @@ AR.views = AR.views || {};
 
     var c = session.current, dir = session.dir;
     var flash = el("div", { class: "flash-wrap" }, buildCard(c, dir));
+    flash.appendChild(ui.starButton(c.id));
     view.appendChild(flash);
 
     // Steuerung unter der Karte

@@ -61,6 +61,13 @@ AR.views = AR.views || {};
       view.appendChild(list);
     }
 
+    // Favoriten
+    if (store.favCount() > 0) {
+      view.appendChild(el("div", { class: "section-title", text: "Favoriten (" + store.favCount() + ")" }));
+      view.appendChild(el("button", { class: "btn btn-lg block",
+        onclick: function () { AR.app.setDeck("fav"); AR.app.go("flashcards"); } }, "⭐ Favoriten üben"));
+    }
+
     // Fortschritt je Deck
     view.appendChild(el("div", { class: "section-title", text: "Nach Deck" }));
     var deckBox = el("div", { class: "card" });

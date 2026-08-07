@@ -53,6 +53,7 @@ window.AR = window.AR || {};
 
   function deckById(id) {
     if (id === "weak") return { id: "weak", name: "Schwierige Wörter", emoji: "🔥", cards: weakCards };
+    if (id === "fav") return { id: "fav", name: "Favoriten", emoji: "⭐", cards: favCards };
     var ds = decks();
     for (var i = 0; i < ds.length; i++) if (ds[i].id === id) return ds[i];
     return ds[0];
@@ -69,6 +70,10 @@ window.AR = window.AR || {};
       return (b.s.wrong - b.s.box) - (a.s.wrong - a.s.box);
     });
     return arr.slice(0, 40).map(function (x) { return x.c; });
+  }
+
+  function favCards() {
+    return allCards().filter(function (c) { return AR.store.isFav(c.id); });
   }
 
   /* ---------- Anzeige-Helfer ---------- */
@@ -162,7 +167,7 @@ window.AR = window.AR || {};
     grammar: D.grammar || {},
     meta: D.meta || {},
     allCards: allCards, byId: byId,
-    decks: decks, deckById: deckById, weakCards: weakCards,
+    decks: decks, deckById: deckById, weakCards: weakCards, favCards: favCards,
     stripHarakat: stripHarakat, arText: arText, isVerb: isVerb,
     resolveDirection: resolveDirection, distractors: distractors,
     answerText: answerText, promptText: promptText, shuffle: shuffle, emoji: EMOJI

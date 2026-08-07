@@ -86,8 +86,8 @@ AR.views = AR.views || {};
             data.isVerb(c) ? el("span", { class: "muted", style: "font-size:13px" }, ui.ar(data.arText(c.present))) : document.createComment("x")
           ])
         ]);
-        var right = el("div", { class: "row", style: "gap:6px" }, [
-          ui.statusChip(c.id), ui.speakButton(c.fusha)
+        var right = el("div", { class: "row", style: "gap:2px" }, [
+          ui.statusChip(c.id), ui.speakButton(c.fusha), ui.starButton(c.id)
         ]);
         row.appendChild(left); row.appendChild(right);
         listWrap.appendChild(row);

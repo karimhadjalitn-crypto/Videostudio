@@ -87,6 +87,21 @@ AR.views = AR.views || {};
       } }, "Fortschritt zurücksetzen"));
     view.appendChild(card3);
 
+    /* Installation */
+    view.appendChild(el("div", { class: "section-title", text: "App installieren" }));
+    var inst = el("div", { class: "card stack" });
+    if (AR.app.isStandalone()) {
+      inst.appendChild(el("div", { class: "row", style: "gap:8px" }, [
+        el("span", { style: "font-size:20px", text: "✅" }), el("b", { text: "Läuft bereits als installierte App" })
+      ]));
+    } else if (AR.app.isIOS()) {
+      inst.appendChild(ui.installSteps());
+    } else {
+      inst.appendChild(el("p", { class: "muted", style: "font-size:14px", text:
+        "Im Browser-Menü „Zum Startbildschirm hinzufügen“ bzw. „App installieren“ wählen – dann läuft sie im Vollbild und offline." }));
+    }
+    view.appendChild(inst);
+
     /* Über */
     var m = data.meta.counts || {};
     view.appendChild(el("div", { class: "section-title", text: "Über" }));

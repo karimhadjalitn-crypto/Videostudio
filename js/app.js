@@ -33,6 +33,15 @@ window.AR = window.AR || {};
     openDeck: function (id) { app.currentDeck = id; app.go("deck"); },
     browseDeck: function (id) { app.browseDeckId = id; app.go("browse"); },
 
+    isIOS: function () {
+      return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    },
+    isStandalone: function () {
+      return window.navigator.standalone === true ||
+        (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+    },
+
     sheet: function (title, node) {
       closeSheet();
       var overlay = AR.ui.el("div", { class: "overlay", id: "overlay",

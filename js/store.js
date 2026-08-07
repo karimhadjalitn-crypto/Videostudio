@@ -20,6 +20,7 @@ window.AR = window.AR || {};
     version: 1,
     srs: {},          // cardId -> {box,due,seen,correct,wrong,last}
     userCards: [],    // selbst hinzugefügte Vokabeln
+    favorites: {},    // cardId -> true (markierte Wörter)
     settings: Object.assign({}, DEFAULT_SETTINGS),
     stats: { studyDates: {}, totalReviews: 0 }
   };
@@ -32,6 +33,7 @@ window.AR = window.AR || {};
         var d = JSON.parse(raw);
         state.srs = d.srs || {};
         state.userCards = d.userCards || [];
+        state.favorites = d.favorites || {};
         state.settings = Object.assign({}, DEFAULT_SETTINGS, d.settings || {});
         state.stats = Object.assign({ studyDates: {}, totalReviews: 0 }, d.stats || {});
       }
@@ -62,7 +64,7 @@ window.AR = window.AR || {};
     if (meta) {
       var dark = t === "dark" || (t === "system" &&
         window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
-      meta.setAttribute("content", dark ? "#141310" : "#12857c");
+      meta.setAttribute("content", dark ? "#141310" : "#faf6ef");
     }
   }
 
@@ -191,18 +193,29 @@ window.AR = window.AR || {};
     save();
   }
 
+  /* ---------- Favoriten ---------- */
+  function toggleFav(id) {
+    if (state.favorites[id]) delete state.favorites[id];
+    else state.favorites[id] = true;
+    save();
+    return !!state.favorites[id];
+  }
+  function isFav(id) { return !!state.favorites[id]; }
+  function favCount() { return Object.keys(state.favorites).length; }
+
   function resetProgress() {
     state.srs = {}; state.stats = { studyDates: {}, totalReviews: 0 };
     saveNow();
   }
   function exportData() {
     return JSON.stringify({ srs: state.srs, userCards: state.userCards,
-      settings: state.settings, stats: state.stats }, null, 2);
+      favorites: state.favorites, settings: state.settings, stats: state.stats }, null, 2);
   }
   function importData(json) {
     var d = JSON.parse(json);
     if (d.srs) state.srs = d.srs;
     if (d.userCards) state.userCards = d.userCards;
+    if (d.favorites) state.favorites = d.favorites;
     if (d.settings) state.settings = Object.assign({}, DEFAULT_SETTINGS, d.settings);
     if (d.stats) state.stats = d.stats;
     saveNow();
@@ -217,6 +230,7 @@ window.AR = window.AR || {};
     buildQueue: buildQueue, dueCount: dueCount, counts: counts,
     userCards: function () { return state.userCards; },
     addUserCard: addUserCard, deleteUserCard: deleteUserCard,
+    toggleFav: toggleFav, isFav: isFav, favCount: favCount,
     stats: function () { return state.stats; },
     resetProgress: resetProgress, exportData: exportData, importData: importData,
     _state: state

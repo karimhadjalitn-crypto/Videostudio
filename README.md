@@ -45,10 +45,14 @@ Dazu ein Stern-Deck **„Mein Wortschatz"** (deine 100 Vokabeln) und **„Schwie
 Die App ist eine reine Webseite (kein Server, keine Anmeldung). Dein Fortschritt wird nur
 **lokal auf deinem Gerät** gespeichert.
 
-**Als App aufs Handy (empfohlen):**
+**Als App aufs iPhone/iPad (empfohlen):**
 1. Repository auf **GitHub Pages** veröffentlichen (Settings → Pages → Branch wählen).
-2. Die Seite im Handy-Browser öffnen → Menü → **„Zum Home-Bildschirm hinzufügen"**.
-3. Läuft danach offline wie eine echte App.
+2. Die Pages-URL in **Safari** öffnen → **Teilen-Symbol** → **„Zum Home-Bildschirm“**.
+3. Läuft danach als App im Vollbild, mit eigenem Icon, Startbildschirm und offline.
+
+> Die App erkennt iPhone/iPad und zeigt die Schritte direkt an (Startseite oben
+> und unter *Einstellungen → App installieren*). Safe-Areas (Notch, Home-Indicator)
+> sind berücksichtigt; Hoch- und Querformat auf dem iPad funktionieren.
 
 **Lokal ausprobieren:**
 ```bash
@@ -63,12 +67,14 @@ python3 -m http.server 8000
 
 | Bereich | Beschreibung |
 |---|---|
-| 🃏 **Karteikarten** | Umdrehen, selbst einschätzen (*Nochmal / Gut / Leicht*). Richtung DE→AR, AR→DE oder gemischt. **Wischen** (rechts = Gut, links = Nochmal, hoch = Leicht) und **Tastatur** (Leer = umdrehen, 1/2/3 = bewerten). |
-| 🎯 **Quiz** | Multiple Choice, speist denselben Fortschritt. |
+| 🃏 **Karteikarten** | Umdrehen, selbst einschätzen (*Nochmal / Gut / Leicht*). Richtung DE→AR, AR→DE oder gemischt. **Wischen** (rechts = Gut, links = Nochmal, hoch = Leicht), **Tastatur** (Leer = umdrehen, 1/2/3 = bewerten) und **⭐-Stern** zum Merken. |
+| 🎯 **Quiz** | **Sehen** (Multiple Choice) und **Hören** (Wort anhören, Bedeutung wählen). Tastatur 1–4. Speist denselben Fortschritt. |
 | 💬 **Sätze** | **Baukasten** (Wörter ordnen), **Muster** (Satz-Karten), **Ersetzen** (Lückentext + Variante). |
 | ➕ **Neu** | Eigene Wörter **tippen** (mit arabischer Bildschirmtastatur), aus **Datei** (.txt/.csv/.docx) oder per **Bild** (Texterkennung) importieren. |
-| 📊 **Statistik** | Was du kannst, Lernserie, schwierige Wörter, Fortschritt je Deck. |
-| ⚙️ **Einstellungen** | Design (hell/dunkel), Richtung, Sprechform/Harakat/Audio, Sitzungsgröße, Sichern/Laden. |
+| 🔍 **Suche** | Globale Suche auf der Startseite über alle Vokabeln (Deutsch oder Arabisch). |
+| ⭐ **Favoriten** | Wörter mit dem Stern markieren und gezielt als eigenes Deck üben. |
+| 📊 **Statistik** | Was du kannst, Lernserie, schwierige Wörter, Favoriten, Fortschritt je Deck. |
+| ⚙️ **Einstellungen** | Design (hell/dunkel), Richtung, Sprechform/Harakat/Audio, Sitzungsgröße, Installations­anleitung, Sichern/Laden. |
 
 **Wiederholungssystem:** Karten wandern durch Boxen mit wachsenden Abständen (angelehnt an
 1 · 3 · 7 · 14 Tage aus dem Lehrbuch). Wörter, die du **noch nicht gut kannst, kommen öfter dran**;

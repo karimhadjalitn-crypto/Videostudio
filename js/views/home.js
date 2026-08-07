@@ -42,6 +42,11 @@ AR.views = AR.views || {};
       ])
     ]));
 
+    /* iOS: Installations-Hinweis (einmal, ausblendbar) */
+    if (AR.app.isIOS() && !AR.app.isStandalone() && !localStorage.getItem("installHintDismissed")) {
+      view.appendChild(installHint());
+    }
+
     /* Schnellstart */
     view.appendChild(el("button", { class: "btn btn-primary btn-lg block", style: "margin-top:14px",
       onclick: function () { AR.app.setDeck("mine"); AR.app.go("flashcards"); } },
@@ -53,22 +58,37 @@ AR.views = AR.views || {};
     ]);
     view.appendChild(quick);
 
-    /* Decks */
-    view.appendChild(el("div", { class: "section-title", text: "Decks" }));
+    /* Globale Suche */
+    var search = el("input", { type: "search", enterkeyhint: "search",
+      placeholder: "🔍 Vokabel suchen (Deutsch oder Arabisch)…", style: "margin-top:16px" });
+    var body = el("div", {});
+    search.addEventListener("input", function () {
+      var q = search.value.trim();
+      if (q.length >= 1) renderResults(body, q);
+      else renderDefault(body, mine, mineCards, c);
+    });
+    view.appendChild(search);
+    view.appendChild(body);
+    renderDefault(body, mine, mineCards, c);
+
+    AR.ui.clear(main).appendChild(view);
+  }
+
+  function renderDefault(body, mine, mineCards, c) {
+    AR.ui.clear(body);
+    body.appendChild(el("div", { class: "section-title", text: "Decks" }));
     var grid = el("div", { class: "decks" });
     data.decks().forEach(function (d) {
-      if (d.id === "mine" || d.id === "all") return; // Feature/Alle separat
+      if (d.id === "mine" || d.id === "all") return;
       grid.appendChild(deckCard(d));
     });
-    // Feature-Deck oben einfügen
     grid.insertBefore(featureDeck(mine, mineCards, c), grid.firstChild);
-    // "Alle" ans Ende
+    if (store.favCount() > 0) grid.insertBefore(deckCard(data.deckById("fav")), grid.children[1] || null);
     grid.appendChild(deckCard(data.deckById("all")));
-    view.appendChild(grid);
+    body.appendChild(grid);
 
-    /* Grammatik-Hinweis */
-    view.appendChild(el("div", { class: "section-title", text: "Grammatik" }));
-    view.appendChild(el("button", { class: "deck", style: "width:100%",
+    body.appendChild(el("div", { class: "section-title", text: "Grammatik" }));
+    body.appendChild(el("button", { class: "deck", style: "width:100%",
       onclick: function () { AR.app.go("grammar"); } }, [
       el("div", { class: "row" }, [
         el("span", { class: "emoji", text: "📖" }),
@@ -78,8 +98,47 @@ AR.views = AR.views || {};
         ])
       ])
     ]));
+  }
 
-    AR.ui.clear(main).appendChild(view);
+  function renderResults(body, q) {
+    AR.ui.clear(body);
+    var ql = q.toLowerCase(), qbare = data.stripHarakat(q);
+    var res = data.allCards().filter(function (card) {
+      return card.de.toLowerCase().indexOf(ql) >= 0 ||
+        data.stripHarakat(card.fusha).indexOf(qbare) >= 0 || card.fusha.indexOf(q) >= 0;
+    }).slice(0, 60);
+    body.appendChild(el("div", { class: "section-title", text: res.length + (res.length === 60 ? "+ Treffer" : " Treffer") }));
+    if (!res.length) {
+      body.appendChild(el("div", { class: "empty" }, [ el("div", { class: "big", text: "🔍" }), el("p", { text: "Nichts gefunden." }) ]));
+      return;
+    }
+    var list = el("div", { class: "card stack" });
+    res.forEach(function (card) {
+      list.appendChild(el("div", { class: "row", style: "justify-content:space-between;gap:10px;border-bottom:1px solid var(--border);padding-bottom:8px" }, [
+        el("div", { style: "min-width:0" }, [
+          el("div", { style: "font-weight:600", text: card.de }),
+          el("div", { class: "row", style: "gap:8px" }, [
+            ui.ar(data.arText(card.fusha)),
+            data.isVerb(card) ? ui.ar(data.arText(card.present), "") : document.createComment("x")
+          ])
+        ]),
+        el("div", { class: "row", style: "gap:2px" }, [ ui.speakButton(card.fusha), ui.starButton(card.id) ])
+      ]));
+    });
+    body.appendChild(list);
+  }
+
+  function installHint() {
+    var card = el("div", { class: "card install-card stack", style: "margin-top:14px" });
+    card.appendChild(el("div", { class: "row", style: "justify-content:space-between" }, [
+      el("div", { class: "row", style: "gap:8px" }, [
+        el("span", { style: "font-size:22px", text: "📲" }), el("b", { text: "Als App installieren" })
+      ]),
+      el("button", { class: "iconbtn", style: "width:32px;height:32px", text: "✕",
+        onclick: function () { localStorage.setItem("installHintDismissed", "1"); render(document.getElementById("main")); } })
+    ]));
+    card.appendChild(ui.installSteps());
+    return card;
   }
 
   function featureDeck(d, cards, c) {

@@ -3,3 +3,6 @@ tools/_raw_book.json
 # node / test
 node_modules/
 *.log
+
+# generierte Zwischendatei
+tools/_splash_links.html
