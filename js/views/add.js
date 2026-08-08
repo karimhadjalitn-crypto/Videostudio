@@ -59,9 +59,17 @@ AR.views = AR.views || {};
     var spokenI = arInput("Sprechform (optional)");
     var presentI = arInput("Präsens يَفْعَلُ");
     var futureI = arInput("Zukunft سَيَفْعَلُ");
+    var imperativeI = arInput("Befehlsform اِفْعَلْ");
+    // Befehlsform automatisch aus dem Präsens ableiten, solange nicht selbst getippt
+    imperativeI.addEventListener("input", function () { imperativeI.dataset.touched = "1"; });
+    presentI.addEventListener("input", function () {
+      if (imperativeI.dataset.touched) return;
+      imperativeI.value = data.deriveImperative(presentI.value.trim()) || "";
+    });
     var verbBox = el("div", { class: "stack hidden" }, [
       el("label", { class: "field", text: "Präsens (Gegenwart)" }), presentI,
-      el("label", { class: "field", text: "Zukunft" }), futureI
+      el("label", { class: "field", text: "Zukunft" }), futureI,
+      el("label", { class: "field", text: "Befehlsform (wird automatisch ergänzt)" }), imperativeI
     ]);
     typeSel.addEventListener("change", function () { verbBox.classList.toggle("hidden", typeSel.value !== "verb"); });
 
@@ -87,7 +95,11 @@ AR.views = AR.views || {};
         if (!de || !fusha) { ui.toast("Bitte Deutsch und Arabisch ausfüllen"); return; }
         var card = { de: de, fusha: fusha, spoken: spokenI.value.trim() || pausal(fusha),
           type: typeSel.value, category: catSel.value };
-        if (typeSel.value === "verb") { card.present = presentI.value.trim(); card.future = futureI.value.trim(); }
+        if (typeSel.value === "verb") {
+          card.present = presentI.value.trim();
+          card.future = futureI.value.trim();
+          card.imperative = imperativeI.value.trim() || data.deriveImperative(card.present) || "";
+        }
         store.addUserCard(card);
         ui.toast("„" + de + "“ hinzugefügt ✓");
         render(main());

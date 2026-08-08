@@ -15,7 +15,8 @@ Wiederholungssystem · eigene Wörter hinzufügen · installierbar als App (offl
   Konjunktionen, Fragewörter).
 - **100 Satzmuster** mit Wort-für-Wort-Übersetzung.
 - **20 Redewendungen** und eine vollständige Verb-Konjugationstabelle.
-- Jede **Verb-Karte** zeigt **Vergangenheit + Präsens + Zukunft** zusammen.
+- Jede **Verb-Karte** zeigt **Vergangenheit + Präsens + Zukunft + Befehlsform** zusammen
+  (Befehlsform = Imperativ/صيغة الأمر, z. B. ذَهَبَ → **اِذْهَبْ** „geh!“).
 - Jede Karte zeigt **Fuṣḥā (mit Harakat)** und die **Sprechform**.
 - Wo möglich ein **Beispielsatz** auf der Karte, mit hervorgehobenem Wort (aus den 100 Satzmustern).
 
@@ -67,7 +68,7 @@ python3 -m http.server 8000
 
 | Bereich | Beschreibung |
 |---|---|
-| 🃏 **Karteikarten** | Umdrehen, selbst einschätzen (*Nochmal / Gut / Leicht*). Richtung DE→AR, AR→DE oder gemischt. **Wischen** (rechts = Gut, links = Nochmal, hoch = Leicht), **Tastatur** (Leer = umdrehen, 1/2/3 = bewerten) und **⭐-Stern** zum Merken. |
+| 🃏 **Karteikarten** | Verben zeigen alle vier Formen (Vergangenheit · Präsens · Zukunft · Befehlsform). Umdrehen, selbst einschätzen (*Nochmal / Gut / Leicht*). Richtung DE→AR, AR→DE oder gemischt. **Wischen** (rechts = Gut, links = Nochmal, hoch = Leicht), **Tastatur** (Leer = umdrehen, 1/2/3 = bewerten) und **⭐-Stern** zum Merken. |
 | 🎯 **Quiz** | **Sehen** (Multiple Choice) und **Hören** (Wort anhören, Bedeutung wählen). Tastatur 1–4. Speist denselben Fortschritt. |
 | 💬 **Sätze** | **Baukasten** (Wörter ordnen), **Muster** (Satz-Karten), **Ersetzen** (Lückentext + Variante). |
 | ➕ **Neu** | Eigene Wörter **tippen** (mit arabischer Bildschirmtastatur), aus **Datei** (.txt/.csv/.docx) oder per **Bild** (Texterkennung) importieren. |
@@ -130,6 +131,7 @@ assets/icons/           App-Icons
 tools/
   quelle_lernbuch.docx  Quelle
   build_data.py         Wortschatz aus .docx extrahieren
+  imperative.py         Befehlsform (Imperativ) aus dem Präsens ableiten
   finalize_data.py      mit Karims Liste zusammenführen -> data/
   generate_icons.py     Icons erzeugen
 ```
@@ -139,6 +141,7 @@ tools/
 python3 tools/build_data.py      # .docx  -> tools/_raw_book.json
 python3 tools/finalize_data.py   # + Karims Liste -> data/*.json + appdata.js
 python3 tools/generate_icons.py  # Icons
+python3 tools/imperative.py      # nur pruefen: alle Befehlsformen auflisten
 ```
 
 ---

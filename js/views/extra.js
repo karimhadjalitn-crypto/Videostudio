@@ -20,7 +20,8 @@ AR.views = AR.views || {};
     view.appendChild(el("div", { class: "card stack center" }, [
       el("div", { class: "muted", text: "Beispielverb: „" + (mv.de || "gehen") + "“" }),
       el("div", { class: "verb-forms" }, [
-        vf("Vergangenheit", mv.past), vf("Präsens", mv.present), vf("Zukunft", mv.future)
+        vf("Vergangenheit", mv.past), vf("Präsens", mv.present),
+        vf("Zukunft", mv.future), vf("Befehlsform", mv.imperative)
       ]),
       ui.speakButton(mv.present || "")
     ]));

@@ -94,7 +94,7 @@ AR.views = AR.views || {};
         el("span", { class: "emoji", text: "📖" }),
         el("div", {}, [
           el("div", { class: "name", text: "Verben konjugieren" }),
-          el("div", { class: "sub", text: "Vergangenheit · Präsens · Zukunft" })
+          el("div", { class: "sub", text: "Vergangenheit · Präsens · Zukunft · Befehlsform" })
         ])
       ])
     ]));

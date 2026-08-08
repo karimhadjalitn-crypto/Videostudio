@@ -87,6 +87,73 @@ window.AR = window.AR || {};
 
   function isVerb(c) { return c.type === "verb"; }
 
+  /* ---------- Befehlsform (Imperativ) aus dem Präsens ----------
+     Gleiche Regeln wie tools/imperative.py: Präfix يـ weg, Jussiv bilden,
+     bei Anlaut-Sukūn eine Hilfs-Hamza (اِ / اُ, bei Form IV أَ) davor. */
+  var IM_FATHA = "َ", IM_DAMMA = "ُ", IM_KASRA = "ِ",
+      IM_SUKUN = "ْ", IM_SHADDA = "ّ",
+      IM_MARKS = "ًٌٍَُِّْٰ",
+      IM_LONG = "اوي", IM_WEAK = "ىويا";
+  var IM_EXC = { "يَأْخُذُ": "خُذْ", "يَأْكُلُ": "كُلْ", "يَجِيءُ": "جِئْ",
+                 "يُشْفَى": null, "يُولَدُ": null };
+
+  function imUnits(word) {
+    var out = [];
+    for (var i = 0; i < word.length; i++) {
+      var ch = word.charAt(i);
+      if (IM_MARKS.indexOf(ch) >= 0 && out.length) out[out.length - 1][1] += ch;
+      else out.push([ch, ""]);
+    }
+    return out;
+  }
+
+  function deriveImperative(present) {
+    if (!present) return null;
+    present = String(present).trim();
+    if (Object.prototype.hasOwnProperty.call(IM_EXC, present)) return IM_EXC[present];
+
+    var u = imUnits(present);
+    if (u.length < 2 || u[0][0] !== "ي") return null;
+    var prefixDamma = u[0][1].indexOf(IM_DAMMA) >= 0;
+    var stem = u.slice(1).map(function (x) { return [x[0], x[1]]; });
+    if (!stem.length) return null;
+
+    // Jussiv
+    var last = stem[stem.length - 1];
+    if (IM_WEAK.indexOf(last[0]) >= 0 && last[1] === "") {
+      stem.pop();                                   // يَمْشِي -> اِمْشِ
+      if (!stem.length) return null;
+    } else if (last[1].indexOf(IM_SHADDA) >= 0) {
+      last[1] = IM_SHADDA + IM_FATHA;               // يَظُنُّ -> ظُنَّ
+    } else {
+      last[1] = IM_SUKUN;
+      var pen = stem[stem.length - 2];
+      if (pen && IM_LONG.indexOf(pen[0]) >= 0 && pen[1] === "") {
+        stem.splice(stem.length - 2, 1);            // hohl: يَقُولُ -> قُلْ
+      }
+    }
+    if (!stem.length) return null;
+
+    var first = stem[0];
+    var formIIorIII = prefixDamma && first[1].indexOf(IM_FATHA) >= 0 && stem.length >= 2 &&
+      (stem[1][1].indexOf(IM_SHADDA) >= 0 || (stem[1][0] === "ا" && stem[1][1] === ""));
+    var body = stem.map(function (x) { return x[0] + x[1]; }).join("");
+    var needsHamza = first[1].indexOf(IM_SUKUN) >= 0 || first[1].indexOf(IM_SHADDA) >= 0;
+
+    if (prefixDamma && !formIIorIII) return "أ" + IM_FATHA + body;   // Form IV
+    if (!needsHamza) return body;
+
+    var stemVowel = "";
+    for (var k = stem.length - 1; k >= 0 && !stemVowel; k--) {
+      var mk = stem[k][1];
+      for (var m = 0; m < mk.length; m++) {
+        var c = mk.charAt(m);
+        if (c === IM_FATHA || c === IM_DAMMA || c === IM_KASRA) stemVowel = c;
+      }
+    }
+    return "ا" + (stemVowel === IM_DAMMA ? IM_DAMMA : IM_KASRA) + body;
+  }
+
   /* Vorderseite/Rückseite abhängig von Richtung
      dir: "de2ar" (Deutsch zeigen, Arabisch erraten) | "ar2de" */
   function resolveDirection() {
@@ -169,6 +236,7 @@ window.AR = window.AR || {};
     allCards: allCards, byId: byId,
     decks: decks, deckById: deckById, weakCards: weakCards, favCards: favCards,
     stripHarakat: stripHarakat, arText: arText, isVerb: isVerb,
+    deriveImperative: deriveImperative,
     resolveDirection: resolveDirection, distractors: distractors,
     answerText: answerText, promptText: promptText, shuffle: shuffle, emoji: EMOJI
   };

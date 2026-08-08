@@ -127,9 +127,9 @@ AR.views = AR.views || {};
   function fillAnswer(c, small) {
     var box = el("div", { class: "stack", style: "align-items:center" });
     if (data.isVerb(c)) {
-      box.appendChild(el("div", { class: "verb-forms" }, [
-        vf("Vergangenheit", c.fusha), vf("Präsens", c.present), vf("Zukunft", c.future)
-      ]));
+      var forms = [vf("Vergangenheit", c.fusha), vf("Präsens", c.present), vf("Zukunft", c.future)];
+      if (c.imperative) forms.push(vf("Befehlsform", c.imperative));
+      box.appendChild(el("div", { class: "verb-forms" }, forms));
       box.appendChild(el("div", { class: "answer-de", text: c.de, style: small ? "display:none" : "" }));
     } else {
       box.appendChild(ui.ar(data.arText(c.fusha), small ? "prompt-ar" : "answer-ar"));

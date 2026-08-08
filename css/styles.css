@@ -222,10 +222,16 @@ main { flex: 1; padding: 18px 16px 96px; }
 .flash .spoken { font-size: 28px; color: var(--accent-600); }
 .flash .tag { position: absolute; top: 14px; inset-inline-start: 14px; }
 .flash .tap-hint { position: absolute; bottom: 14px; font-size: 12px; color: var(--muted); }
-.verb-forms { display:flex; gap: 18px; justify-content:center; flex-wrap: wrap; }
-.verb-forms .vf { display:flex; flex-direction:column; align-items:center; }
-.verb-forms .vf small { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing:.05em; }
-.verb-forms .vf .ar { font-size: 30px; }
+/* Verbformen: auf dem Handy 2×2, ab Tablet nebeneinander */
+.verb-forms { display:grid; grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 12px 16px; justify-items:center; align-items:start; width:100%; }
+.verb-forms .vf { display:flex; flex-direction:column; align-items:center; min-width:0; }
+.verb-forms .vf small { color: var(--muted); font-size: 11px; text-transform: uppercase;
+  letter-spacing:.05em; text-align:center; }
+.verb-forms .vf .ar { font-size: 30px; line-height: 1.5; }
+@media (min-width: 560px) {
+  .verb-forms { display:flex; gap: 18px; justify-content:center; flex-wrap: wrap; }
+}
 
 .grade-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
 .grade { min-height: 58px; border-radius: 14px; border: 1px solid var(--border);

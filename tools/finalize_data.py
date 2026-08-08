@@ -15,6 +15,8 @@ import os
 import re
 import unicodedata
 
+from imperative import imperative
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 DATA = os.path.join(ROOT, "data")
@@ -304,6 +306,18 @@ for k in karim:
         extras.append((k["de"], k["ar"]))
 
 # ------------------------------------------------------------------ #
+# Befehlsform (Imperativ) fuer jedes Verb aus dem Praesens ableiten
+# ------------------------------------------------------------------ #
+imp_count = 0
+for v in vocab:
+    if v["type"] != "verb":
+        continue
+    imp = imperative(v.get("present"))
+    if imp:
+        v["imperative"] = imp
+        imp_count += 1
+
+# ------------------------------------------------------------------ #
 # Beispielsätze mit Vokabeln verknüpfen (für „Im Satz …" auf den Karten)
 # Striktes Matching: nur Harakat/Tatwil + Artikel weg, KEINE Buchstaben-
 # Vereinheitlichung (sonst kollidiert z. B. مَاء „Wasser" mit مَا „was").
@@ -334,12 +348,15 @@ for v in vocab:
 # Grammatik / Konjugationsmodell
 # ------------------------------------------------------------------ #
 grammar = {
-    "model_verb": {"de": "gehen", "past": "ذَهَبَ", "present": "يَذْهَبُ", "future": "سَيَذْهَبُ"},
+    "model_verb": {"de": "gehen", "past": "ذَهَبَ", "present": "يَذْهَبُ",
+                   "future": "سَيَذْهَبُ", "imperative": "اِذْهَبْ"},
     "conjugation": book["conjugation_model"],
     "notes": [
         "Im Wörterbuch steht ein Verb als „er tat“ (3. Person m. Sg. Vergangenheit).",
         "Präsens erkennst du an den Vorsilben أ، ن، ي، ت.",
         "Zukunft = سَـ (oder سَوْفَ) direkt vor das Präsens.",
+        "Befehlsform: Präsens nehmen, das يـ streichen, die Endung auf Sukūn "
+        "setzen – z. B. يَذْهَبُ → اِذْهَبْ („geh!“).",
     ],
 }
 
@@ -361,6 +378,7 @@ meta = {
         "adjectives": len(book["adjectives"]),
         "sentences": len(book["sentences"]),
         "idioms": len(book["idioms"]),
+        "imperatives": imp_count,
     },
     "changes": changes,
     "karim_matched": len(matched),
@@ -391,6 +409,7 @@ with open(os.path.join(DATA, "appdata.js"), "w", encoding="utf-8") as f:
 
 print("FERTIG.")
 print(f"  Beispielsätze verknüpft mit {ex_count} Vokabeln")
+print(f"  Befehlsformen abgeleitet: {imp_count}")
 print(f"  Vokabeln gesamt : {len(vocab)}")
 print(f"  davon Karim     : {meta['counts']['karim_total']}  "
       f"(im Buch gefunden: {len(matched)}, als Extra angelegt: {len(extras)})")
