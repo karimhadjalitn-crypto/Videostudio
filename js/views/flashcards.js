@@ -18,6 +18,7 @@ AR.views = AR.views || {};
       deckId: deckId, deckName: deck.name,
       queue: queue, remaining: queue.slice(),
       done: {}, total: queue.length, flipped: false,
+      hardSeen: {},   // wie oft wurde eine Karte in dieser Sitzung „Schwer" bewertet
       current: null, dir: null
     };
   }
@@ -54,9 +55,10 @@ AR.views = AR.views || {};
         onclick: function () { flip(main); } }, "Antwort zeigen"));
     } else {
       controls.appendChild(el("div", { class: "grade-row" }, [
-        gradeBtn("again", "Nochmal", "gleich wieder", main),
-        gradeBtn("good", "Gut", "in Kürze", main),
-        gradeBtn("easy", "Leicht", "später", main)
+        gradeBtn("again", "Nochmal", main),
+        gradeBtn("hard", "Schwer", main),
+        gradeBtn("good", "Gut", main),
+        gradeBtn("easy", "Leicht", main)
       ]));
     }
     view.appendChild(controls);
@@ -92,7 +94,7 @@ AR.views = AR.views || {};
       touched = true; setTimeout(function () { touched = false; }, 500);
       if (!session.flipped) { flip(mainEl()); return; }
       if (Math.abs(dx) > Math.abs(dy)) doGrade(dx > 0 ? "good" : "again", mainEl());
-      else if (dy < 0) doGrade("easy", mainEl());
+      else doGrade(dy < 0 ? "easy" : "hard", mainEl());
     }, { passive: true });
 
     /* Vorderseite */
@@ -182,9 +184,9 @@ AR.views = AR.views || {};
 
   function flip(main) { session.flipped = true; draw(main); if (store.get("audio")) AR.audio.speak(session.current.fusha); }
 
-  function gradeBtn(g, label, sub, main) {
-    var cls = g === "again" ? "again" : g === "easy" ? "easy" : "good";
-    return el("button", { class: "grade " + cls, onclick: function () { doGrade(g, main); } },
+  function gradeBtn(g, label, main) {
+    var sub = store.previewInterval(session.current.id, g);
+    return el("button", { class: "grade " + g, onclick: function () { doGrade(g, main); } },
       [ el("span", { text: label }), el("small", { text: sub }) ]);
   }
 
@@ -192,8 +194,12 @@ AR.views = AR.views || {};
     var c = session.current;
     store.grade(c.id, g);
     if (g === "again") {
-      var pos = Math.min(3, session.remaining.length);
-      session.remaining.splice(pos, 0, c);
+      // sehr bald wieder – die Karte sitzt noch nicht
+      session.remaining.splice(Math.min(2, session.remaining.length), 0, c);
+    } else if (g === "hard" && (session.hardSeen[c.id] || 0) < 2) {
+      // gewusst, aber mühsam: später in dieser Sitzung noch einmal
+      session.hardSeen[c.id] = (session.hardSeen[c.id] || 0) + 1;
+      session.remaining.splice(Math.min(8, session.remaining.length), 0, c);
     } else {
       session.done[c.id] = true;
     }
@@ -203,10 +209,13 @@ AR.views = AR.views || {};
   function doneScreen() {
     var deckCards = data.deckById(session.deckId).cards();
     var c = store.counts(deckCards);
+    var g = store.goalProgress(data.allCards());
     return ui.doneScreen({
       emoji: "🎉", title: "Sitzung geschafft!",
       subtitle: Object.keys(session.done).length + " Karten gelernt · " +
-        c.gekonnt + "/" + c.total + " im Deck gekonnt",
+        c.gekonnt + "/" + c.total + " im Deck gekonnt\n" +
+        (g.reached ? "🏆 Lernziel erreicht: " + g.known + " Wörter!"
+                   : "Lernziel: " + g.known + " von " + g.goal + " – noch " + g.left),
       buttons: [
         el("button", { class: "btn btn-primary block", onclick: function () {
           start(session.deckId); render(document.getElementById("main"));
@@ -237,7 +246,7 @@ AR.views = AR.views || {};
     draw(document.getElementById("main"));
   }
 
-  // Tastatur: Leer/Enter = aufdecken bzw. „Gut"; 1=Nochmal, 2=Gut, 3=Leicht
+  // Tastatur: Leer/Enter = aufdecken bzw. „Gut"; 1=Nochmal, 2=Schwer, 3=Gut, 4=Leicht
   function onKey(e) {
     if (!session || !session.current) return;
     if (e.target && /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
@@ -246,8 +255,9 @@ AR.views = AR.views || {};
       if (k === " " || k === "Enter" || k === "ArrowUp" || k === "ArrowDown") { e.preventDefault(); flip(mainEl()); }
     } else {
       if (k === "1") { e.preventDefault(); doGrade("again", mainEl()); }
-      else if (k === "2" || k === " " || k === "Enter") { e.preventDefault(); doGrade("good", mainEl()); }
-      else if (k === "3") { e.preventDefault(); doGrade("easy", mainEl()); }
+      else if (k === "2") { e.preventDefault(); doGrade("hard", mainEl()); }
+      else if (k === "3" || k === " " || k === "Enter") { e.preventDefault(); doGrade("good", mainEl()); }
+      else if (k === "4") { e.preventDefault(); doGrade("easy", mainEl()); }
     }
   }
 

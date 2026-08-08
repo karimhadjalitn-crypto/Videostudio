@@ -84,6 +84,55 @@ window.AR = window.AR || {};
       el("span", { style: "width:" + Math.max(0, Math.min(100, pct)) + "%" }));
   }
 
+  /* ---------- Lernziel einstellen ---------- */
+  /* Öffnet ein Blatt, in dem das Ziel frei gewählt werden kann.
+     onSave wird nach dem Speichern aufgerufen (zum Neuzeichnen). */
+  function goalSheet(onSave) {
+    var store = AR.store;
+    var max = AR.data.allCards().length;
+    var cur = store.goal();
+
+    var input = el("input", { type: "number", inputmode: "numeric", min: "1", max: String(max),
+      step: "1", value: String(cur), style: "font-size:20px;font-weight:700;text-align:center" });
+
+    var chips = el("div", { class: "row", style: "gap:8px;flex-wrap:wrap;justify-content:center" });
+    var presets = [50, 100, 200, 300, max];
+    presets.filter(function (n, i) { return n <= max && presets.indexOf(n) === i; })
+      .forEach(function (n) {
+        chips.appendChild(el("button", { class: "chip", type: "button",
+          text: n === max ? "alle " + max : String(n),
+          onclick: function () { input.value = String(n); input.focus(); } }));
+      });
+
+    var hint = el("div", { class: "muted", style: "font-size:13px;text-align:center" });
+    function refreshHint() {
+      var n = parseInt(input.value, 10);
+      if (!isFinite(n) || n < 1) { hint.textContent = "Bitte eine Zahl ab 1 eingeben."; return; }
+      var known = store.goalProgress(AR.data.allCards()).known;
+      hint.textContent = known >= n
+        ? "Du kannst schon " + known + " Wörter – Ziel wäre sofort erreicht."
+        : "Noch " + (n - known) + " Wörter bis zum Ziel (" + known + " schon gekonnt).";
+    }
+    input.addEventListener("input", refreshHint);
+    refreshHint();
+
+    var body = el("div", { class: "stack" }, [
+      el("div", { class: "muted", style: "font-size:14px;text-align:center",
+        text: "Wie viele Wörter möchtest du sicher können?" }),
+      input, chips, hint,
+      el("button", { class: "btn btn-primary block", onclick: function () {
+        var n = parseInt(input.value, 10);
+        if (!isFinite(n) || n < 1) { toast("Bitte eine Zahl ab 1 eingeben"); return; }
+        store.setGoal(Math.min(n, max));
+        AR.app.closeSheet();
+        toast("Ziel: " + store.goal() + " Wörter ✓");
+        if (onSave) onSave(store.goal());
+      } }, "Ziel speichern")
+    ]);
+
+    AR.app.sheet("Lernziel", body);
+  }
+
   /* ---------- Arabische Bildschirmtastatur ---------- */
   var ROWS = [
     "ا ب ت ث ج ح خ د ذ ر ز س".split(" "),
@@ -173,7 +222,7 @@ window.AR = window.AR || {};
     return el("div", { class: "card center stack" }, [
       el("div", { class: "result-check", text: opts.emoji || "🎉" }),
       el("h2", { text: opts.title || "Geschafft!" }),
-      el("p", { class: "muted", text: opts.subtitle || "" }),
+      el("p", { class: "muted", style: "white-space:pre-line", text: opts.subtitle || "" }),
       el("div", { class: "stack", style: "margin-top:8px" }, opts.buttons || [])
     ]);
   }
@@ -182,6 +231,7 @@ window.AR = window.AR || {};
     el: el, clear: clear, append: append, ar: ar, toast: toast,
     speakButton: speakButton, statusChip: statusChip, progressBar: progressBar,
     arabicKeyboard: arabicKeyboard, insertAtCursor: insertAtCursor,
-    starButton: starButton, installSteps: installSteps, doneScreen: doneScreen
+    starButton: starButton, installSteps: installSteps, doneScreen: doneScreen,
+    goalSheet: goalSheet
   };
 })(window.AR);

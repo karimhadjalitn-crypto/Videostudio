@@ -33,10 +33,24 @@ AR.views = AR.views || {};
       el("div", { class: "stat learning" }, [el("div", { class: "n", text: c.lernen }), el("div", { class: "l", text: "am Lernen" })]),
       el("div", { class: "stat known" }, [el("div", { class: "n", text: c.gekonnt }), el("div", { class: "l", text: "gekonnt" })])
     ]));
+    var g = store.goalProgress(all);
+    view.appendChild(el("div", { class: "card stack", style: "margin-top:12px" }, [
+      el("div", { class: "row", style: "justify-content:space-between" }, [
+        el("span", { style: "font-weight:600", text: g.reached ? "🎉 Lernziel erreicht" : "Lernziel" }),
+        el("span", { class: "muted", text: g.known + " / " + g.goal + " · " + g.pct + "%" })
+      ]),
+      ui.progressBar(g.pct),
+      el("div", { class: "row", style: "justify-content:space-between" }, [
+        el("span", { class: "muted", style: "font-size:13px",
+          text: g.reached ? "Setz dir ruhig ein größeres Ziel." : "Noch " + g.left + " Wörter" }),
+        el("button", { class: "chip accent", text: "Ziel ändern ✎",
+          onclick: function () { ui.goalSheet(function () { render(main); }); } })
+      ])
+    ]));
     var pct = c.total ? Math.round(c.gekonnt / c.total * 100) : 0;
     view.appendChild(el("div", { class: "card stack", style: "margin-top:12px" }, [
       el("div", { class: "row", style: "justify-content:space-between" }, [
-        el("span", { style: "font-weight:600", text: "Gesamt gekonnt" }),
+        el("span", { style: "font-weight:600", text: "Gesamter Wortschatz" }),
         el("span", { class: "muted", text: c.gekonnt + " / " + c.total + " · " + pct + "%" })
       ]),
       ui.progressBar(pct)

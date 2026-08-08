@@ -12,12 +12,12 @@ AR.views = AR.views || {};
     var mineCards = mine.cards();
     var c = store.counts(mineCards);
     var due = store.dueCount(mineCards);
-    var pct = c.total ? Math.round(c.gekonnt / c.total * 100) : 0;
+    var g = store.goalProgress(data.allCards());
     var streak = store.streak();
 
     var view = el("div", { class: "view" });
 
-    /* Kopf: Streak + Fortschritt */
+    /* Kopf: Streak + Fortschritt zum Lernziel */
     view.appendChild(el("div", { class: "card stack" }, [
       el("div", { class: "row" }, [
         el("div", { class: "streak" }, [
@@ -34,11 +34,16 @@ AR.views = AR.views || {};
           el("div", { class: "muted", style: "font-size:12px", text: "Karten fällig" })
         ])
       ]),
-      ui.progressBar(pct),
-      el("div", { class: "row", style: "justify-content:space-between" }, [
+      ui.progressBar(g.pct),
+      el("button", { class: "goal-line", "aria-label": "Lernziel ändern",
+        onclick: function () { ui.goalSheet(function () { render(main); }); } }, [
         el("span", { class: "muted", style: "font-size:13px",
-          text: c.gekonnt + " von " + c.total + " gekonnt" }),
-        el("span", { class: "muted", style: "font-size:13px", text: pct + "%" })
+          text: g.reached ? ("🎉 Ziel erreicht: " + g.known + " Wörter gekonnt")
+                          : (g.known + " von " + g.goal + " Wörtern gekonnt") }),
+        el("span", { class: "row", style: "gap:6px" }, [
+          el("span", { class: "muted", style: "font-size:13px", text: g.pct + "%" }),
+          el("span", { class: "goal-edit", text: "Ziel ✎" })
+        ])
       ])
     ]));
 

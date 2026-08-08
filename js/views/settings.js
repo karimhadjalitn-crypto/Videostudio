@@ -41,6 +41,15 @@ AR.views = AR.views || {};
       el("div", {}, [el("div", { class: "s-l", text: "Karten pro Sitzung" })]),
       el("div", { style: "width:130px" }, sizeSel)
     ]));
+    // Lernziel
+    card2.appendChild(el("div", { class: "setting" }, [
+      el("div", {}, [
+        el("div", { class: "s-l", text: "Lernziel" }),
+        el("div", { class: "s-d", text: "So viele Wörter willst du sicher können" })
+      ]),
+      el("button", { class: "chip accent", text: store.goal() + " Wörter  ✎",
+        onclick: function () { ui.goalSheet(function () { render(main); }); } })
+    ]));
     view.appendChild(card2);
 
     /* Korrekturen an Karims Liste */

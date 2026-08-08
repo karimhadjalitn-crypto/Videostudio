@@ -13,7 +13,8 @@ window.AR = window.AR || {};
     showSpoken: true,      // Sprechform anzeigen
     showHarakat: true,     // Vokalzeichen anzeigen
     audio: true,           // Text-to-Speech
-    sessionSize: 20
+    sessionSize: 20,
+    goal: 100              // Lernziel: so viele Wörter sollen „gekonnt" werden
   };
 
   var state = {
@@ -89,23 +90,38 @@ window.AR = window.AR || {};
   /* ---------- SRS ---------- */
   // Intervalle je Box in Millisekunden (angelehnt an 1/3/7/14 Tage im Lernbuch)
   var HOUR = 3600e3, DAY = 24 * HOUR;
-  var INTERVAL = { 1: 8 * HOUR, 2: 1 * DAY, 3: 3 * DAY, 4: 7 * DAY, 5: 14 * DAY };
-  var MAX_BOX = 5;
+  var INTERVAL = { 1: 6 * HOUR, 2: 1 * DAY, 3: 3 * DAY, 4: 7 * DAY, 5: 14 * DAY, 6: 30 * DAY };
+  var MAX_BOX = 6;
+  var KNOWN_BOX = 2;   // ab hier gilt ein Wort als „gekonnt" (= 1× „Gut" oder „Leicht")
+  var HARD_FACTOR = 0.6;
 
   function cardState(id) {
     var s = state.srs[id];
-    if (!s) { s = { box: 0, due: 0, seen: 0, correct: 0, wrong: 0, last: 0 }; state.srs[id] = s; }
+    if (!s) { s = { box: 0, due: 0, seen: 0, correct: 0, wrong: 0, hard: 0, last: 0 }; state.srs[id] = s; }
+    if (s.hard == null) s.hard = 0;
     return s;
   }
-  // Ist die Karte "gekonnt"? (Box 4–5)
+  // Ist die Karte "gekonnt"? („Gut" und „Leicht" zählen, „Schwer" noch nicht)
   function status(id) {
     var s = state.srs[id];
     if (!s || s.seen === 0) return "new";
-    if (s.box >= 4) return "known";
+    if (s.box >= KNOWN_BOX) return "known";
     return "learning";
   }
 
-  // grade: "again" | "good" | "easy"
+  // Nächste Box für eine Bewertung – ohne etwas zu speichern
+  function nextBox(box, g) {
+    box = box || 0;
+    if (g === "again") return 0;
+    if (g === "hard") return Math.max(1, box);           // hält das Niveau, steigt nicht
+    return Math.min(MAX_BOX, box + (g === "easy" ? 3 : 2));
+  }
+  function delayFor(box, g) {
+    var ms = INTERVAL[box] || DAY;
+    return g === "hard" ? Math.round(ms * HARD_FACTOR) : ms;
+  }
+
+  // grade: "again" | "hard" | "good" | "easy"
   function grade(id, g) {
     var s = cardState(id), now = Date.now();
     s.seen++; s.last = now;
@@ -113,12 +129,30 @@ window.AR = window.AR || {};
       s.wrong++; s.box = 0; s.due = now; // gleich nochmal in dieser Sitzung
     } else {
       s.correct++;
-      s.box = Math.min(MAX_BOX, s.box + (g === "easy" ? 2 : 1));
-      s.due = now + (INTERVAL[s.box] || DAY);
+      if (g === "hard") s.hard++;
+      s.box = nextBox(s.box, g);
+      s.due = now + delayFor(s.box, g);
     }
     markStudied();
     save();
     return s;
+  }
+
+  /* Vorschau „wann kommt die Karte wieder?" – für die Knopf-Beschriftung */
+  function previewInterval(id, g) {
+    if (g === "again") return "gleich wieder";
+    var s = state.srs[id];
+    var box = nextBox(s ? s.box : 0, g);
+    return humanDelay(delayFor(box, g));
+  }
+  function humanDelay(ms) {
+    var h = ms / HOUR;
+    if (h < 22) return "in " + Math.max(1, Math.round(h)) + " Std.";
+    var d = Math.round(ms / DAY);
+    if (d < 7) return "in " + d + (d === 1 ? " Tag" : " Tagen");
+    if (d < 28) { var w = Math.round(d / 7); return "in " + w + (w === 1 ? " Woche" : " Wochen"); }
+    var m = Math.round(d / 30);
+    return "in " + m + (m === 1 ? " Monat" : " Monaten");
   }
 
   /* Reihenfolge für eine Lernsitzung: fällige & schwache zuerst,
@@ -152,7 +186,8 @@ window.AR = window.AR || {};
 
   function weakness(s, now) {
     var overdue = Math.max(0, (now - s.due)) / DAY;
-    return (5 - s.box) * 3 + s.wrong * 2 - s.correct * 0.5 + Math.min(overdue, 10);
+    return (MAX_BOX - s.box) * 3 + s.wrong * 2 + (s.hard || 0) * 1.2
+      - s.correct * 0.5 + Math.min(overdue, 10);
   }
 
   /* Anzahl fälliger Karten in einer Kartenmenge */
@@ -174,6 +209,26 @@ window.AR = window.AR || {};
       else r.neu++;
     });
     return r;
+  }
+
+  /* ---------- Lernziel ---------- */
+  function goal() {
+    var g = parseInt(state.settings.goal, 10);
+    return (isFinite(g) && g > 0) ? g : DEFAULT_SETTINGS.goal;
+  }
+  function setGoal(n) {
+    n = parseInt(n, 10);
+    if (!isFinite(n) || n < 1) return goal();
+    state.settings.goal = Math.min(9999, n);
+    save();
+    return state.settings.goal;
+  }
+  /* Fortschritt zum Ziel über den gesamten Wortschatz */
+  function goalProgress(cards) {
+    var g = goal(), known = 0;
+    cards.forEach(function (c) { if (status(c.id) === "known") known++; });
+    return { known: known, goal: g, pct: g ? Math.min(100, Math.round(known / g * 100)) : 0,
+      reached: known >= g, left: Math.max(0, g - known) };
   }
 
   /* ---------- Benutzerkarten ---------- */
@@ -227,6 +282,8 @@ window.AR = window.AR || {};
     applyTheme: applyTheme,
     markStudied: markStudied, streak: streak,
     cardState: cardState, status: status, grade: grade,
+    previewInterval: previewInterval,
+    goal: goal, setGoal: setGoal, goalProgress: goalProgress,
     buildQueue: buildQueue, dueCount: dueCount, counts: counts,
     userCards: function () { return state.userCards; },
     addUserCard: addUserCard, deleteUserCard: deleteUserCard,

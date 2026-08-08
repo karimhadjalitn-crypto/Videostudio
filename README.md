@@ -68,18 +68,28 @@ python3 -m http.server 8000
 
 | Bereich | Beschreibung |
 |---|---|
-| 🃏 **Karteikarten** | Verben zeigen alle vier Formen (Vergangenheit · Präsens · Zukunft · Befehlsform). Umdrehen, selbst einschätzen (*Nochmal / Gut / Leicht*). Richtung DE→AR, AR→DE oder gemischt. **Wischen** (rechts = Gut, links = Nochmal, hoch = Leicht), **Tastatur** (Leer = umdrehen, 1/2/3 = bewerten) und **⭐-Stern** zum Merken. |
+| 🃏 **Karteikarten** | Verben zeigen alle vier Formen (Vergangenheit · Präsens · Zukunft · Befehlsform). Umdrehen, selbst einschätzen in vier Stufen (*Nochmal / Schwer / Gut / Leicht*) – unter jedem Knopf steht, wann die Karte wiederkommt. Richtung DE→AR, AR→DE oder gemischt. **Wischen** (rechts = Gut, links = Nochmal, hoch = Leicht, runter = Schwer), **Tastatur** (Leer = umdrehen, 1/2/3/4 = bewerten) und **⭐-Stern** zum Merken. |
 | 🎯 **Quiz** | **Sehen** (Multiple Choice) und **Hören** (Wort anhören, Bedeutung wählen). Tastatur 1–4. Speist denselben Fortschritt. |
 | 💬 **Sätze** | **Baukasten** (Wörter ordnen), **Muster** (Satz-Karten), **Ersetzen** (Lückentext + Variante). |
 | ➕ **Neu** | Eigene Wörter **tippen** (mit arabischer Bildschirmtastatur), aus **Datei** (.txt/.csv/.docx) oder per **Bild** (Texterkennung) importieren. |
 | 🔍 **Suche** | Globale Suche auf der Startseite über alle Vokabeln (Deutsch oder Arabisch). |
 | ⭐ **Favoriten** | Wörter mit dem Stern markieren und gezielt als eigenes Deck üben. |
-| 📊 **Statistik** | Was du kannst, Lernserie, schwierige Wörter, Favoriten, Fortschritt je Deck. |
-| ⚙️ **Einstellungen** | Design (hell/dunkel), Richtung, Sprechform/Harakat/Audio, Sitzungsgröße, Installations­anleitung, Sichern/Laden. |
+| 🎯 **Lernziel** | Frei einstellbar (Standard 100 Wörter). Der Balken auf der Startseite zeigt, wie viele Wörter du schon sicher kannst – antippen zum Ändern. |
+| 📊 **Statistik** | Was du kannst, Lernziel, Lernserie, schwierige Wörter, Favoriten, Fortschritt je Deck. |
+| ⚙️ **Einstellungen** | Design (hell/dunkel), Richtung, Sprechform/Harakat/Audio, Sitzungsgröße, Lernziel, Installations­anleitung, Sichern/Laden. |
 
-**Wiederholungssystem:** Karten wandern durch Boxen mit wachsenden Abständen (angelehnt an
-1 · 3 · 7 · 14 Tage aus dem Lehrbuch). Wörter, die du **noch nicht gut kannst, kommen öfter dran**;
-Gekonntes seltener.
+**Wiederholungssystem:** Karten wandern durch Boxen mit wachsenden Abständen
+(6 Std. · 1 · 3 · 7 · 14 · 30 Tage). Die Bewertung steuert das Tempo:
+
+| Knopf | Bedeutung | Effekt |
+|---|---|---|
+| **Nochmal** | gar nicht gewusst | zurück auf Anfang, kommt gleich in dieser Sitzung wieder |
+| **Schwer** | gewusst, aber lange überlegt | bleibt auf dem Niveau, kürzerer Abstand, kommt in dieser Sitzung noch einmal |
+| **Gut** | sicher gewusst | zwei Boxen weiter – zählt ab jetzt als **gekonnt** |
+| **Leicht** | sofort gewusst | drei Boxen weiter, längster Abstand |
+
+Wörter, die du **noch nicht gut kannst, kommen öfter dran**; Gekonntes seltener.
+Für das Lernziel zählen **Gut** und **Leicht** – „Schwer" noch nicht.
 
 ---
 
