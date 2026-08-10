@@ -538,14 +538,11 @@ Nach jeder Phase kannst du die App benutzen. Kein Warten auf „fertig".
 
 ## 12. Offene Punkte
 
-1. **Hifz — eine Kleinigkeit.** Deine Liste endet bei **al-Muzzammil (73)**, damit wäre
-   **al-Jinn (72)** die Sure, die du gerade lernst. In deiner Zusammenfassung stand
-   al-Jinn aber als „davor". Lernst du al-Jinn noch, oder bist du schon bei **Nūḥ (71)**?
-2. **Akhlāq-Liste** (§4.1): streichen, ergänzen, so lassen?
-3. **Reisemodus** wie beschrieben — passt das?
-4. **Name der App.** Mīzān, oder etwas anderes?
-5. **Umstellungsdatum Jumuʿa** Sommer/Winter, sobald du es weißt.
-6. **Design** — besprechen wir separat, wie du wolltest.
+1. **Akhlāq-Liste** (§4.1): streichen, ergänzen, so lassen?
+2. **Reisemodus** wie beschrieben — passt das?
+3. **Name der App.** Mīzān, oder etwas anderes?
+4. **Umstellungsdatum Jumuʿa** Sommer/Winter, sobald du es weißt.
+5. **Helle Variante** zusätzlich zu dunkel — bauen oder weglassen? (siehe §14)
 
 ## 13. Abgenommen
 
@@ -553,3 +550,58 @@ Nach jeder Phase kannst du die App benutzen. Kein Warten auf „fertig".
 - Business misst Videos statt Umsatz ✔
 - Streaks reißen nicht auf null, Reisetage pausieren ✔
 - Geteilter Schlaf als zwei Blöcke ✔
+- Hifz: an-Nās (114) bis al-Muzzammil (73) fertig, **al-Jinn (72) wird gerade gelernt** ✔
+
+---
+
+## 14. Design
+
+**Richtung: dunkel, wertig, Apple-Handschrift** — echtes OLED-Schwarz, viel Luft,
+klare Hierarchie, ruhige Materialien. Aber mit eigener Farbe, keine Kopie.
+
+### Farben
+
+| Rolle | Wert |
+|---|---|
+| Grund | `#000000` — echtes Schwarz, spart auf OLED Akku und blendet nachts nicht |
+| Karte | `#17171A` |
+| Erhöht | `#212125` |
+| Trennlinie | `rgba(255,255,255,.08)` |
+| Text | `#F5F5F7` / 60 % / 32 % |
+| **Jade** `#4FC79A` | **jeder Fortschritt** — Ringe, Balken, Erledigtes |
+| **Messing** `#C9A96A` | **ausschließlich arabische Schrift** — Surennamen, Adhkār, Hijri, Āya |
+| Bernstein `#E5B45F` | nur Gebetsqualität „verspätet" |
+| Rot `#FF6F61` | nur Gebetsqualität „verpasst" |
+
+Genau zwei Akzente, alles andere ist Weiß in drei Abstufungen. Rot bedeutet in
+dieser App **immer** dasselbe und wird nirgends dekorativ eingesetzt.
+
+### Schrift
+
+- **Oberfläche: SF Pro** über `-apple-system` — auf dem iPhone die Systemschrift,
+  also exakt die, mit der Apple seine eigenen Apps setzt. Kein Download, keine Ladezeit.
+- **Zahlen** mit Tabellenziffern (`tabular-nums`), damit Score, Uhrzeiten und Gewicht
+  beim Ändern nicht springen.
+- **Qur'an-Text:** eigene Naskh-Schrift mitliefern (sauberer Rasm, korrekte Ḥarakāt).
+  Einmal geladen, danach offline. Für die Oberfläche reicht die Systemschrift.
+
+### Muster
+
+- **Große Titel**, die beim Scrollen in eine schmale Leiste zusammenfahren
+- **Gruppierte Listen** mit abgerundeten Blöcken und eingerückten Trennlinien
+- **Tab-Leiste mit Backdrop-Blur** — echtes Material, kein Bild
+- Weiche Übergänge; bei aktiviertem „Bewegung reduzieren" fallen sie weg
+
+### Was nicht geht — und wie ich es ersetze
+
+| Apple-Merkmal | Status |
+|---|---|
+| **Haptik** beim Antippen | Safari darf das nicht. Ersatz: sichtbare Rückmeldung |
+| **SF Symbols** | Lizenz auf Apple-Plattformen beschränkt. Ersatz: eigener Symbolsatz im gleichen Strichgewicht |
+| **Squircles** (weich verlaufende Ecken) | Im Web nur angenähert. Im Alltag nicht zu sehen |
+
+### Hell oder nur dunkel
+
+**Dunkel-first** entworfen — ausgelegt darauf, um 3 Uhr vor Fajr nicht zu blenden.
+Eine helle Variante würde ich als Nebensache mitbauen (draußen im Sommer),
+umschaltbar, Standard bleibt dunkel. **Offen:** willst du sie überhaupt?
