@@ -4,8 +4,8 @@ var Store = (function () {
   "use strict";
 
   var DB_NAME = "mizan";
-  var DB_VERSION = 1;
-  var SCHEMA = 1;          // Version der Tagesdatensätze (für spätere Migrationen)
+  var DB_VERSION = 2;      // v2: eigener Speicher für Aufgaben
+  var SCHEMA = 2;          // Version der Tagesdatensätze (für spätere Migrationen)
   var db = null;
 
   /* ---------- Standard-Einstellungen ---------- */
@@ -33,8 +33,62 @@ var Store = (function () {
       schlaf: 8, ernaehrung: 8, soziales: 5, innen: 4
     },
     ton: "fordernd",
-    codeAktiv: false,
-    code: "",
+
+    /* ---------- Körper und Sport ---------- */
+    sport: {
+      wochenziel: 4,
+      arten: ["Calisthenics", "Kraft", "Fußball"],
+      orte: ["McFit", "Draußen", "Zuhause"],
+      gewichtZiel: { von: 75, bis: 78 }
+    },
+
+    /* ---------- Ernährung ---------- */
+    essen: {
+      supplemente: ["D3 + K2", "Ashwagandha", "Magnesium", "Vitamin C + Zink",
+                    "Vitamin-B-Komplex", "Omega-3", "Kreatin"],
+      suessAusnahmen: 2       // erlaubte Ausnahmen pro Woche
+    },
+
+    /* ---------- Arbeit, Uni, Selbstständigkeit ---------- */
+    projekte: ["FOM Wirtschaftspsychologie", "LMU Klinikum", "Bewerbungen", "Selbstständigkeit"],
+    business: { videoZielWoche: 4 },
+
+    /* ---------- Finanzen: keine Zakāt-Berechnung, nur Sadaqa ---------- */
+    finanzen: {
+      schwelle: 20,           // darunter läuft es als Wochenpauschale
+      kategorien: ["Essen", "Transport", "Uni & Bücher", "Kleidung", "Handy & Abos",
+                   "Sadaqa", "Freizeit", "Sonstiges"],
+      budget: 0,
+      sadaqaZielMonat: 0,
+      sparziel: { name: "", betrag: 0, stand: 0 },
+      vermoegen: 0
+    },
+
+    /* ---------- Soziales ---------- */
+    kontakte: [
+      { name: "Eltern", intervall: 3 },
+      { name: "Neva", intervall: 1 },
+      { name: "Geschwister", intervall: 7 },
+      { name: "Verwandte", intervall: 21 },
+      { name: "Freunde", intervall: 14 }
+    ],
+
+    /* ---------- Ehe und Familienplanung ---------- */
+    ehe: { geschuetzt: true, notiz: "" },
+
+    /* ---------- Geschützter Bereich ---------- */
+    kaempfe: [
+      { id: "scrollen", name: "Scrollen", aktiv: true },
+      { id: "blick", name: "Blick senken", aktiv: true },
+      { id: "zunge", name: "Zunge hüten", aktiv: true },
+      { id: "aufschieben", name: "Aufschieben", aktiv: true },
+      { id: "zorn", name: "Zorn", aktiv: false }
+    ],
+    sperre: { appCode: "", bereichCode: "" },
+
+    /* ---------- Sondermodi ---------- */
+    reise: { aktiv: false, ort: "", von: null, bis: null },
+
     letztesBackup: null
   };
 
@@ -50,11 +104,19 @@ var Store = (function () {
       akhlaq: {},
       notizen: {},        // freie Ergänzung zu einzelnen Fragen
       wasser: 0,
-      training: null,
+      essen: { suess: null, nichtUeberessen: false, protein: false, supplemente: {} },
+      training: { arten: [], ort: null },
       gewicht: null,
       schritte: null,
       bildschirm: { gearbeitet: null, gescrollt: null },
+      arbeit: { erledigt: 0, wichtigste: [] },
+      business: { videos: 0, produkte: 0, skripte: 0 },
+      ausgaben: [],          // { betrag, kategorie, notiz }
+      sadaqa: 0,
+      kontakte: {},          // name -> true, wenn heute erreicht
+      kaempfe: { rueckfall: [], ausloeser: {} },
       stimmung: null,
+      dankbar: [],
       schlaf: { bett: null, auf: null, fajrAuf: false },
       notiz: "",
       reise: false,
@@ -83,6 +145,10 @@ var Store = (function () {
         var d = e.target.result;
         if (!d.objectStoreNames.contains("tage")) d.createObjectStore("tage", { keyPath: "datum" });
         if (!d.objectStoreNames.contains("kv")) d.createObjectStore("kv", { keyPath: "k" });
+        // Aufgaben leben über Tage hinweg und brauchen einen eigenen Speicher
+        if (!d.objectStoreNames.contains("aufgaben")) {
+          d.createObjectStore("aufgaben", { keyPath: "id" });
+        }
       };
       req.onsuccess = function () { db = req.result; ok(db); };
       req.onerror = function () { fehler(req.error); };
@@ -155,16 +221,33 @@ var Store = (function () {
     });
   }
 
+  /* ---------- Aufgaben ---------- */
+  function neueAufgabe(text, projekt) {
+    return {
+      id: "a" + Date.now() + Math.random().toString(36).slice(2, 7),
+      text: text, projekt: projekt || null,
+      faellig: null,          // "YYYY-MM-DD"
+      wiederholung: null,     // null | "taeglich" | "woechentlich" | "monatlich"
+      erledigt: false, erledigtAm: null,
+      wichtig: false,         // eine der „drei Wichtigsten“
+      angelegt: new Date().toISOString()
+    };
+  }
+  function aufgaben() { return anfrage(tx("aufgaben").getAll()); }
+  function aufgabeSpeichern(a) { return anfrage(tx("aufgaben", "readwrite").put(a)); }
+  function aufgabeLoeschen(id) { return anfrage(tx("aufgaben", "readwrite").delete(id)); }
+
   /* ---------- Export / Import ---------- */
   /* Tiefe Kopie, keine lebende Referenz: sonst verändert sich eine schon
      erzeugte Sicherung mit, sobald danach eine Einstellung angefasst wird. */
   function exportieren() {
-    return alleTage().then(function (tage) {
+    return Promise.all([alleTage(), aufgaben()]).then(function (r) {
       return {
         app: "mizan", schema: SCHEMA,
         erstellt: new Date().toISOString(),
         einstellungen: JSON.parse(JSON.stringify(einstellungen)),
-        tage: JSON.parse(JSON.stringify(tage))
+        tage: JSON.parse(JSON.stringify(r[0])),
+        aufgaben: JSON.parse(JSON.stringify(r[1]))
       };
     });
   }
@@ -190,11 +273,13 @@ var Store = (function () {
   function importieren(daten) {
     if (!daten || daten.app !== "mizan") throw new Error("Das ist keine Mīzān-Sicherung.");
     return new Promise(function (ok, fehler) {
-      var t = db.transaction("tage", "readwrite");
+      var t = db.transaction(["tage", "aufgaben"], "readwrite");
       var store = t.objectStore("tage");
       (daten.tage || []).forEach(function (x) {
         if (x && x.datum) store.put(tief(leererTag(x.datum), x));
       });
+      var aStore = t.objectStore("aufgaben");
+      (daten.aufgaben || []).forEach(function (a) { if (a && a.id) aStore.put(a); });
       t.oncomplete = function () { ok(); };
       t.onerror = function () { fehler(t.error); };
       t.onabort = function () { fehler(t.error || new Error("Import abgebrochen")); };
@@ -214,6 +299,10 @@ var Store = (function () {
     alleTage: alleTage,
     letzteTage: letzteTage,
     leererTag: leererTag,
+    aufgaben: aufgaben,
+    neueAufgabe: neueAufgabe,
+    aufgabeSpeichern: aufgabeSpeichern,
+    aufgabeLoeschen: aufgabeLoeschen,
     key: key,
     ausKey: ausKey,
     exportieren: exportieren,

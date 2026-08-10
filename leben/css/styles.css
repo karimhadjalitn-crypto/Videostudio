@@ -677,6 +677,72 @@ select.feld { text-align: left; }
   font-size: .72rem; color: var(--jade); font-weight: 600; margin-top: .55rem;
 }
 
+/* ---------- Bereiche, Formulare, geschützter Bereich ---------- */
+.bkopf .bgew {
+  margin-left: auto; font-size: .66rem; font-weight: 700; color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+.chips.umbruch { flex-wrap: wrap; }
+.chips.umbruch .chip { flex: 0 1 auto; padding-left: .75rem; padding-right: .75rem; }
+
+.aufgabenfeld {
+  flex: 1; min-width: 0; width: 100%;
+  background: var(--flaeche-3); border: 1px solid var(--linie); border-radius: 10px;
+  padding: .55rem .7rem; font-size: .9rem; margin-top: .45rem;
+  -webkit-appearance: none; appearance: none;
+}
+.aufgabenfeld.gross { font-size: 1rem; padding: .7rem .8rem; }
+.aufgabenfeld:focus { border-color: var(--an-jade-rand); outline: none; }
+.zeile .aufgabenfeld { margin-top: 0; background: none; border: 0; padding: .1rem 0; }
+.zeile .aufgabenfeld:focus { border: 0; }
+
+.zeitreihe { display: flex; gap: .5rem; align-items: center; }
+.zeitreihe .mini { flex: 0 0 4rem; margin-top: .45rem; }
+.feld.zeit { max-width: 9rem; margin-left: 0; text-align: left; font-size: 1rem; padding: .5rem .6rem; }
+
+.zt.dehnbar { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.zw.leise { color: var(--text-3); font-weight: 400; }
+.zw.warn { color: var(--amber); font-weight: 700; }
+.schalter.warn { background: var(--an-amber-bg); color: var(--amber); border-color: var(--an-amber-rand); }
+
+.loeschen {
+  flex: none; width: 1.7rem; height: 1.7rem; border-radius: 999px;
+  color: var(--text-3); font-size: 1.05rem; line-height: 1;
+}
+.loeschen:active { background: var(--an-rose-bg); color: var(--rose); }
+
+.haken.an { border-color: var(--jade); background: var(--jade); position: relative; }
+.haken.an::after {
+  content: "✓"; position: absolute; inset: 0; display: grid; place-items: center;
+  color: var(--auf-jade); font-size: .72rem; font-weight: 800;
+}
+.blockkopf.tippbar { cursor: pointer; }
+
+/* Kämpfe */
+.karte.rueckfall { border-color: var(--an-rose-rand); }
+.kkopf { display: flex; align-items: baseline; gap: .6rem; }
+.kname { font-size: 1.06rem; font-weight: 600; letter-spacing: -.015em; }
+.kfrei {
+  margin-left: auto; font-size: 1.1rem; font-weight: 700;
+  font-variant-numeric: tabular-nums; color: var(--jade);
+}
+.karte.rueckfall .kfrei { color: var(--rose); }
+.kunter { font-size: .76rem; color: var(--text-3); }
+.ausloeser { display: flex; gap: .5rem; align-items: flex-end; margin-top: .5rem; }
+.ausloeser .mini { flex: 0 0 4.5rem; }
+
+/* Schloss */
+.inhalt.mitte { justify-content: center; min-height: 70vh; }
+.karte.schloss { text-align: center; padding: 1.6rem 1.2rem; }
+.schlosssymbol { font-size: 2.4rem; line-height: 1; margin-bottom: .6rem; }
+.codefeld {
+  width: 100%; text-align: center; letter-spacing: .5em;
+  font-size: 1.6rem; padding: .7rem; margin: .9rem 0;
+  background: var(--flaeche-3); border: 1px solid var(--linie); border-radius: 12px;
+  -webkit-appearance: none; appearance: none;
+}
+.codefeld:focus { border-color: var(--an-jade-rand); outline: none; }
+
 /* ---------- Reiterleiste ---------- */
 #leiste {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;

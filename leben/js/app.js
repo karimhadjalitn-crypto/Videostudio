@@ -5,20 +5,42 @@
   var ANSICHTEN = {
     heute:    { titel: "Heute",    symbol: "◆",   modul: function () { return AnsichtHeute; } },
     kalender: { titel: "Kalender", symbol: "▦",   modul: function () { return AnsichtKalender; } },
-    religion: { titel: "Religion", symbol: "☰",   modul: function () { return AnsichtReligion; } },
+    bereiche: { titel: "Bereiche", symbol: "☰",   modul: function () { return AnsichtBereiche; } },
     spiegel:  { titel: "Spiegel",  symbol: "◐",   modul: function () { return AnsichtSpiegel; } },
     mehr:     { titel: "Mehr",     symbol: "•••", modul: function () { return AnsichtMehr; } },
 
-    gebete: { titel: "Gebete", versteckt: true, reiter: "religion",
-              modul: function () { return AnsichtGebete; } },
-    quran:  { titel: "Qur'an", versteckt: true, reiter: "religion",
-              modul: function () { return AnsichtQuran; } },
-    adhkar: { titel: "Adhkār", versteckt: true, reiter: "religion",
-              modul: function () { return AnsichtAdhkar; } },
-    fasten: { titel: "Fasten", versteckt: true, reiter: "religion",
-              modul: function () { return AnsichtFasten; } },
-    duas:   { titel: "Duʿāʾ",  versteckt: true, reiter: "religion",
-              modul: function () { return AnsichtDuas; } },
+    religion:   { titel: "Religion", versteckt: true, reiter: "bereiche",
+                  modul: function () { return AnsichtReligion; } },
+    gebete:     { titel: "Gebete", versteckt: true, reiter: "bereiche",
+                  modul: function () { return AnsichtGebete; } },
+    quran:      { titel: "Qur'an", versteckt: true, reiter: "bereiche",
+                  modul: function () { return AnsichtQuran; } },
+    adhkar:     { titel: "Adhkār", versteckt: true, reiter: "bereiche",
+                  modul: function () { return AnsichtAdhkar; } },
+    fasten:     { titel: "Fasten", versteckt: true, reiter: "bereiche",
+                  modul: function () { return AnsichtFasten; } },
+    duas:       { titel: "Duʿāʾ", versteckt: true, reiter: "bereiche",
+                  modul: function () { return AnsichtDuas; } },
+    koerper:    { titel: "Körper", versteckt: true, reiter: "bereiche",
+                  modul: function () { return AnsichtKoerper; } },
+    ernaehrung: { titel: "Ernährung", versteckt: true, reiter: "bereiche",
+                  modul: function () { return AnsichtErnaehrung; } },
+    schlaf:     { titel: "Schlaf", versteckt: true, reiter: "bereiche",
+                  modul: function () { return AnsichtSchlaf; } },
+    arbeit:     { titel: "Arbeit", versteckt: true, reiter: "bereiche",
+                  modul: function () { return AnsichtArbeit; } },
+    business:   { titel: "Business", versteckt: true, reiter: "bereiche",
+                  modul: function () { return AnsichtBusiness; } },
+    finanzen:   { titel: "Finanzen", versteckt: true, reiter: "bereiche",
+                  modul: function () { return AnsichtFinanzen; } },
+    soziales:   { titel: "Soziales", versteckt: true, reiter: "bereiche",
+                  modul: function () { return AnsichtSoziales; } },
+    innen:      { titel: "Innenleben", versteckt: true, reiter: "bereiche",
+                  modul: function () { return AnsichtInnen; } },
+    privat:     { titel: "Geschützt", versteckt: true, reiter: "bereiche",
+                  modul: function () { return AnsichtPrivat; } },
+    kaempfeVerwalten: { titel: "Kämpfe", versteckt: true, reiter: "bereiche",
+                  modul: function () { return AnsichtKaempfeVerwalten; } },
     muhasaba:     { titel: "Muḥāsaba", versteckt: true, vollbild: true,
                     modul: function () { return AnsichtMuhasaba; } },
     erinnerungen: { titel: "Erinnerungen", versteckt: true, reiter: "kalender",
@@ -98,7 +120,41 @@
     }
   }
 
-  Store.bereit().then(start).catch(function (fehler) {
+  /* App-Sperre: nur wenn ausdrücklich eingerichtet. */
+  function appSperre() {
+    var e = Store.einstellungen;
+    if (!e.sperre || !e.sperre.appCode) return Promise.resolve();
+    return new Promise(function (frei) {
+      var app = document.getElementById("app");
+      document.body.classList.add("ohne-leiste");
+      var feld = UI.el("input.codefeld", {
+        type: "password", inputmode: "numeric", maxlength: 8,
+        placeholder: "••••", autocomplete: "off",
+        onkeydown: function (ev) { if (ev.key === "Enter") pruef(); }
+      });
+      function pruef() {
+        Sperre.pruefen(feld.value, e.sperre.appCode).then(function (ok) {
+          if (!ok) { UI.meldung("Falscher Code."); feld.value = ""; return; }
+          document.body.classList.remove("ohne-leiste");
+          UI.leeren(app);
+          frei();
+        });
+      }
+      UI.leeren(app);
+      app.appendChild(UI.el("div.inhalt.mitte", [
+        UI.el("div.karte.schloss", [
+          UI.el("div.schlosssymbol", { text: "⚖️" }),
+          UI.el("span.etikett", { text: "Mīzān" }),
+          UI.el("p.aurteil", { text: "Code eingeben." }),
+          feld,
+          UI.el("button.cta", { type: "button", onclick: pruef }, "Öffnen")
+        ])
+      ]));
+      setTimeout(function () { feld.focus(); }, 200);
+    });
+  }
+
+  Store.bereit().then(function () { return appSperre(); }).then(start).catch(function (fehler) {
     document.getElementById("app").appendChild(
       UI.el("div.karte.hinweis", [
         UI.el("div.hz", { text: "Der Speicher lässt sich nicht öffnen. Im privaten Modus von Safari geht das nicht — bitte ein normales Fenster benutzen. (" + fehler.message + ")" })
