@@ -49,6 +49,7 @@ var Store = (function () {
       wasser: 0,
       training: null,
       gewicht: null,
+      schritte: null,
       bildschirm: { gearbeitet: null, gescrollt: null },
       stimmung: null,
       schlaf: { bett: null, auf: null, fajrAuf: false },

@@ -40,9 +40,14 @@ Am Ende stehen alle Ergänzungen des Tages noch einmal zusammen.
 Verteilung der Gebetsqualität über 30 Tage, und ein erster Zusammenhang
 (Moschee-Tage gegen andere Tage) — der erscheint erst, wenn genug Daten da sind.
 
+**Kalender** — Monatsraster mit gregorianischem **und** Hijri-Datum in jeder Zelle.
+Der Tagesscore färbt die Zelle ein. Markiert werden weiße Tage, Jumuʿa, islamische
+Termine, Fastenvorschläge und deine Arbeitstage. Ein Tipp auf einen Tag zeigt
+Gebetszeiten, Anlässe und was an dem Tag erfasst wurde.
+
 **Mehr** — Erscheinungsbild, Gebetszeit-Methode, ʿAṣr-Berechnung, Sommerregel,
 Feinjustierung pro Gebet in Minuten, Hijri-Versatz, Ziele, Jumuʿa-Zeiten,
-Export und Import.
+Erinnerungen, Export und Import.
 
 ## Erscheinungsbild
 
@@ -100,6 +105,41 @@ geprüft sind. Lieber nichts als etwas Unbelegtes.
 
 ---
 
+## Erinnerungen
+
+Eine Web-App auf dem iPhone darf **keine zeitgesteuerten Mitteilungen** schicken —
+Safari lässt das nicht zu, bei jeder Web-App. Zwei Wege übernehmen das, beide ohne
+Server; nichts verlässt dein Gerät.
+
+**1. Kalenderdatei.** Unter *Mehr → Erinnerungen* erzeugt Mīzān eine `.ics` mit
+Gebetszeiten, weißen Tagen, islamischen Terminen und der Jumuʿa — inklusive
+Alarmen. Einmal in den iPhone-Kalender importieren, danach kommen die
+Benachrichtigungen von iOS, auch bei geschlossener App. Wählbar sind Zeitraum
+(1–12 Monate), Umfang der Gebetszeiten und Vorlaufzeit des Alarms.
+
+**2. iOS-Kurzbefehle.** Fertige `.shortcut`-Dateien kann ich nicht liefern — Apple
+verlangt dafür eine Signatur, die nur auf einem Mac entsteht. Stattdessen enthält
+die App die Adressen und die Schritte; jeder Kurzbefehl ist in zwei Minuten angelegt.
+
+Die Kurzbefehle rufen `#/import` mit Parametern auf. Alles landet direkt im
+Speicher dieses Geräts:
+
+| Parameter | Beispiel | Wirkung |
+|---|---|---|
+| `gebet` + `stufe` | `?gebet=fajr&stufe=moschee` | Gebet mit Qualitätsstufe eintragen |
+| `gewicht` | `?gewicht=79,8` | Gewicht (Komma oder Punkt) |
+| `schritte` | `?schritte=8231` | Schritte des Tages |
+| `wasser` | `?wasser=0.5` | Liter dazuzählen |
+| `bett` / `auf` | `?bett=jetzt` | Schlafzeiten, `jetzt` oder `23:15` |
+| `fajrAuf` | `?fajrAuf=1` | für Fajr aufgestanden |
+| `istighfar` / `salawat` | `?istighfar=100` | Zähler erhöhen |
+
+So kommen auch **Gewicht und Schritte aus Apple Health** herein: der Kurzbefehl
+darf Health lesen, die Web-App nicht — er reicht die Werte über die Adresszeile weiter.
+
+**Bildschirmzeit** lässt sich auf dem iPhone von keiner App auslesen, auch von
+keiner nativen. Die trägst du abends bei der Muḥāsaba selbst ein.
+
 ## Aufs iPhone
 
 1. Seite in **Safari** öffnen
@@ -154,9 +194,13 @@ Kein Build-Werkzeug, keine Abhängigkeiten. Reine Dateien, wie die Arabisch-App.
 
 ---
 
-## Was noch nicht drin ist
+## Stand
 
-Kalender, Kurzbefehle und `.ics`-Export (Phase 3) · Sport, Ernährung, Schlaf
-(Phase 4) · Produktivität und Business (Phase 5) · Finanzen, Zakat, Soziales,
-Ehe, geschützter Bereich (Phase 6) · die große Auswertung (Phase 7) ·
-Reise- und Ramadan-Modus (Phase 8).
+Fertig: **Phase 1** (Gerüst, Heute, Gebete, Score, Muḥāsaba) und
+**Phase 3** (Kalender, `.ics`-Export, Kurzbefehl-Übernahme).
+
+Offen: Religion vollständig — Hifz-Plan, Adhkār-Zähler, Fasten, Duʿā'-Sammlung
+(Phase 2) · Sport, Ernährung, Schlaf (Phase 4) · Produktivität und Business
+(Phase 5) · Finanzen, Zakat, Soziales, Ehe, geschützter Bereich (Phase 6) ·
+die große Auswertung mit Zusammenhängen (Phase 7) · Reise- und Ramadan-Modus
+(Phase 8).

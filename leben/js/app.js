@@ -3,17 +3,24 @@
   "use strict";
 
   var ANSICHTEN = {
-    heute:    { titel: "Heute",   symbol: "◆", modul: function () { return AnsichtHeute; } },
-    gebete:   { titel: "Gebete",  symbol: "☰", modul: function () { return AnsichtGebete; } },
-    spiegel:  { titel: "Spiegel", symbol: "◐", modul: function () { return AnsichtSpiegel; } },
-    mehr:     { titel: "Mehr",    symbol: "•••", modul: function () { return AnsichtMehr; } },
-    muhasaba: { titel: "Muḥāsaba", versteckt: true, modul: function () { return AnsichtMuhasaba; } }
+    heute:    { titel: "Heute",    symbol: "◆",   modul: function () { return AnsichtHeute; } },
+    kalender: { titel: "Kalender", symbol: "▦",   modul: function () { return AnsichtKalender; } },
+    gebete:   { titel: "Gebete",   symbol: "☰",   modul: function () { return AnsichtGebete; } },
+    spiegel:  { titel: "Spiegel",  symbol: "◐",   modul: function () { return AnsichtSpiegel; } },
+    mehr:     { titel: "Mehr",     symbol: "•••", modul: function () { return AnsichtMehr; } },
+    muhasaba:     { titel: "Muḥāsaba", versteckt: true, vollbild: true,
+                    modul: function () { return AnsichtMuhasaba; } },
+    erinnerungen: { titel: "Erinnerungen", versteckt: true, reiter: "kalender",
+                    modul: function () { return AnsichtErinnerungen; } },
+    "import":     { titel: "Übernahme", versteckt: true, reiter: "heute",
+                    modul: function () { return AnsichtImport; } }
   };
 
   var aktuell = null, wurzel, leiste;
 
+  /* "#/import?gebet=fajr" -> "import" */
   function ziel() {
-    var h = (location.hash || "").replace(/^#\/?/, "").split("/")[0];
+    var h = (location.hash || "").replace(/^#\/?/, "").split("?")[0].split("/")[0];
     return ANSICHTEN[h] ? h : "heute";
   }
 
@@ -36,9 +43,11 @@
     if (aktuell && aktuell.modul.schliessen) aktuell.modul.schliessen();
     var modul = ANSICHTEN[k].modul();
     aktuell = { key: k, modul: modul };
-    zeichneLeiste(ANSICHTEN[k].versteckt ? null : k);
+    zeichneLeiste(ANSICHTEN[k].reiter || (ANSICHTEN[k].versteckt ? null : k));
     UI.leeren(wurzel);
-    document.body.classList.toggle("ohne-leiste", !!ANSICHTEN[k].versteckt);
+    // Die Muḥāsaba läuft im Vollbild; die anderen behalten die Leiste,
+    // damit man nicht in einer Ansicht festsitzt.
+    document.body.classList.toggle("ohne-leiste", !!ANSICHTEN[k].vollbild);
     window.scrollTo(0, 0);
     Promise.resolve(modul.oeffnen(wurzel)).catch(function (fehler) {
       wurzel.appendChild(UI.el("div.karte.hinweis", [

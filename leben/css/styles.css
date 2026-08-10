@@ -483,6 +483,113 @@ select.feld { text-align: left; }
 .stepper { display: flex; gap: .3rem; margin-left: .5rem; flex: none; }
 .stepper .mini { flex: 0 0 2rem; font-size: 1rem; }
 
+/* ---------- Kalender ---------- */
+.monatskopf { display: flex; align-items: center; gap: .5rem; }
+.monatskopf .mtitel { flex: 1; text-align: center; }
+.monatskopf .mt { font-size: 1.05rem; font-weight: 700; letter-spacing: -.02em; }
+.monatskopf .mh { font-size: .74rem; color: var(--brass); font-weight: 600; }
+.pfeil {
+  width: 2.4rem; height: 2.4rem; border-radius: 999px; flex: none;
+  background: var(--flaeche-2); border: 1px solid var(--linie);
+  color: var(--text-2); font-size: 1.15rem; line-height: 1;
+}
+.pfeil:active { background: var(--flaeche-3); }
+
+.kalender {
+  background: var(--flaeche-2); border: 1px solid var(--linie);
+  border-radius: var(--r-gruppe); padding: .6rem .5rem .5rem;
+}
+.wochenkopf {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px;
+  margin-bottom: .35rem;
+}
+.wochenkopf span {
+  text-align: center; font-size: .62rem; font-weight: 700;
+  letter-spacing: .06em; color: var(--text-3);
+}
+.wochenkopf .fr { color: var(--jade); }
+
+.raster { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.zelle {
+  aspect-ratio: 1; border-radius: 8px; position: relative;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0; cursor: pointer; background: transparent;
+  border: 1px solid transparent;
+}
+.zelle.leerzelle { cursor: default; }
+.zelle .zt { font-size: .84rem; font-weight: 600; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.zelle .zh { font-size: .56rem; color: var(--text-3); font-weight: 600; line-height: 1.1; }
+.zelle.s1 { background: var(--heat-1); }
+.zelle.s2 { background: var(--heat-2); }
+.zelle.s3 { background: var(--heat-3); }
+.zelle.s4 { background: var(--heat-4); }
+.zelle.s3 .zt, .zelle.s4 .zt { color: var(--auf-jade); }
+.zelle.s3 .zh, .zelle.s4 .zh { color: var(--auf-jade); opacity: .7; }
+.zelle.arbeit::after {
+  content: ""; position: absolute; top: 3px; right: 4px;
+  width: 3px; height: 3px; border-radius: 999px; background: var(--text-3);
+}
+.zelle.heute { border-color: var(--jade); }
+.zelle.gewaehlt { border-color: var(--text-2); background: var(--fuell-1); }
+.zelle.gewaehlt.s3, .zelle.gewaehlt.s4 { background: var(--heat-3); }
+
+.marken { display: flex; gap: 2px; height: .3rem; margin-top: .1rem; }
+.marken i, .klegende i:not(.feld) {
+  width: .28rem; height: .28rem; border-radius: 999px; display: block;
+}
+.m-bid { background: var(--brass); }
+.m-fasten { background: var(--jade-dim); }
+.m-gross { background: var(--rose); }
+.m-jumua { background: var(--jade); }
+
+.klegende {
+  display: flex; flex-wrap: wrap; gap: .3rem .9rem;
+  font-size: .68rem; color: var(--text-3); padding: 0 .3rem;
+}
+.klegende span { display: inline-flex; align-items: center; gap: .3rem; }
+.klegende .feld { width: .6rem; height: .6rem; aspect-ratio: auto; }
+
+.tkopf { display: flex; align-items: baseline; gap: .6rem; margin-top: .35rem; }
+.tkopf .th { font-size: 1.05rem; font-weight: 700; letter-spacing: -.02em; }
+.tkopf .tscore {
+  margin-left: auto; font-size: .78rem; font-weight: 600; color: var(--jade);
+  font-variant-numeric: tabular-nums;
+}
+.tkopf .tscore.leer { color: var(--text-3); font-weight: 500; }
+.thinweise { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .6rem; }
+.thin {
+  font-size: .68rem; font-weight: 600; padding: .2rem .5rem;
+  border-radius: 999px; background: var(--fuell-1); color: var(--text-2);
+}
+
+/* ---------- Erinnerungen ---------- */
+.adresse {
+  background: var(--flaeche-3); border: 1px solid var(--linie);
+  border-radius: 11px; padding: .7rem .8rem; margin: .8rem 0;
+}
+.adrkopf {
+  font-size: .62rem; font-weight: 700; letter-spacing: .13em;
+  text-transform: uppercase; color: var(--text-3); margin-bottom: .35rem;
+}
+.adrtext {
+  display: block; font-size: .74rem; line-height: 1.45; word-break: break-all;
+  color: var(--jade); font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  margin-bottom: .6rem;
+}
+.mini.breit { width: 100%; flex: none; padding: .45rem; }
+
+.schrittliste { margin: .7rem 0 0; padding-left: 1.2rem; font-size: .87rem; line-height: 1.55; }
+.schrittliste li { margin-bottom: .5rem; color: var(--text-2); }
+.schrittliste li::marker { color: var(--jade); font-weight: 700; }
+.schrittliste b { color: var(--text-1); font-weight: 600; }
+.schrittliste code, .klein code {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .88em;
+  background: var(--fuell-1); padding: .05em .35em; border-radius: 4px; color: var(--text-1);
+}
+.klein { font-size: .78rem; color: var(--text-3); line-height: 1.5; margin: .8rem 0 0; }
+.gruppe.blank { background: none; border: 0; border-radius: 0; margin-top: .4rem; }
+.gruppe.blank .zeile { padding-left: 0; padding-right: 0; }
+
 /* ---------- Reiterleiste ---------- */
 #leiste {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;

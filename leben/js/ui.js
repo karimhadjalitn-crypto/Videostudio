@@ -2,9 +2,11 @@
 var UI = (function () {
   "use strict";
 
-  /* el("div.card", {onclick:fn}, [kinder]) */
+  /* el("div.karte", {onclick:fn}, [kinder]) — ".karte" ohne Tag ergibt ein div */
   function el(spec, attr, kinder) {
-    var teile = String(spec).split(/(?=[.#])/);
+    var text = String(spec);
+    if (text.charAt(0) === "." || text.charAt(0) === "#") text = "div" + text;
+    var teile = text.split(/(?=[.#])/);
     var node = document.createElement(teile[0] || "div");
     teile.slice(1).forEach(function (t) {
       if (t[0] === ".") node.classList.add(t.slice(1));

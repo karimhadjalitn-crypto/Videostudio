@@ -159,6 +159,16 @@ var AnsichtMehr = (function () {
       ]),
 
       UI.el("div.block", [
+        UI.el("div.blockkopf", { text: "Erinnerungen" }),
+        UI.el("div.gruppe", [
+          UI.zeile({
+            text: "Kalenderdatei und Kurzbefehle", wert: "einrichten",
+            onclick: function () { location.hash = "#/erinnerungen"; }
+          })
+        ])
+      ]),
+
+      UI.el("div.block", [
         UI.el("div.blockkopf", { text: "Deine Daten" }),
         UI.el("div.gruppe", [
           UI.zeile({

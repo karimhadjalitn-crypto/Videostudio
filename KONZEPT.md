@@ -447,17 +447,26 @@ Eine Web-App auf dem iPhone kann **von sich aus keine Benachrichtigungen zu
 festen Zeiten schicken**. Das ist eine harte Grenze von Safari, kein Fehler meinerseits.
 Ohne Server geht es nicht — und du wolltest keinen Server.
 
-**Die Lösung: iOS-Kurzbefehle.** Ich baue sie dir fertig, du tippst sie einmal an.
+**Die Lösung: iOS-Kurzbefehle.**
+
+> **Korrektur zu einer früheren Zusage:** Ich hatte geschrieben, ich baue die
+> Kurzbefehle fertig und du tippst sie nur an. Das geht nicht. Apple verlangt für
+> verteilbare `.shortcut`-Dateien eine Signatur, die nur auf einem Mac entsteht.
+> Was die App liefert: die genauen Adressen und eine Schritt-für-Schritt-Anleitung
+> unter *Mehr → Erinnerungen*. Jeder Kurzbefehl ist damit in zwei Minuten angelegt.
 
 | Kurzbefehl | Was er tut |
 |---|---|
-| **Gebetserinnerung** | Zu deinen Gebetszeiten eine Mitteilung, die in die App führt |
-| **Schlafenszeit 23:15** | „Du wolltest vor 0 Uhr im Bett sein." |
-| **Abendabrechnung** | Nach Maghrib: Erinnerung an die Muḥāsaba |
-| **Health-Übertragung** | Liest nachts Gewicht und Schritte aus Apple Health und übergibt sie der App über die Adresszeile — vollautomatisch, nichts verlässt dein Handy |
-| **Jumuʿa freitags** | Rechtzeitiger Anstupser vor 14:45 bzw. 13:30 |
+| **Gebet in einem Tipp** | Symbol auf dem Home-Bildschirm, trägt z. B. Fajr als „in der Moschee" ein |
+| **Schlafenszeit 23:15** | „Du wolltest vor 0 Uhr im Bett sein." — trägt die Zubettgehzeit gleich ein |
+| **Abendabrechnung** | Nach Maghrib: Erinnerung, öffnet direkt die Muḥāsaba |
+| **Health-Übertragung** | Liest nachts Gewicht und Schritte aus Apple Health und übergibt sie über die Adresszeile — nichts verlässt dein Handy |
 
-Dazu die **Kalenderdatei** aus §5 für alle festen Termine.
+Die Übergabe läuft über `#/import` mit Parametern: `gebet`, `stufe`, `gewicht`,
+`schritte`, `wasser`, `bett`, `auf`, `fajrAuf`, `istighfar`, `salawat`.
+
+Die **Jumuʿa-Erinnerung** und die Gebetszeiten kommen aus der **Kalenderdatei**
+(§5) — dort mit Alarm 45 Minuten vorher, damit du von der Arbeit rechtzeitig losfährst.
 
 **Nicht möglich, egal was ich tue:** Bildschirmzeit auslesen (kann keine iPhone-App),
 den iPhone-Kalender lesen, Health direkt abfragen. Ich sage es lieber jetzt als später.
@@ -529,9 +538,9 @@ Wochenplanung). Ohne Sync — Daten kommen per Exportdatei rüber.
 
 | Phase | Inhalt |
 |---|---|
-| **1** | Gerüst, Speicher, „Heute", Gebete mit Qualitätsstufen, Gebetszeiten, Hijri, Score, Abendabrechnung |
-| **2** | Religion vollständig: Qur'an/Hifz/Murājaʿa, Adhkār, Fasten, Akhlāq, Duʿā', Āya des Tages |
-| **3** | Kalender, Kurzbefehle, `.ics`-Export, Erinnerungen |
+| **1** ✔ | Gerüst, Speicher, „Heute", Gebete mit Qualitätsstufen, Gebetszeiten, Hijri, Score, Abendabrechnung |
+| **2** | Religion vollständig: Qur'an/Hifz/Murājaʿa, Adhkār, Fasten, Duʿā'-Sammlung |
+| **3** ✔ | Kalender, `.ics`-Export, Kurzbefehl-Übernahme, Erinnerungen |
 | **4** | Sport, Ernährung, Schlaf |
 | **5** | Produktivität, Wochenplanung, Business, Bildschirmzeit |
 | **6** | Finanzen, Zakat, Soziales, Ehe, Innenleben, geschützter Bereich |
