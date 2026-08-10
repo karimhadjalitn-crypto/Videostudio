@@ -50,39 +50,50 @@ var AnsichtAdhkar = (function () {
 
   function zeichne() {
     if (!wurzel) return;
-    var h = Hijri.fuer(new Date());
-    var jetzt = new Date();
-    var freitag = jetzt.getDay() === 5;
+    var d0 = Store.ausKey(tag.datum);
+    var h = Hijri.fuer(d0);
+    var freitag = d0.getDay() === 5;
     var salawatZiel = freitag ? 300 : 100;
 
     UI.leeren(wurzel);
     wurzel.appendChild(UI.kopf("Adhkār", freitag ? "Freitag — mehr Salawāt" : "Morgens und abends", "الأذكار"));
-    wurzel.appendChild(UI.el("div.inhalt", [
+    var feste = [
+      Sichtbar.an("dhikr.morgens") ? UI.zeile({
+        haken: tag.dhikr.morgens, text: "Adhkār am Morgen", ar: "أذكار الصباح",
+        wert: "nach Fajr",
+        onclick: function () { tag.dhikr.morgens = !tag.dhikr.morgens; speichern(); }
+      }) : null,
+      Sichtbar.an("dhikr.abends") ? UI.zeile({
+        haken: tag.dhikr.abends, text: "Adhkār am Abend", ar: "أذكار المساء",
+        wert: "nach ʿAṣr",
+        onclick: function () { tag.dhikr.abends = !tag.dhikr.abends; speichern(); }
+      }) : null,
+      Sichtbar.an("dhikr.nachGebet") ? UI.zeile({
+        haken: (tag.dhikr.nachGebet || 0) >= 5,
+        text: "Adhkār nach dem Gebet",
+        wert: (tag.dhikr.nachGebet || 0) + " von 5",
+        onclick: function () {
+          tag.dhikr.nachGebet = ((tag.dhikr.nachGebet || 0) + 1) % 6;
+          speichern();
+        },
+        rechts: (tag.dhikr.nachGebet || 0) > 0 ? UI.el("button.mini.klein", {
+          type: "button", "aria-label": "eins weniger",
+          onclick: function (ev) {
+            ev.stopPropagation();
+            tag.dhikr.nachGebet = Math.max(0, (tag.dhikr.nachGebet || 0) - 1);
+            speichern();
+          }
+        }, "−") : null
+      }) : null
+    ].filter(Boolean);
 
-      UI.el("div.block", [
+    wurzel.appendChild(UI.el("div.inhalt", [
+      UI.datumsband(laden),
+
+      feste.length ? UI.el("div.block", [
         UI.el("div.blockkopf", { text: "Feste Adhkār" }),
-        UI.el("div.gruppe", [
-          UI.zeile({
-            haken: tag.dhikr.morgens, text: "Adhkār am Morgen", ar: "أذكار الصباح",
-            wert: "nach Fajr",
-            onclick: function () { tag.dhikr.morgens = !tag.dhikr.morgens; speichern(); }
-          }),
-          UI.zeile({
-            haken: tag.dhikr.abends, text: "Adhkār am Abend", ar: "أذكار المساء",
-            wert: "nach ʿAṣr",
-            onclick: function () { tag.dhikr.abends = !tag.dhikr.abends; speichern(); }
-          }),
-          UI.zeile({
-            haken: (tag.dhikr.nachGebet || 0) >= 5,
-            text: "Adhkār nach dem Gebet",
-            wert: (tag.dhikr.nachGebet || 0) + " von 5",
-            onclick: function () {
-              tag.dhikr.nachGebet = ((tag.dhikr.nachGebet || 0) + 1) % 6;
-              speichern();
-            }
-          })
-        ])
-      ]),
+        UI.el("div.gruppe", feste)
+      ]) : null,
 
       zaehlerKarte("istighfar", "Istighfār", "أستغفر الله", 100, [10, 33, 100]),
       zaehlerKarte("salawat", "Salawāt auf den Propheten ﷺ", "الصلاة على النبي", salawatZiel, [10, 33, 100]),
@@ -93,15 +104,15 @@ var AnsichtAdhkar = (function () {
       ]) : null,
 
       UI.el("p.klein", {
-        text: "Die Zähler laufen bis Mitternacht und beginnen dann neu. Alte Tage bleiben im Spiegel sichtbar."
+        text: "Die Zähler laufen bis Mitternacht und beginnen dann neu. Über das Datumsband oben trägst du auch für einen vergangenen Tag nach."
       })
     ].filter(Boolean)));
   }
 
-  function oeffnen(root) {
-    wurzel = root;
+  function laden() {
     return Store.tag().then(function (t) { tag = t; zeichne(); });
   }
+  function oeffnen(root) { wurzel = root; return laden(); }
   function schliessen() { wurzel = null; }
 
   return { oeffnen: oeffnen, schliessen: schliessen };

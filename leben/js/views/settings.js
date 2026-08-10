@@ -93,8 +93,8 @@ var AnsichtMehr = (function () {
             { wert: "sanft", text: "Sanft und ermutigend" }
           ], function (v) { s.ton = v; Store.einstellungenSpeichern().then(zeichne); }),
           auswahl("Darstellung", s.thema, [
-            { wert: "dunkel", text: "Dunkel (Standard)" },
-            { wert: "hell", text: "Hell" },
+            { wert: "hell", text: "Hell (Standard)" },
+            { wert: "dunkel", text: "Dunkel" },
             { wert: "system", text: "Automatisch — folgt dem iPhone" }
           ], function (v) {
             s.thema = v;

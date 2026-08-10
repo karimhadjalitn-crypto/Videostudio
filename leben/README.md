@@ -1,6 +1,6 @@
 # Mīzān ⚖️
 
-**Dein Tag, gewogen.** Eine persönliche Lebens-App — dunkel, offline, ohne Konto,
+**Dein Tag, gewogen.** Eine persönliche Lebens-App — hell, offline, ohne Konto,
 ohne Server, ohne Kosten. Alle Daten liegen ausschließlich auf deinem Gerät.
 
 Das vollständige Konzept steht in [`../KONZEPT.md`](../KONZEPT.md).
@@ -9,9 +9,37 @@ Das vollständige Konzept steht in [`../KONZEPT.md`](../KONZEPT.md).
 
 ## Was die App kann
 
-**Heute** — ein Bildschirm. Nächstes Gebet ganz oben mit Restzeit und drei
-Schnellknöpfen, Tagesscore als Ring, was heute noch offen ist, ein Vers,
-und ab Maghrib die Abendabrechnung.
+**Heute** — ein Bildschirm. Ganz oben das **Datumsband**: du blätterst zurück und
+trägst für einen vergangenen Tag genauso ein wie für heute. Darunter das nächste
+Gebet mit Restzeit und drei Schnellknöpfen, der Tagesscore als Ring, die
+**Tagespunkte** und ab Maghrib die Abendabrechnung.
+
+Ein erledigter Punkt **verschwindet nicht** — er bekommt einen Haken und bleibt
+stehen. Ein zweiter Tipp nimmt ihn wieder zurück. Das gilt überall in der App.
+
+**Tagespunkte anpassen** — über *Anpassen* auf „Heute" oder aus jedem Bereich
+heraus. Du kannst 26 Standardpunkte einzeln ausschalten (sie verschwinden aus der
+Liste **und** aus dem Score) und beliebig viele eigene anlegen, in jedem Bereich,
+mit sieben Erfassungsarten:
+
+| Art | Wofür |
+|---|---|
+| Haken | erledigt oder nicht |
+| Drei Stufen | ganz · teilweise · gar nicht |
+| Skala 1–5 | wie gut lief es |
+| Zähler | wie oft, mit Tagesziel |
+| Zahl | freier Wert mit Einheit |
+| Uhrzeit | wann |
+| Text | ein Satz |
+
+Eigene Punkte zählen im Score ihres Bereichs mit — höchstens 15 von 100 je Punkt
+und zusammen nie mehr als die Hälfte des Bereichs.
+
+**Alte Tage** — jede Ansicht, die einen Tag erfasst, trägt das Datumsband: Gebete,
+Qur'an, Adhkār, Fasten, Körper, Ernährung, Schlaf, Arbeit, Business, Finanzen,
+Soziales, Innenleben und der geschützte Bereich. Beim Rückblick färbt sich das Band
+und die Reiterleiste bekommt einen Streifen — damit nie im falschen Tag landet, wer
+das Zurückblättern vergessen hat. In die Zukunft geht es nicht.
 
 **Gebete** — die fünf Pflichtgebete mit **fünf Qualitätsstufen** statt eines Hakens:
 
@@ -28,7 +56,10 @@ und ein Streifen über die letzten sieben Tage.
 
 **Religion** — Übersicht mit dem Religions-Anteil des Tagesscores und fünf Bereichen:
 
-- **Qur'an** — Hifz-Bestand mit Status je Sure, die Sure, die du gerade lernst,
+- **Qur'an** — Hifz-Bestand mit Status je Sure, die Sure, die du gerade lernst
+  (mit **Rückgängig**, falls du einmal zu früh auf „Sitzt" getippt hast),
+  **Bücher**, die du selbst anlegst und löschst — mit genauer Eingabe für die Seiten
+  eines Tages, die aktuelle Seite und den Gesamtumfang,
   und der **Murājaʿa-Plan**: dein Bestand in sechs Tagesblöcken, aufgeteilt nach
   **Versanzahl** statt nach Suren-Anzahl. Sonntag ist Prüfungstag. Was du als
   *wackelig* markierst, kommt bis auf Weiteres täglich dran. Der Fortschrittsbalken
@@ -54,8 +85,12 @@ Am Ende stehen alle Ergänzungen des Tages noch einmal zusammen.
 
 **Kalender** — Monatsraster mit gregorianischem **und** Hijri-Datum in jeder Zelle.
 Der Tagesscore färbt die Zelle ein. Markiert werden weiße Tage, Jumuʿa, islamische
-Termine, Fastenvorschläge und deine Arbeitstage. Ein Tipp auf einen Tag zeigt
-Gebetszeiten, Anlässe und was an dem Tag erfasst wurde.
+Termine, Fastenvorschläge, deine Arbeitstage und **eigene Einträge**. Ein Tipp auf
+einen Tag zeigt Gebetszeiten, Anlässe und was an dem Tag erfasst wurde.
+
+**Eigene Einträge** legst du direkt für den gewählten Tag an, mit Uhrzeit oder
+ganztägig — auch für die Zukunft. Und *„Diesen Tag nachtragen"* springt in die
+Tagesansicht dieses Tages, wo du alles nacherfassen kannst.
 
 **Bereiche** — Übersicht über alle Lebensbereiche mit Tagesscore und dem
 Gewicht, mit dem jeder eingeht: Religion · Arbeit & Uni · Körper & Sport ·
@@ -73,9 +108,11 @@ Export und Import.
 
 ## Erscheinungsbild
 
-**Dunkel ist der Standard** — echtes OLED-Schwarz, damit es um 3 Uhr vor Fajr
-nicht blendet. Zusätzlich gibt es **Hell** (für draußen im Sommer) und
-**Automatisch**, das dem iPhone folgt. Umschaltbar unter *Mehr → Erscheinungsbild*.
+**Hell ist der Standard** und der Zustand, auf den alles hin entworfen ist: weißer
+Kartengrund auf ruhigem Neutralgrau, Erhebung über weiche Schatten statt über
+Rahmen, großzügige Abstände. Zusätzlich gibt es **Dunkel** (echtes OLED-Schwarz für
+die Zeit vor Fajr) und **Automatisch**, das dem iPhone folgt. Umschaltbar unter
+*Mehr → Erscheinungsbild*.
 
 Jede Farbe läuft über eine CSS-Variable — es gibt keine fest verdrahtete Farbe,
 die nur in einer der beiden Varianten funktioniert.
@@ -218,7 +255,8 @@ leben/
     ayat.js              Vers des Tages
     ui.js                Bausteine der Oberfläche
     assistant.js         Regeln und Texte des Assistenten
-    views/               today · prayers · muhasaba · mirror · settings
+    punkte.js            eigene Tagespunkte, Sichtbarkeit der Standardpunkte
+    views/               today · punkte · prayers · muhasaba · mirror · settings
     app.js               Router
   data/ayat.json
   tools/generate_icons.py
@@ -230,7 +268,7 @@ Kein Build-Werkzeug, keine Abhängigkeiten. Reine Dateien, wie die Arabisch-App.
 
 ## Stand
 
-**Alle acht Phasen sind gebaut.** Die App ist vollständig.
+**Alle neun Phasen sind gebaut.** Die App ist vollständig.
 
 | Phase | Inhalt |
 |---|---|
@@ -242,6 +280,7 @@ Kein Build-Werkzeug, keine Abhängigkeiten. Reine Dateien, wie die Arabisch-App.
 | 6 | Finanzen, Soziales, Innenleben, Ehe, geschützter Bereich |
 | 7 | Spiegel: Heatmaps, Serie, Wochenbericht, Zusammenhänge |
 | 8 | Reise- und Ramaḍān-Modus |
+| 9 | Datumsband für alte Tage, eigene Tagespunkte, Kalendereinträge, helles Premium-Design |
 
 
 ---

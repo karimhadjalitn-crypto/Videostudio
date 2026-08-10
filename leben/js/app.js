@@ -53,6 +53,8 @@
                   modul: function () { return AnsichtTermine; } },
     briefing:   { titel: "Morgenbriefing", versteckt: true, reiter: "heute",
                   modul: function () { return AnsichtBriefing; } },
+    punkte:     { titel: "Tagespunkte", versteckt: true, reiter: "heute",
+                  modul: function () { return AnsichtPunkte; } },
     muhasaba:     { titel: "Muḥāsaba", versteckt: true, vollbild: true,
                     modul: function () { return AnsichtMuhasaba; } },
     erinnerungen: { titel: "Erinnerungen", versteckt: true, reiter: "kalender",
@@ -93,6 +95,8 @@
     // Die Muḥāsaba läuft im Vollbild; die anderen behalten die Leiste,
     // damit man nicht in einer Ansicht festsitzt.
     document.body.classList.toggle("ohne-leiste", !!ANSICHTEN[k].vollbild);
+    // Rückblick sichtbar machen, auch in Ansichten ohne Datumsband
+    document.body.classList.toggle("istrueckblick", !Store.istHeute());
     window.scrollTo(0, 0);
     Promise.resolve(modul.oeffnen(wurzel)).catch(function (fehler) {
       wurzel.appendChild(UI.el("div.karte.hinweis", [

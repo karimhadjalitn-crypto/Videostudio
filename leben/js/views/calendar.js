@@ -65,6 +65,9 @@ var AnsichtKalender = (function () {
         if (anlass && anlass.art === "gross") marken.push(UI.el("i.m-gross"));
         if (d.getDay() === 5) marken.push(UI.el("i.m-jumua"));
         if (Termine.fuerTag(d).length) marken.push(UI.el("i.m-termin"));
+        if ((Store.einstellungen.eintraege || []).some(function (x) { return x.datum === k; })) {
+          marken.push(UI.el("i.m-eigen"));
+        }
 
         zellen.push(UI.el(klassen, {
           onclick: function () { gewaehlt = gewaehlt === k ? null : k; zeichne(); }
@@ -90,8 +93,59 @@ var AnsichtKalender = (function () {
       UI.el("span", [UI.el("i.m-jumua"), "Jumuʿa"]),
       UI.el("span", [UI.el("i.m-gross"), "Islamischer Termin"]),
       UI.el("span", [UI.el("i.m-termin"), "Termin"]),
+      UI.el("span", [UI.el("i.m-eigen"), "Eigener Eintrag"]),
       UI.el("span", [UI.el("i.feld.s3"), "Tagesscore"])
     ]);
+  }
+
+  /* Einmalige Einträge für den gewählten Tag */
+  function eintragKarte() {
+    if (!gewaehlt) return null;
+    var e = Store.einstellungen;
+    var meine = (e.eintraege || []).filter(function (x) { return x.datum === gewaehlt; });
+
+    var nameFeld = UI.el("input.aufgabenfeld.gross", {
+      type: "text", placeholder: "Was steht an?",
+      onkeydown: function (ev) { if (ev.key === "Enter") anlegen(); }
+    });
+    var zeitFeld = UI.el("input.feld.zeit", { type: "time" });
+
+    function anlegen() {
+      var n = nameFeld.value.trim();
+      if (!n) return;
+      if (!e.eintraege) e.eintraege = [];
+      e.eintraege.push({
+        id: "e" + Date.now().toString(36), datum: gewaehlt,
+        name: n, von: zeitFeld.value || null
+      });
+      nameFeld.value = "";
+      Store.einstellungenSpeichern().then(zeichne);
+      UI.meldung("Eingetragen.");
+    }
+
+    return UI.el("div.karte", [
+      UI.el("span.etikett", { text: "Eigene Einträge an diesem Tag" }),
+      meine.length ? UI.el("div.gruppe.blank", meine.map(function (x) {
+        return UI.el("div.zeile", [
+          UI.el("span.zt.dehnbar", { text: x.name }),
+          x.von ? UI.el("span.zw", { text: x.von }) : null,
+          UI.el("button.loeschen", {
+            type: "button",
+            onclick: function () {
+              var i = e.eintraege.indexOf(x);
+              if (i >= 0) e.eintraege.splice(i, 1);
+              Store.einstellungenSpeichern().then(zeichne);
+            }
+          }, "×")
+        ].filter(Boolean));
+      })) : null,
+      nameFeld,
+      UI.el("div.zeitreihe", [
+        zeitFeld,
+        UI.el("button.mini", { type: "button", onclick: anlegen }, "Eintragen")
+      ]),
+      UI.el("p.klein", { text: "Ohne Uhrzeit gilt der Eintrag als ganztägig." })
+    ].filter(Boolean));
   }
 
   function tagesKarte() {
@@ -104,6 +158,7 @@ var AnsichtKalender = (function () {
     var e = Store.einstellungen;
 
     var termine = Termine.fuerTag(d);
+    var eigene = (Store.einstellungen.eintraege || []).filter(function (x) { return x.datum === gewaehlt; });
     var hinweise = [];
     if (anlass) hinweise.push(anlass.name);
     if (d.getDay() === 5) {
@@ -124,9 +179,12 @@ var AnsichtKalender = (function () {
       hinweise.length ? UI.el("div.thinweise", hinweise.map(function (x) {
         return UI.el("span.thin", { text: x });
       })) : null,
-      termine.length ? UI.el("div.gruppe.blank", termine.map(function (x) {
-        return UI.zeile({ text: x.name, wert: x.von + (x.bis ? "–" + x.bis : "") });
-      })) : null,
+      (termine.length || eigene.length) ? UI.el("div.gruppe.blank",
+        termine.map(function (x) {
+          return UI.zeile({ text: x.name, wert: x.von + (x.bis ? "–" + x.bis : "") });
+        }).concat(eigene.map(function (x) {
+          return UI.zeile({ text: x.name, wert: x.von || "ganztägig" });
+        }))) : null,
       UI.el("div.gzeiten", ["fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha"].map(function (k) {
         var w = eintrag && eintrag.gebete ? eintrag.gebete[k] : null;
         return UI.el("span.gz" + (w ? ".w-" + w : ""), [
@@ -191,6 +249,69 @@ var AnsichtKalender = (function () {
     ]);
   }
 
+  /* Direkt zu diesem Tag springen und dort eintragen.
+     Für morgen gibt es nichts einzutragen — Termine ja, Taten nein. */
+  function bearbeitenKnopf() {
+    if (!gewaehlt) return null;
+    if (gewaehlt > Store.heute()) {
+      return UI.el("div.notiz", {
+        text: "Ein künftiger Tag lässt sich planen, aber nicht abhaken. Trag unten ein, was ansteht."
+      });
+    }
+    return UI.el("button.cta", {
+      type: "button",
+      onclick: function () {
+        Store.setzeDatum(gewaehlt);
+        location.hash = "#/heute";
+      }
+    }, gewaehlt === Store.heute() ? "Zum heutigen Tag" : "Diesen Tag nachtragen");
+  }
+
+  /* Lücken der letzten 30 Tage.
+     „Da weiß ich nicht mehr alles" — deshalb zeigt Mīzān, welche Tage
+     leer sind, statt darauf zu warten, dass es dir auffällt. */
+  function hatEintrag(t) {
+    if (!t) return false;
+    if (t.muhasaba || typeof t.score === "number") return true;
+    return Gebetszeiten.PFLICHT.some(function (k) { return t.gebete && t.gebete[k]; });
+  }
+
+  function lueckenKarte() {
+    var heuteKey = Store.heute();
+    var leer = [];
+    for (var i = 1; i <= 30; i++) {
+      var d = new Date(Store.ausKey(heuteKey).getTime() - i * 86400000);
+      var k = Store.key(d);
+      if (!hatEintrag(tage[k])) leer.push(k);
+    }
+    if (!leer.length) {
+      return UI.el("div.karte", [
+        UI.el("span.etikett", { text: "Lückenlos" }),
+        UI.el("p.aurteil", { text: "Die letzten 30 Tage sind alle erfasst. Genau so." })
+      ]);
+    }
+    return UI.el("div.karte" + (leer.length > 6 ? ".schuld" : ""), [
+      UI.el("span.etikett", {
+        text: UI.plural(leer.length, "Tag ohne Eintrag", "Tage ohne Eintrag") + " · letzte 30"
+      }),
+      UI.el("div.chips.umbruch", leer.slice(0, 10).map(function (k) {
+        var d = Store.ausKey(k);
+        return UI.el("button.chip", {
+          type: "button",
+          onclick: function () {
+            Store.setzeDatum(k);
+            location.hash = "#/heute";
+          }
+        }, UI.WOCHENTAGE[d.getDay()].slice(0, 2) + ", " + d.getDate() + "." + (d.getMonth() + 1) + ".");
+      })),
+      UI.el("p.klein", {
+        text: leer.length > 10
+          ? "Die zehn jüngsten stehen hier. Tippen springt in die Tagesansicht — dort trägst du alles nach."
+          : "Tippen springt in die Tagesansicht — dort trägst du alles nach."
+      })
+    ]);
+  }
+
   function exportKarte() {
     return UI.el("div.karte", [
       UI.el("span.etikett", { text: "In den iPhone-Kalender" }),
@@ -213,6 +334,9 @@ var AnsichtKalender = (function () {
       raster(),
       legende(),
       tagesKarte(),
+      bearbeitenKnopf(),
+      eintragKarte(),
+      lueckenKarte(),
       planungKarte(),
       exportKarte()
     ].filter(Boolean)));
@@ -220,8 +344,10 @@ var AnsichtKalender = (function () {
 
   function oeffnen(root) {
     wurzel = root;
-    if (!monat) monat = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-    gewaehlt = Store.key();
+    // Der Kalender öffnet dort, wo du gerade stehst — nicht immer im Heute
+    gewaehlt = Store.datum();
+    var g = Store.ausKey(gewaehlt);
+    monat = new Date(g.getFullYear(), g.getMonth(), 1);
     return Store.alleTage().then(function (liste) {
       tage = {};
       liste.forEach(function (t) { tage[t.datum] = t; });

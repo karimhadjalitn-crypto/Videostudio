@@ -172,6 +172,19 @@ var Hifz = (function () {
     return Store.einstellungenSpeichern().then(function () { return n; });
   }
 
+  /* Rückgängig: die zuletzt abgeschlossene Sure wieder ins Lernen holen.
+     Ein Fehltipp darf den Bestand nicht dauerhaft verfälschen. */
+  function abschlussRueckgaengig() {
+    var a = aktuelle();
+    var h = Store.einstellungen.hifz;
+    // Die Sure davor auf dem Rückwärtsweg ist die zuletzt abgeschlossene
+    var vorher = a ? sure(a.nr + 1) : null;
+    if (!vorher || h.status[vorher.nr] !== "fertig") return Promise.resolve(null);
+    if (a) delete h.status[a.nr];
+    h.status[vorher.nr] = "lernt";
+    return Store.einstellungenSpeichern().then(function () { return vorher; });
+  }
+
   /* Erstbefüllung: an-Nās (114) bis al-Muzzammil (73) fertig, al-Jinn (72) im Lernen */
   function grundbestand() {
     var st = {};
@@ -184,7 +197,8 @@ var Hifz = (function () {
     laden: laden, sure: sure, alleSuren: alleSuren,
     fertige: fertige, wackelige: wackelige, aktuelle: aktuelle, naechste: naechste,
     juzFortschritt: juzFortschritt, bloecke: bloecke, heuteDran: heuteDran,
-    setzen: setzen, abschliessen: abschliessen, grundbestand: grundbestand,
+    setzen: setzen, abschliessen: abschliessen, abschlussRueckgaengig: abschlussRueckgaengig,
+    grundbestand: grundbestand,
     gesamtVerse: gesamtVerse, WOCHENBLOECKE: WOCHENBLOECKE
   };
 })();

@@ -6,20 +6,17 @@ var AnsichtKoerper = (function () {
   var wurzel = null, tag = null, tage = [];
 
   function speichern() {
-    tag.score = Score.fuer(tag, { wocheTrainings: wocheTrainings() }).wert;
+    tag.score = Score.fuer(tag).wert;
     return Store.tagSpeichern(tag).then(zeichne);
   }
-  function wocheTrainings() {
-    return tage.slice(-6).concat([tag]).filter(function (t) {
-      return t.training && (t.training.arten || []).length;
-    }).length;
-  }
+  function wocheTrainings() { return Score.trainingsDieseWoche(tag); }
+  function woche() { return Store.fensterBis(tag.datum, 7, tag); }
 
   function trainingKarte() {
     var e = Store.einstellungen;
     var arten = (tag.training && tag.training.arten) || [];
     return UI.el("div.karte" + (arten.length ? ".held" : ""), [
-      UI.el("span.etikett", { text: "Heute trainiert" }),
+      UI.el("span.etikett", { text: UI.tagWort() + " trainiert" }),
       UI.el("div.chips", e.sport.arten.map(function (a) {
         var an = arten.indexOf(a) >= 0;
         return UI.el("button.chip" + (an ? ".an" : ""), {
@@ -48,7 +45,7 @@ var AnsichtKoerper = (function () {
     var e = Store.einstellungen;
     var n = wocheTrainings();
     var ziel = e.sport.wochenziel;
-    var alle = tage.slice(-6).concat([tag]);
+    var alle = woche();
     return UI.el("div.karte", [
       UI.el("span.etikett", { text: "Diese Woche" }),
       UI.el("div.gebetzeile", [
@@ -124,7 +121,7 @@ var AnsichtKoerper = (function () {
       ]);
     }
     return UI.el("div.karte", [
-      UI.el("span.etikett", { text: "Schritte heute" }),
+      UI.el("span.etikett", { text: "Schritte " + UI.tagWortKlein() }),
       UI.el("div.zfwert", { text: UI.zahl(tag.schritte) }),
       UI.balken(tag.schritte / 10000)
     ]);
@@ -135,18 +132,20 @@ var AnsichtKoerper = (function () {
     UI.leeren(wurzel);
     wurzel.appendChild(UI.kopf("Körper", UI.plural(wocheTrainings(), "Training", "Trainings") + " diese Woche", ""));
     wurzel.appendChild(UI.el("div.inhalt", [
-      trainingKarte(), wocheKarte(), gewichtKarte(), schritteKarte()
-    ]));
+      UI.datumsband(laden),
+      trainingKarte(), wocheKarte(), gewichtKarte(), schritteKarte(),
+      Eigene.block("koerper", tag, laden)
+    ].filter(Boolean)));
   }
 
-  function oeffnen(root) {
-    wurzel = root;
+  function laden() {
     return Promise.all([Store.tag(), Store.letzteTage(90)]).then(function (r) {
       tag = r[0];
       tage = r[1].filter(function (t) { return t.datum !== tag.datum; });
       zeichne();
     });
   }
+  function oeffnen(root) { wurzel = root; return laden(); }
   return { oeffnen: oeffnen, schliessen: function () { wurzel = null; } };
 })();
 
@@ -194,8 +193,7 @@ var AnsichtErnaehrung = (function () {
 
   function suessKarte() {
     var e = Store.einstellungen;
-    var woche = tage.slice(-6).concat([tag]);
-    var ausnahmen = woche.filter(function (t) {
+    var ausnahmen = Store.fensterBis(tag.datum, 7, tag).filter(function (t) {
       return t.essen && (t.essen.suess === "wenig" || t.essen.suess === "viel");
     }).length;
     var erlaubt = e.essen.suessAusnahmen;
@@ -206,7 +204,7 @@ var AnsichtErnaehrung = (function () {
       { k: "viel", t: "Zu viel" }
     ];
     return UI.el("div.karte", [
-      UI.el("span.etikett", { text: "Süßigkeiten heute" }),
+      UI.el("span.etikett", { text: "Süßigkeiten " + UI.tagWortKlein() }),
       UI.el("div.fragen", { style: "margin-top:.6rem" }, stufen.map(function (s) {
         var an = tag.essen.suess === s.k;
         return UI.el("button.fbtn" + (an ? ".an" : ""), {
@@ -261,21 +259,23 @@ var AnsichtErnaehrung = (function () {
     UI.leeren(wurzel);
     wurzel.appendChild(UI.kopf("Ernährung", "Regeln statt Kalorien", ""));
     wurzel.appendChild(UI.el("div.inhalt", [
+      UI.datumsband(laden),
       wasserKarte(), suessKarte(), regelnBlock(), supplementeBlock(),
+      Eigene.block("ernaehrung", tag, laden),
       UI.el("p.klein", {
         text: "Kein Kalorienzählen, kein Essenstagebuch, kein Intervallfasten — so wolltest du es."
       })
-    ]));
+    ].filter(Boolean)));
   }
 
-  function oeffnen(root) {
-    wurzel = root;
+  function laden() {
     return Promise.all([Store.tag(), Store.letzteTage(14)]).then(function (r) {
       tag = r[0];
       tage = r[1].filter(function (t) { return t.datum !== tag.datum; });
       zeichne();
     });
   }
+  function oeffnen(root) { wurzel = root; return laden(); }
   return { oeffnen: oeffnen, schliessen: function () { wurzel = null; } };
 })();
 
@@ -314,22 +314,26 @@ var AnsichtSchlaf = (function () {
   }
 
   function sommerHinweis() {
-    var z = Gebetszeiten.fuer(new Date());
-    var isha = z.isha, fajr = Gebetszeiten.fuer(new Date(Date.now() + 86400000)).fajr;
+    var d = Store.ausKey(tag.datum);
+    var z = Gebetszeiten.fuer(d);
+    var isha = z.isha;
+    var fajr = Gebetszeiten.fuer(new Date(d.getTime() + 86400000)).fajr;
     var nachtMin = Math.round((fajr - isha) / 60000);
     if (nachtMin > 300) return null;    // nur wenn es wirklich eng wird
     var std = Math.floor(nachtMin / 60), min = nachtMin % 60;
     return UI.el("div.karte.hinweis", [
       UI.el("div.hz", {
         text: "Zwischen ʿIshā' (" + Gebetszeiten.uhr(isha) + ") und Fajr (" +
-              Gebetszeiten.uhr(fajr) + ") liegen heute nur " + std + " Std " + min + " Min. " +
+              Gebetszeiten.uhr(fajr) + ") liegen nur " + std + " Std " + min + " Min. " +
               "Auf 48° Nord ist das im Hochsommer normal — plan den zweiten Block danach ein."
       })
     ]);
   }
 
   function verlaufKarte() {
-    var alle = tage.slice(-14).concat([tag]);
+    var alle = Store.fensterBis(tag.datum, 14, tag).filter(function (t) {
+      return t.schlaf && t.schlaf.bett;
+    });
     var vorMitternacht = alle.filter(function (t) {
       if (!t.schlaf || !t.schlaf.bett) return false;
       var h = +t.schlaf.bett.split(":")[0];
@@ -361,6 +365,7 @@ var AnsichtSchlaf = (function () {
     UI.leeren(wurzel);
     wurzel.appendChild(UI.kopf("Schlaf", "Ziel: vor " + e.schlafZiel + " im Bett", ""));
     wurzel.appendChild(UI.el("div.inhalt", [
+      UI.datumsband(laden),
       zeitKarte("bett", "Zu Bett gegangen", "Dein Ziel ist vor 0 Uhr."),
       UI.el("div.karte" + (tag.schlaf.fajrAuf ? ".held" : ""), [
         UI.el("span.etikett", { text: "Geteilter Schlaf" }),
@@ -377,17 +382,18 @@ var AnsichtSchlaf = (function () {
       ]),
       zeitKarte("auf", "Endgültig aufgestanden"),
       sommerHinweis(),
-      verlaufKarte()
+      verlaufKarte(),
+      Eigene.block("schlaf", tag, laden)
     ].filter(Boolean)));
   }
 
-  function oeffnen(root) {
-    wurzel = root;
+  function laden() {
     return Promise.all([Store.tag(), Store.letzteTage(21)]).then(function (r) {
       tag = r[0];
       tage = r[1].filter(function (t) { return t.datum !== tag.datum; });
       zeichne();
     });
   }
+  function oeffnen(root) { wurzel = root; return laden(); }
   return { oeffnen: oeffnen, schliessen: function () { wurzel = null; } };
 })();

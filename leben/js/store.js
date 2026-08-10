@@ -27,7 +27,7 @@ var Store = (function () {
        al-Jinn (72) wird gerade gelernt. Wird beim ersten Start befüllt. */
     hifz: { status: {}, richtung: "rueckwaerts" },
     fasten: { qada: 0 },
-    thema: "dunkel",        // dunkel | hell | system
+    thema: "hell",          // hell | dunkel | system
     gewichte: {
       religion: 45, produktivitaet: 18, sport: 12,
       schlaf: 8, ernaehrung: 8, soziales: 5, innen: 4
@@ -99,6 +99,16 @@ var Store = (function () {
     ],
     sperre: { appCode: "", bereichCode: "" },
 
+    /* ---------- Eigene Tagespunkte ----------
+       Frei anlegbar, in jedem Bereich, mit verschiedenen Erfassungsarten. */
+    eigenePunkte: [],
+
+    /* Ausgeblendete Standardpunkte (Schlüssel wie "sunnah.duha") */
+    ausgeblendet: [],
+
+    /* Einmalige Kalendereinträge */
+    eintraege: [],
+
     /* ---------- Sondermodi ---------- */
     reise: { aktiv: false, ort: "", von: null, bis: null },
 
@@ -124,19 +134,40 @@ var Store = (function () {
       schritte: null,
       bildschirm: { gearbeitet: null, gescrollt: null },
       arbeit: { erledigt: 0, wichtigste: [] },
-      business: { videos: 0, produkte: 0, skripte: 0 },
+      business: { videos: 0, produkte: 0, skripte: 0, check: {} },
       ausgaben: [],          // { betrag, kategorie, notiz }
       sadaqa: 0,
       kontakte: {},          // name -> true, wenn heute erreicht
       kaempfe: { rueckfall: [], ausloeser: {} },
       stimmung: null,
       dankbar: [],
+      eigene: {},           // id -> Wert der eigenen Punkte
       schlaf: { bett: null, auf: null, fajrAuf: false },
       notiz: "",
       reise: false,
       muhasaba: false,
       score: null
     };
+  }
+
+  /* ---------- Datums-Kontext ----------
+     Alle Ansichten arbeiten auf diesem Datum. Standard ist heute; über das
+     Datumsband blätterst du zurück und trägst für alte Tage genauso ein. */
+  var gewaehltesDatum = null;
+
+  function heute() { return key(new Date()); }
+  function datum() { return gewaehltesDatum || heute(); }
+  function setzeDatum(k) {
+    gewaehltesDatum = (k === heute()) ? null : k;
+    return API.datum();
+  }
+  function istHeute() { return datum() === heute(); }
+  function datumVerschieben(tage) {
+    var d = ausKey(datum());
+    d.setDate(d.getDate() + tage);
+    var neu = key(d);
+    if (neu > heute()) neu = heute();     // Zukunft gibt es nicht
+    return setzeDatum(neu);
   }
 
   /* ---------- Datum ---------- */
@@ -194,6 +225,39 @@ var Store = (function () {
     return out;
   }
 
+  /* ---------- Tagescache ----------
+     Der Score braucht den Wochenzusammenhang: wie oft wurde diese Woche
+     trainiert, wann war der letzte Kontakt. Früher musste jede Ansicht das
+     selbst mitliefern — je nachdem, von wo aus gespeichert wurde, kam ein
+     anderer Score heraus. Der Cache macht das eindeutig. */
+  var tageCache = [];
+
+  function tageImSpeicher() { return tageCache; }
+
+  /* Die n Kalendertage, die auf `bis` enden — Lücken werden zu leeren Tagen.
+     Damit stimmen Wochenstreifen und Wochenzähler auch im Rückblick; vorher
+     hingen sie an den zuletzt gespeicherten Tagen, egal welchen. */
+  function fensterBis(bis, n, live) {
+    var karte = {};
+    tageCache.forEach(function (t) { karte[t.datum] = t; });
+    if (live) karte[live.datum] = live;
+    var d = ausKey(bis), out = [];
+    for (var i = n - 1; i >= 0; i--) {
+      var k = key(new Date(d.getFullYear(), d.getMonth(), d.getDate() - i));
+      out.push(karte[k] || leererTag(k));
+    }
+    return out;
+  }
+
+  function cacheAktualisieren(t) {
+    var kopie = JSON.parse(JSON.stringify(t));
+    for (var i = 0; i < tageCache.length; i++) {
+      if (tageCache[i].datum === t.datum) { tageCache[i] = kopie; return; }
+    }
+    tageCache.push(kopie);
+    tageCache.sort(function (a, b) { return a.datum < b.datum ? -1 : 1; });
+  }
+
   function bereit() {
     return oeffnen().then(function () {
       return anfrage(tx("kv").get("einstellungen"));
@@ -203,6 +267,8 @@ var Store = (function () {
       if (typeof einstellungen.hifz.aktuell === "string") delete einstellungen.hifz.aktuell;
       if (typeof einstellungen.hifz.verse === "number") delete einstellungen.hifz.verse;
       API.einstellungen = einstellungen;
+      return alleTage();
+    }).then(function () {
       return einstellungen;
     });
   }
@@ -213,24 +279,28 @@ var Store = (function () {
   }
 
   function tag(k) {
-    k = k || key();
+    k = k || datum();
     return anfrage(tx("tage").get(k)).then(function (t) {
       return t ? tief(leererTag(k), t) : leererTag(k);
     });
   }
 
   function tagSpeichern(t) {
+    cacheAktualisieren(t);
     return anfrage(tx("tage", "readwrite").put(t));
   }
 
   function alleTage() {
-    return anfrage(tx("tage").getAll());
+    return anfrage(tx("tage").getAll()).then(function (liste) {
+      liste.sort(function (a, b) { return a.datum < b.datum ? -1 : 1; });
+      tageCache = liste;
+      return liste;
+    });
   }
 
   /* Letzte n Tage, aufsteigend sortiert */
   function letzteTage(n) {
     return alleTage().then(function (liste) {
-      liste.sort(function (a, b) { return a.datum < b.datum ? -1 : 1; });
       return n ? liste.slice(-n) : liste;
     });
   }
@@ -301,6 +371,8 @@ var Store = (function () {
       einstellungen = tief(DEFAULTS, daten.einstellungen || {});
       if (typeof einstellungen.hifz.aktuell === "string") delete einstellungen.hifz.aktuell;
       return einstellungenSpeichern();
+    }).then(function () {
+      return alleTage();      // Cache nach dem Import neu aufbauen
     });
   }
 
@@ -312,7 +384,14 @@ var Store = (function () {
     tagSpeichern: tagSpeichern,
     alleTage: alleTage,
     letzteTage: letzteTage,
+    tageImSpeicher: tageImSpeicher,
+    fensterBis: fensterBis,
     leererTag: leererTag,
+    heute: heute,
+    datum: datum,
+    setzeDatum: setzeDatum,
+    istHeute: istHeute,
+    datumVerschieben: datumVerschieben,
     aufgaben: aufgaben,
     neueAufgabe: neueAufgabe,
     aufgabeSpeichern: aufgabeSpeichern,

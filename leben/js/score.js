@@ -27,6 +27,28 @@ var Score = (function () {
 
   function paar(erreicht, moeglich) { return { got: erreicht, max: moeglich }; }
 
+  /* Ein ausgeblendeter Punkt darf nicht gegen dich zählen — sonst wäre
+     das Ausblenden eine stille Score-Strafe. */
+  function sicht(k) {
+    return (typeof Sichtbar === "undefined") ? true : Sichtbar.an(k);
+  }
+
+  /* Eigene Punkte eines Bereichs. Jeder wiegt höchstens 15 von 100,
+     zusammen nie mehr als die Hälfte — der Bereich bleibt der Bereich. */
+  function eigene(tag, bereich, tagZu) {
+    if (typeof Punkte === "undefined") return paar(0, 0);
+    var liste = Punkte.alle(bereich);
+    if (!liste.length) return paar(0, 0);
+    var g = Math.min(15, 50 / liste.length);
+    var teile = [];
+    liste.forEach(function (p) {
+      var a = Punkte.anteil(tag, p);
+      if (a === null) { if (tagZu) teile.push(paar(0, g)); return; }
+      teile.push(paar(a * g, g));
+    });
+    return summe(teile);
+  }
+
   /* Ein Ja/Nein-Punkt: offen und Tag noch nicht zu -> zählt gar nicht */
   function haken(erledigt, gewicht, tagZu) {
     if (erledigt) return paar(gewicht, gewicht);
@@ -55,19 +77,31 @@ var Score = (function () {
     });
     teile.push(paar(g.got * RELIGION.gebete, g.max * RELIGION.gebete));
 
-    // Sunan
-    var s = ["rawatib", "witr", "duha", "tahajjud", "ishraq"];
-    var sg = RELIGION.sunnah / s.length;
-    s.forEach(function (k) { teile.push(haken(tag.sunnah[k], sg, tagZu)); });
+    // Sunan – nur die eingeschalteten, ihr Gewicht verteilt sich auf sie
+    var s = ["rawatib", "witr", "duha", "tahajjud", "ishraq"]
+      .filter(function (k) { return sicht("sunnah." + k); });
+    if (s.length) {
+      var sg = RELIGION.sunnah / s.length;
+      s.forEach(function (k) { teile.push(haken(tag.sunnah[k], sg, tagZu)); });
+    }
 
     // Qur'an
-    teile.push(haken(tag.quran.murajaa, RELIGION.quran * 0.5, tagZu));
-    teile.push(haken(tag.quran.hifz, RELIGION.quran * 0.25, tagZu));
-    teile.push(haken(tag.quran.gelesen > 0, RELIGION.quran * 0.25, tagZu));
+    var q = [
+      { k: "quran.murajaa", erledigt: tag.quran.murajaa, anteil: 0.5 },
+      { k: "quran.hifz",    erledigt: tag.quran.hifz,    anteil: 0.25 },
+      { k: "quran.gelesen", erledigt: tag.quran.gelesen > 0, anteil: 0.25 }
+    ].filter(function (x) { return sicht(x.k); });
+    var qSumme = q.reduce(function (a, x) { return a + x.anteil; }, 0);
+    q.forEach(function (x) {
+      teile.push(haken(x.erledigt, RELIGION.quran * (x.anteil / qSumme), tagZu));
+    });
 
     // Adhkār
-    teile.push(haken(tag.dhikr.morgens, RELIGION.dhikr / 2, tagZu));
-    teile.push(haken(tag.dhikr.abends, RELIGION.dhikr / 2, tagZu));
+    var dh = [
+      { k: "dhikr.morgens", erledigt: tag.dhikr.morgens },
+      { k: "dhikr.abends",  erledigt: tag.dhikr.abends }
+    ].filter(function (x) { return sicht(x.k); });
+    dh.forEach(function (x) { teile.push(haken(x.erledigt, RELIGION.dhikr / dh.length, tagZu)); });
 
     // Akhlāq – nur was abends tatsächlich gefragt wurde
     var keys = Object.keys(tag.akhlaq || {});
@@ -89,20 +123,28 @@ var Score = (function () {
     var teile = [];
 
     // Wasser: anteilig, sobald der erste Schluck drin ist
-    var ziel = (e && e.wasserZiel) || 3;
-    var q = Math.min(1, (tag.wasser || 0) / ziel);
-    if (q > 0) teile.push(paar(q * 40, 40));
-    else teile.push(tagZu ? paar(0, 40) : paar(0, 0));
+    if (sicht("wasser")) {
+      var ziel = (e && e.wasserZiel) || 3;
+      var q = Math.min(1, (tag.wasser || 0) / ziel);
+      if (q > 0) teile.push(paar(q * 40, 40));
+      else teile.push(tagZu ? paar(0, 40) : paar(0, 0));
+    }
 
     // Süßigkeiten: null = noch nicht beantwortet
-    var s = tag.essen && tag.essen.suess;
-    if (s === "keine") teile.push(paar(25, 25));
-    else if (s === "wenig") teile.push(paar(15, 25));
-    else if (s === "viel") teile.push(paar(0, 25));
-    else if (tagZu) teile.push(paar(0, 25));
+    if (sicht("essen.suess")) {
+      var s = tag.essen && tag.essen.suess;
+      if (s === "keine") teile.push(paar(25, 25));
+      else if (s === "wenig") teile.push(paar(15, 25));
+      else if (s === "viel") teile.push(paar(0, 25));
+      else if (tagZu) teile.push(paar(0, 25));
+    }
 
-    teile.push(haken(tag.essen && tag.essen.nichtUeberessen, 15, tagZu));
-    teile.push(haken(tag.essen && tag.essen.protein, 10, tagZu));
+    if (sicht("essen.nichtUeberessen")) {
+      teile.push(haken(tag.essen && tag.essen.nichtUeberessen, 15, tagZu));
+    }
+    if (sicht("essen.protein")) {
+      teile.push(haken(tag.essen && tag.essen.protein, 10, tagZu));
+    }
 
     // Supplemente: anteilig nach Liste
     var liste = (e && e.essen && e.essen.supplemente) || [];
@@ -119,6 +161,7 @@ var Score = (function () {
 
   /* ---------- Sport und Körper ---------- */
   function sport(tag, tagZu, e, wocheTrainings, locker) {
+    if (!sicht("training")) return paar(0, 0);
     var arten = (tag.training && tag.training.arten) || [];
     var ziel = (e.sport && e.sport.wochenziel) || 4;
 
@@ -136,25 +179,34 @@ var Score = (function () {
   /* ---------- Produktivität ---------- */
   function produktivitaet(tag, tagZu, e) {
     var teile = [];
-    var w = (tag.arbeit && tag.arbeit.wichtigste) || [];
-    var erledigt = w.filter(function (x) { return x && x.erledigt; }).length;
+    if (sicht("arbeit.wichtigste")) {
+      var w = (tag.arbeit && tag.arbeit.wichtigste || []).filter(function (x) { return x && x.text; });
+      var erledigt = w.filter(function (x) { return x.erledigt; }).length;
+      // Die drei Wichtigsten machen den Hauptteil aus
+      if (w.length) teile.push(paar(erledigt / w.length * 55, 55));
+      else teile.push(tagZu ? paar(0, 55) : paar(0, 0));
+    }
 
-    // Die drei Wichtigsten machen den Hauptteil aus
-    if (w.length) teile.push(paar(erledigt / w.length * 55, 55));
-    else teile.push(tagZu ? paar(0, 55) : paar(0, 0));
-
-    // Business: gearbeitet ja/nein
+    // Business: gearbeitet ja/nein — nur die eingeschalteten Zähler
     var b = tag.business || {};
-    var getan = (b.videos || 0) + (b.produkte || 0) + (b.skripte || 0);
-    if (getan > 0) teile.push(paar(20, 20));
-    else teile.push(tagZu ? paar(0, 20) : paar(0, 0));
+    var bz = [
+      { k: "business.videos",   n: b.videos },
+      { k: "business.produkte", n: b.produkte },
+      { k: "business.skripte",  n: b.skripte }
+    ].filter(function (x) { return sicht(x.k); });
+    if (bz.length) {
+      var getan = bz.reduce(function (a, x) { return a + (x.n || 0); }, 0);
+      if (getan > 0) teile.push(paar(20, 20));
+      else teile.push(tagZu ? paar(0, 20) : paar(0, 0));
+    }
 
     /* Bildschirmzeit: gearbeitet zählt positiv, gescrollt negativ.
        Das ist der Punkt, an dem jeder normale Tracker bei Karim
        falschliegt — sein Geschäft läuft über dieselbe App wie seine
        größte Baustelle. */
     var bs = tag.bildschirm || {};
-    if (bs.gescrollt != null || bs.gearbeitet != null) {
+    if (!sicht("bildschirm")) { /* ausgeblendet: zählt gar nicht */ }
+    else if (bs.gescrollt != null || bs.gearbeitet != null) {
       var gescrollt = bs.gescrollt || 0;
       // 0 Min = voll, 60 Min = halb, ab 150 Min = null
       var wert = gescrollt <= 0 ? 1 : Math.max(0, 1 - gescrollt / 150);
@@ -199,13 +251,16 @@ var Score = (function () {
       else teile.push(paar(Math.max(0, 50 - (summeTag - tagesbudget) / tagesbudget * 25), 50));
     }
     // Sadaqa gegeben
-    if (tag.sadaqa > 0) teile.push(paar(50, 50));
-    else if (tagZu) teile.push(paar(0, 50));
+    if (sicht("sadaqa")) {
+      if (tag.sadaqa > 0) teile.push(paar(50, 50));
+      else if (tagZu) teile.push(paar(0, 50));
+    }
     return summe(teile);
   }
 
   /* ---------- Schlaf ---------- */
   function schlaf(tag, tagZu) {
+    if (!sicht("schlaf.bett")) return paar(0, 0);
     if (!tag.schlaf || !tag.schlaf.bett) return tagZu ? paar(0, 100) : paar(0, 0);
     var p = tag.schlaf.bett.split(":");
     var stunde = +p[0] + (+p[1]) / 60;
@@ -221,9 +276,41 @@ var Score = (function () {
   /* ---------- Innenleben ---------- */
   function innen(tag, tagZu) {
     var teile = [];
-    teile.push(tag.stimmung ? paar(60, 60) : (tagZu ? paar(0, 60) : paar(0, 0)));
-    teile.push(haken((tag.dankbar || []).length > 0, 40, tagZu));
+    if (sicht("stimmung")) {
+      teile.push(tag.stimmung ? paar(60, 60) : (tagZu ? paar(0, 60) : paar(0, 0)));
+    }
+    if (sicht("dankbar")) {
+      teile.push(haken((tag.dankbar || []).length > 0, 40, tagZu));
+    }
     return summe(teile);
+  }
+
+  /* ---------- Wochenzusammenhang ----------
+     Kommt aus dem Tagescache des Speichers, damit jede Ansicht denselben
+     Score errechnet. Vorher hing das Ergebnis davon ab, von welchem
+     Bildschirm aus gespeichert wurde. */
+  function trainingsDieseWoche(tag) {
+    var alle = (typeof Store.tageImSpeicher === "function") ? Store.tageImSpeicher() : [];
+    var ende = Store.ausKey(tag.datum);
+    var n = (tag.training && (tag.training.arten || []).length) ? 1 : 0;
+    alle.forEach(function (t) {
+      if (t.datum === tag.datum) return;
+      var diff = (ende - Store.ausKey(t.datum)) / 86400000;
+      if (diff > 0 && diff < 7 && t.training && (t.training.arten || []).length) n++;
+    });
+    return n;
+  }
+
+  function letzteKontakte(tag) {
+    var alle = (typeof Store.tageImSpeicher === "function") ? Store.tageImSpeicher() : [];
+    var out = {};
+    alle.forEach(function (t) {
+      if (t.datum >= tag.datum) return;
+      Object.keys(t.kontakte || {}).forEach(function (nm) {
+        if (t.kontakte[nm]) out[nm] = t.datum;
+      });
+    });
+    return out;
   }
 
   /* ---------- Gesamtscore ---------- */
@@ -241,7 +328,8 @@ var Score = (function () {
 
     var w = e.gewichte;
     var innenUndGeld = summe([
-      innen(tag, tagZu), finanzen(tag, tagZu, e)
+      innen(tag, tagZu), finanzen(tag, tagZu, e),
+      eigene(tag, "innen", tagZu), eigene(tag, "finanzen", tagZu)
     ]);
 
     /* Reise und Ramaḍān senken die Erwartung, statt dich an einem
@@ -250,14 +338,27 @@ var Score = (function () {
       ? Modi.nachsicht(tag)
       : { sportLocker: false, essenLocker: false };
 
+    var wt = optionen.wocheTrainings != null ? optionen.wocheTrainings : trainingsDieseWoche(tag);
+    var lk = optionen.letzterKontakt || letzteKontakte(tag);
+    var essenZu = n.essenLocker ? false : tagZu;
     var bereiche = [
-      { key: "religion",       gewicht: w.religion,       wert: religion(tag, abgelaufen, tagZu) },
-      { key: "produktivitaet", gewicht: w.produktivitaet, wert: produktivitaet(tag, tagZu, e) },
-      { key: "sport",          gewicht: w.sport,          wert: sport(tag, tagZu, e, optionen.wocheTrainings, n.sportLocker) },
-      { key: "schlaf",         gewicht: w.schlaf,         wert: schlaf(tag, tagZu) },
-      { key: "ernaehrung",     gewicht: w.ernaehrung,     wert: ernaehrung(tag, n.essenLocker ? false : tagZu, e) },
-      { key: "soziales",       gewicht: w.soziales,       wert: soziales(tag, tagZu, e, optionen.letzterKontakt) },
-      { key: "innen",          gewicht: w.innen,          wert: innenUndGeld }
+      { key: "religion",       gewicht: w.religion,
+        wert: summe([religion(tag, abgelaufen, tagZu), eigene(tag, "religion", tagZu)]) },
+      { key: "produktivitaet", gewicht: w.produktivitaet,
+        wert: summe([produktivitaet(tag, tagZu, e),
+                     eigene(tag, "arbeit", tagZu), eigene(tag, "business", tagZu),
+                     eigene(tag, "sonstiges", tagZu)]) },
+      { key: "sport",          gewicht: w.sport,
+        wert: summe([sport(tag, tagZu, e, wt, n.sportLocker),
+                     eigene(tag, "koerper", tagZu)]) },
+      { key: "schlaf",         gewicht: w.schlaf,
+        wert: summe([schlaf(tag, tagZu), eigene(tag, "schlaf", tagZu)]) },
+      { key: "ernaehrung",     gewicht: w.ernaehrung,
+        wert: summe([ernaehrung(tag, essenZu, e), eigene(tag, "ernaehrung", essenZu)]) },
+      { key: "soziales",       gewicht: w.soziales,
+        wert: summe([soziales(tag, tagZu, e, lk),
+                     eigene(tag, "soziales", tagZu)]) },
+      { key: "innen",          gewicht: w.innen, wert: innenUndGeld }
     ];
 
     var got = 0, max = 0, detail = {};
@@ -289,6 +390,7 @@ var Score = (function () {
 
   return {
     fuer: fuer, schnitt: schnitt,
+    trainingsDieseWoche: trainingsDieseWoche, letzteKontakte: letzteKontakte,
     GEBETSWERT: GEBETSWERT, GEBETSSTUFEN: GEBETSSTUFEN, RELIGION: RELIGION
   };
 })();

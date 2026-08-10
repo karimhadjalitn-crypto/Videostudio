@@ -107,56 +107,81 @@ var Assistent = (function () {
     return { urteil: urteil, morgen: morgen };
   }
 
-  /* Was ist heute noch offen? Für die Liste auf „Heute“. */
-  function offen(tag, e) {
+  /* Alle Tagespunkte mit ihrem Stand. Erledigtes verschwindet nicht —
+     es bekommt einen Haken und bleibt sichtbar. */
+  function tagesliste(tag, e) {
     var liste = [];
-    var dran = (typeof Hifz !== "undefined" && Hifz.aktuelle) ? Hifz.heuteDran() : null;
-    if (!tag.dhikr.morgens) liste.push({ key: "dhikr.morgens", text: "Adhkār am Morgen", ar: "الأذكار" });
-    if (!tag.quran.murajaa) {
-      liste.push({
-        key: "quran.murajaa", text: "Murājaʿa",
-        wert: dran ? (dran.pruefung ? "Prüfungstag" : dran.verse + " Verse") : null
-      });
-    }
-    if (!tag.quran.hifz) {
-      liste.push({
-        key: "quran.hifz", text: "Hifz — neu gelernt",
-        wert: dran && dran.neu ? dran.neu.de + " · " + dran.neu.verse + " V." : null
-      });
-    }
-    if (!tag.quran.gelesen) liste.push({ key: "quran.gelesen", text: "Qur'an gelesen" });
-    if ((tag.wasser || 0) < e.wasserZiel) {
-      liste.push({
-        key: "wasser", text: "Wasser",
-        wert: UI.zahl(tag.wasser || 0, 1).replace(".", ",") + " / " + UI.zahl(e.wasserZiel, 1) + " l"
-      });
-    }
-    if (!tag.sunnah.rawatib) liste.push({ key: "sunnah.rawatib", text: "Sunan Rawātib", wert: "12 Rakʿa" });
-    if (!tag.sunnah.witr) liste.push({ key: "sunnah.witr", text: "Witr" });
-    if (!tag.dhikr.abends) liste.push({ key: "dhikr.abends", text: "Adhkār am Abend", ar: "الأذكار" });
+    // Der Wiederholungsblock hängt am Wochentag — beim Rückblick also
+    // am Tag, den du gerade ansiehst, nicht am heutigen.
+    var dran = (typeof Hifz !== "undefined" && Hifz.aktuelle)
+      ? Hifz.heuteDran(Store.ausKey(tag.datum)) : null;
 
-    /* Die übrigen Bereiche führen nicht zum Abhaken hierher, sondern
-       verlinken dorthin, wo die Erfassung wirklich stattfindet. */
+    function dazu(k, text, opt) {
+      if (Sichtbar.aus(k)) return;
+      opt = opt || {};
+      liste.push({
+        key: k, text: text, ar: opt.ar || null, wert: opt.wert || null,
+        erledigt: !!opt.erledigt, ziel: opt.ziel || false
+      });
+    }
+
+    dazu("dhikr.morgens", "Adhkār am Morgen", { ar: "الأذكار", erledigt: tag.dhikr.morgens });
+    dazu("quran.murajaa", "Murājaʿa", {
+      wert: dran ? (dran.pruefung ? "Prüfungstag" : dran.verse + " Verse") : null,
+      erledigt: tag.quran.murajaa
+    });
+    dazu("quran.hifz", "Hifz — neu gelernt", {
+      wert: dran && dran.neu ? dran.neu.de : null, erledigt: tag.quran.hifz
+    });
+    dazu("quran.gelesen", "Qur'an gelesen", {
+      wert: tag.quran.gelesen ? tag.quran.gelesen + " S." : null,
+      erledigt: tag.quran.gelesen > 0
+    });
+    dazu("wasser", "Wasser", {
+      wert: UI.zahl(tag.wasser || 0, 1).replace(".", ",") + " / " + UI.zahl(e.wasserZiel, 1) + " l",
+      erledigt: (tag.wasser || 0) >= e.wasserZiel
+    });
+    dazu("sunnah.rawatib", "Sunan Rawātib", { wert: "12 Rakʿa", erledigt: tag.sunnah.rawatib });
+    dazu("sunnah.witr", "Witr", { erledigt: tag.sunnah.witr });
+    dazu("sunnah.duha", "Ḍuḥā", { erledigt: tag.sunnah.duha });
+    dazu("sunnah.ishraq", "Ishrāq", { erledigt: tag.sunnah.ishraq });
+    dazu("sunnah.tahajjud", "Tahajjud", { erledigt: tag.sunnah.tahajjud });
+    dazu("dhikr.nachGebet", "Adhkār nach dem Gebet", {
+      wert: (tag.dhikr.nachGebet || 0) + " von 5",
+      erledigt: (tag.dhikr.nachGebet || 0) >= 5
+    });
+    dazu("dhikr.abends", "Adhkār am Abend", { ar: "الأذكار", erledigt: tag.dhikr.abends });
+
+    /* Punkte, die woanders erfasst werden — sie führen dorthin */
     var nachsicht = (typeof Modi !== "undefined") ? Modi.nachsicht(tag) : {};
     var w = (tag.arbeit && tag.arbeit.wichtigste) || [];
     var gesetzt = w.filter(function (x) { return x && x.text; });
-    if (!gesetzt.length) {
-      liste.push({ key: "#/arbeit", ziel: true, text: "Die drei Wichtigsten setzen" });
-    } else {
-      var offenAnzahl = gesetzt.filter(function (x) { return !x.erledigt; }).length;
-      if (offenAnzahl) {
-        liste.push({ key: "#/arbeit", ziel: true, text: "Wichtigste Aufgaben",
-                     wert: offenAnzahl + " von " + gesetzt.length + " offen" });
-      }
+    if (!Sichtbar.aus("arbeit.wichtigste")) {
+      liste.push({
+        key: "#/arbeit", ziel: true, text: "Die drei Wichtigsten",
+        wert: gesetzt.length
+          ? gesetzt.filter(function (x) { return x.erledigt; }).length + " von " + gesetzt.length
+          : "offen",
+        erledigt: gesetzt.length > 0 && gesetzt.every(function (x) { return x.erledigt; })
+      });
     }
-    if (!nachsicht.sportLocker && !(tag.training && (tag.training.arten || []).length)) {
-      liste.push({ key: "#/koerper", ziel: true, text: "Training" });
+    if (!Sichtbar.aus("training") && !nachsicht.sportLocker) {
+      var arten = (tag.training && tag.training.arten) || [];
+      liste.push({
+        key: "#/koerper", ziel: true, text: "Training",
+        wert: arten.length ? arten.join(", ") : null, erledigt: arten.length > 0
+      });
     }
-    if (!tag.schlaf.bett) {
-      liste.push({ key: "#/schlaf", ziel: true, text: "Zubettgehzeit eintragen" });
+    if (!Sichtbar.aus("schlaf.bett")) {
+      liste.push({
+        key: "#/schlaf", ziel: true, text: "Zubettgehzeit",
+        wert: tag.schlaf.bett || null, erledigt: !!tag.schlaf.bett
+      });
     }
+
     return liste;
   }
 
-  return { satzZumVortag: satzZumVortag, abschluss: abschluss, offen: offen, lage: lage, ton: ton };
+  return { satzZumVortag: satzZumVortag, abschluss: abschluss,
+           tagesliste: tagesliste, lage: lage, ton: ton };
 })();

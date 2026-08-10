@@ -1,25 +1,29 @@
-/* Mīzān – Service Worker. Offline-Betrieb. */
-var CACHE = "mizan-v6";
-var ASSETS = [
-  "./",
-  "index.html",
-  "manifest.webmanifest",
+/* Mīzān – Service Worker. Offline-Betrieb.
+
+   Skripte und Stylesheet tragen die Version in der Adresse (?v=…).
+   Nur so reicht ein einziges Schließen und Neuöffnen der App: index.html
+   kommt aus dem Netz und verweist auf die neuen Adressen, die im alten
+   Cache gar nicht stehen. Ohne das käme beim ersten Öffnen noch der alte
+   Stand und erst beim zweiten der neue. */
+var VERSION = "7";
+var CACHE = "mizan-v" + VERSION;
+
+var VERSIONIERT = [
   "css/styles.css",
-  "data/ayat.json",
-  "data/suren.json",
-  "data/duas.json",
   "js/store.js",
   "js/prayer.js",
   "js/hijri.js",
   "js/score.js",
   "js/ayat.js",
   "js/hifz.js",
+  "js/punkte.js",
   "js/ics.js",
   "js/insights.js",
   "js/modi.js",
   "js/ui.js",
   "js/assistant.js",
   "js/views/today.js",
+  "js/views/punkte.js",
   "js/views/calendar.js",
   "js/views/termine.js",
   "js/views/bereiche.js",
@@ -39,13 +43,26 @@ var ASSETS = [
   "js/views/import.js",
   "js/views/settings.js",
   "js/views/einstellungen2.js",
-  "js/app.js",
+  "js/app.js"
+];
+
+var UNVERAENDERT = [
+  "./",
+  "index.html",
+  "manifest.webmanifest",
+  "data/ayat.json",
+  "data/suren.json",
+  "data/duas.json",
   "assets/icons/icon.svg",
   "assets/icons/icon-180.png",
   "assets/icons/icon-192.png",
   "assets/icons/icon-512.png",
   "assets/icons/icon-512-maskable.png"
 ];
+
+var ASSETS = UNVERAENDERT.concat(VERSIONIERT.map(function (u) {
+  return u + "?v=" + VERSION;
+}));
 
 self.addEventListener("install", function (e) {
   e.waitUntil(
@@ -73,6 +90,8 @@ self.addEventListener("fetch", function (e) {
   var url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
+  /* index.html immer zuerst aus dem Netz — sie entscheidet, welche
+     Fassung der Skripte geladen wird. */
   if (req.mode === "navigate") {
     e.respondWith(fetch(req).catch(function () { return caches.match("index.html"); }));
     return;

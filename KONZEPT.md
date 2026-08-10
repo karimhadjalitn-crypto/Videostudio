@@ -546,6 +546,7 @@ Wochenplanung). Ohne Sync — Daten kommen per Exportdatei rüber.
 | **6** ✔ | Finanzen, Zakat, Soziales, Ehe, Innenleben, geschützter Bereich |
 | **7** ✔ | Spiegel: Zusammenhänge, Heatmaps, Wochenbericht |
 | **8** ✔ | Reisemodus, Ramadan-Modus, Feinschliff, Design |
+| **9** ✔ | Datumsband für alte Tage, eigene Tagespunkte, Kalendereinträge, helles Premium-Design |
 
 Nach jeder Phase kannst du die App benutzen. Kein Warten auf „fertig".
 
@@ -566,8 +567,15 @@ Nach jeder Phase kannst du die App benutzen. Kein Warten auf „fertig".
 - Akhlāq-Liste: die acht Fragen bleiben wie vorgeschlagen ✔
 - Reisemodus wie in §9 beschrieben ✔
 - Name: **Mīzān** ✔
-- **Helle Variante wird zusätzlich gebaut** — Standard bleibt dunkel ✔
 - **Freies Notizfeld an jeder Frage** der Abendabrechnung ✔
+- **Hell ist der Standard** (Phase 9, auf deinen Wunsch geändert); dunkel bleibt
+  wählbar und vollständig gepflegt ✔
+- **Erledigtes verschwindet nicht**, es bekommt einen Haken und lässt sich
+  zurücknehmen ✔
+- **Alte Tage sind bearbeitbar** — über ein Datumsband in jeder erfassenden
+  Ansicht, statt nur einer Nachtrage-Maske ✔
+- **Punkte überall anpassbar** — 26 Standardpunkte abschaltbar, eigene Punkte in
+  jedem Bereich mit sieben Erfassungsarten ✔
 
 ---
 
@@ -619,8 +627,28 @@ dieser App **immer** dasselbe und wird nirgends dekorativ eingesetzt.
 
 ### Hell und dunkel
 
-**Dunkel ist der Standard** — ausgelegt darauf, um 3 Uhr vor Fajr nicht zu blenden.
-Die **helle Variante** ist gebaut, für draußen im Sommer. Drei Einstellungen unter
-*Mehr → Erscheinungsbild*: **Dunkel** (Standard) · **Hell** · **Automatisch**
-(folgt dem iPhone). Jede Farbe der App läuft über eine Variable, damit keine
-der beiden Varianten bricht.
+**Seit Phase 9 ist hell der Standard** — auf deinen Wunsch: „mit hellen Farben sieht
+alles übersichtlicher und cleaner aus." Die helle Fassung ist damit nicht mehr die
+Zweitvariante, sondern der Zustand, auf den hin entworfen wird.
+
+| Rolle | Hell |
+|---|---|
+| Grund | `#F2F2F5` — ruhiges Neutralgrau, kein reines Weiß |
+| Karte | `#FFFFFF`, erhoben über zwei weiche Schatten statt über einen Rahmen |
+| Vertieft | `#F5F5F8` für Eingabefelder |
+| Trennlinie | `rgba(18,20,26,.075)` |
+| Text | `#15171C` / 60 % / 38 % |
+| **Jade** `#17805C` | Fortschritt — dunkler als in der Nachtfassung, damit er auf Weiß trägt |
+| **Messing** `#866426` | arabische Schrift |
+| Bernstein `#9E6E17` · Rot `#BE3A2C` | Gebetsqualität, Rückblick-Band |
+
+Drei Einstellungen unter *Mehr → Erscheinungsbild*: **Hell** (Standard) ·
+**Dunkel** (echtes OLED-Schwarz, für die Zeit vor Fajr) · **Automatisch** (folgt
+dem iPhone). Jede Farbe läuft über eine Variable, damit keine der Varianten bricht.
+
+### Raum
+
+Nichts soll gequetscht wirken. Die Abstände laufen über zwei Variablen
+(`--rand`, `--luft`) und wachsen auf breiteren Geräten mit: Seitenrand 1,25 rem,
+Kartenabstand 1,05 rem, Karteninnenraum 1,15 rem, Zeilenhöhe mindestens 3,15 rem.
+Tippziele sind nirgends kleiner als 2,2 rem.

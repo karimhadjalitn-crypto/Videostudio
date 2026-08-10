@@ -2,7 +2,7 @@
 var AnsichtFasten = (function () {
   "use strict";
 
-  var wurzel = null, tag = null, tage = [];
+  var wurzel = null, tag = null;
 
   function speichern() {
     tag.score = Score.fuer(tag).wert;
@@ -10,7 +10,7 @@ var AnsichtFasten = (function () {
   }
 
   function anlassHeute() {
-    var d = new Date();
+    var d = Store.ausKey(tag.datum);
     var h = Hijri.fuer(d);
     if (h.ramadan) return { text: "Ramaḍān — Pflichtfasten", art: "pflicht" };
     if (h.weisserTag) return { text: "Weißer Tag · " + h.tag + ". " + h.monatName, art: "empfohlen" };
@@ -23,9 +23,9 @@ var AnsichtFasten = (function () {
 
   function heuteKarte() {
     var a = anlassHeute();
-    var z = Gebetszeiten.fuer(new Date());
+    var z = Gebetszeiten.fuer(Store.ausKey(tag.datum));
     return UI.el("div.karte" + (a ? ".held" : ""), [
-      UI.el("span.etikett", { text: a ? "Heute empfohlen" : "Heute" }),
+      UI.el("span.etikett", { text: a ? "Empfohlen" : UI.tagWort() }),
       UI.el("div.gebetzeile", [
         UI.el("span.gname.klein", { text: a ? a.text : "Kein Fastentag" }),
         UI.el("span.gzeit", { text: "Suḥūr bis " + Gebetszeiten.uhr(z.fajr) + " · Ifṭār " + Gebetszeiten.uhr(z.maghrib) })
@@ -34,16 +34,16 @@ var AnsichtFasten = (function () {
         UI.el("button.chip" + (tag.fasten ? ".an" : ""), {
           type: "button",
           onclick: function () { tag.fasten = !tag.fasten; speichern(); }
-        }, tag.fasten ? "Gefastet" : "Ich faste heute")
+        }, tag.fasten ? "Gefastet" : "Ich faste " + UI.tagWortKlein())
       ])
     ]);
   }
 
   /* Nächste empfohlene Fastentage aus dem Kalender */
   function vorschauBlock() {
-    var zeilen = [], heute = new Date();
+    var zeilen = [], ab = new Date();
     for (var i = 1; i <= 45 && zeilen.length < 6; i++) {
-      var d = new Date(heute.getTime() + i * 86400000);
+      var d = new Date(ab.getTime() + i * 86400000);
       var h = Hijri.fuer(d);
       var grund = null;
       if (h.ramadan) grund = "Ramaḍān";
@@ -105,8 +105,7 @@ var AnsichtFasten = (function () {
   }
 
   function bilanzKarte() {
-    var letzte30 = tage.slice(-30);
-    var n = letzte30.filter(function (t) { return t.fasten; }).length + (tag.fasten ? 1 : 0);
+    var n = Store.fensterBis(tag.datum, 30, tag).filter(function (t) { return t.fasten; }).length;
     return UI.el("div.karte", [
       UI.el("span.etikett", { text: "Letzte 30 Tage" }),
       UI.el("div.gebetzeile", [
@@ -119,10 +118,11 @@ var AnsichtFasten = (function () {
 
   function zeichne() {
     if (!wurzel) return;
-    var h = Hijri.fuer(new Date());
+    var h = Hijri.fuer(Store.ausKey(tag.datum));
     UI.leeren(wurzel);
     wurzel.appendChild(UI.kopf("Fasten", h.ramadan ? "Ramaḍān" : "Freiwillig", "الصيام"));
     wurzel.appendChild(UI.el("div.inhalt", [
+      UI.datumsband(laden),
       heuteKarte(),
       qadaKarte(),
       vorschauBlock(),
@@ -130,14 +130,10 @@ var AnsichtFasten = (function () {
     ]));
   }
 
-  function oeffnen(root) {
-    wurzel = root;
-    return Promise.all([Store.tag(), Store.letzteTage(30)]).then(function (r) {
-      tag = r[0];
-      tage = r[1].filter(function (t) { return t.datum !== tag.datum; });
-      zeichne();
-    });
+  function laden() {
+    return Store.tag().then(function (t) { tag = t; zeichne(); });
   }
+  function oeffnen(root) { wurzel = root; return laden(); }
   function schliessen() { wurzel = null; }
 
   return { oeffnen: oeffnen, schliessen: schliessen };

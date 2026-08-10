@@ -20,13 +20,15 @@ var AnsichtReligion = (function () {
 
   function zeichne() {
     if (!wurzel) return;
-    var h = Hijri.fuer(new Date());
-    var jetzt = new Date();
+    var d0 = Store.ausKey(tag.datum);
+    var h = Hijri.fuer(d0);
+    var heute = Store.istHeute();
 
     var gemacht = Gebetszeiten.PFLICHT.filter(function (k) {
       return tag.gebete[k] && tag.gebete[k] !== "verpasst";
     }).length;
-    var faellig = Gebetszeiten.faellig(jetzt).length;
+    // An vergangenen Tagen waren alle fünf fällig, nicht nur die bisherigen
+    var faellig = heute ? Gebetszeiten.faellig(new Date()).length : 5;
 
     var d = Hifz.heuteDran();
     var f = Hifz.juzFortschritt();
@@ -39,7 +41,7 @@ var AnsichtReligion = (function () {
     if (tag.dhikr.salawat) adhkarStand.push(tag.dhikr.salawat + "× Salawāt");
 
     var qada = (Store.einstellungen.fasten && Store.einstellungen.fasten.qada) || 0;
-    var fastenStand = tag.fasten ? "Heute gefastet"
+    var fastenStand = tag.fasten ? "Gefastet"
       : (qada > 0 ? qada + " Nachholtage offen" : "Kein Fastentag");
 
     var score = Score.fuer(tag);
@@ -47,11 +49,12 @@ var AnsichtReligion = (function () {
     UI.leeren(wurzel);
     wurzel.appendChild(UI.kopf("Religion", "45 % deines Tages", h.textAr));
     wurzel.appendChild(UI.el("div.inhalt", [
+      UI.datumsband(laden),
 
       UI.el("div.karte.scorekarte", [
         UI.ring((score.bereiche.religion || 0) / 100, score.bereiche.religion == null ? "–" : score.bereiche.religion),
         UI.el("div.smeta", [
-          UI.el("div.st", { text: "Religion heute" }),
+          UI.el("div.st", { text: "Religion " + UI.tagWortKlein() }),
           UI.el("div.ss", { text: "Gebete, Qur'an, Adhkār, Akhlāq" })
         ])
       ]),
@@ -68,13 +71,15 @@ var AnsichtReligion = (function () {
         f ? f.anteil : null),
 
       bereich("adhkar", "Adhkār", "الأذكار",
-        adhkarStand.length ? adhkarStand.join(" · ") : "Heute noch nichts",
+        adhkarStand.length ? adhkarStand.join(" · ") : (heute ? "Heute noch nichts" : "Nichts eingetragen"),
         null),
 
       bereich("fasten", "Fasten", "الصيام", fastenStand, null),
 
       bereich("duas", "Duʿāʾ", "الدعاء",
         "Bittgebete der Propheten und aus der Sunnah", null),
+
+      Eigene.block("religion", tag, laden),
 
       UI.el("div.karte.hinweis", [
         UI.el("div.hz", {
@@ -84,13 +89,13 @@ var AnsichtReligion = (function () {
     ]));
   }
 
-  function oeffnen(root) {
-    wurzel = root;
+  function laden() {
     return Promise.all([Store.tag(), Hifz.laden()]).then(function (r) {
       tag = r[0];
       zeichne();
     });
   }
+  function oeffnen(root) { wurzel = root; return laden(); }
   function schliessen() { wurzel = null; }
 
   return { oeffnen: oeffnen, schliessen: schliessen };

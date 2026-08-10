@@ -2,7 +2,7 @@
 var AnsichtGebete = (function () {
   "use strict";
 
-  var tag = null, tage = [], zeiten = null, wurzel = null, offenesGebet = null;
+  var tag = null, zeiten = null, wurzel = null, offenesGebet = null;
 
   function speichern() {
     tag.score = Score.fuer(tag).wert;
@@ -38,8 +38,8 @@ var AnsichtGebete = (function () {
   }
 
   function gebetsZeile(k) {
-    var jetzt = new Date();
-    var faellig = jetzt >= zeiten[k];
+    // An einem vergangenen Tag war jedes Gebet fällig
+    var faellig = !Store.istHeute() || new Date() >= zeiten[k];
     var z = UI.el("div.zeile.tippbar" + (faellig && !tag.gebete[k] ? ".offen" : ""), {
       onclick: function () { offenesGebet = offenesGebet === k ? null : k; zeichne(); }
     }, [
@@ -60,23 +60,21 @@ var AnsichtGebete = (function () {
       { k: "ishraq", t: "Ishrāq" },
       { k: "tahajjud", t: "Tahajjud" }
     ];
-    return s.map(function (x) {
-      return UI.zeile({
-        haken: tag.sunnah[x.k], text: x.t, wert: x.w,
-        onclick: function () { tag.sunnah[x.k] = !tag.sunnah[x.k]; speichern(); }
+    return s.filter(function (x) { return Sichtbar.an("sunnah." + x.k); })
+      .map(function (x) {
+        return UI.zeile({
+          haken: tag.sunnah[x.k], text: x.t, wert: x.w,
+          onclick: function () { tag.sunnah[x.k] = !tag.sunnah[x.k]; speichern(); }
+        });
       });
-    });
   }
 
   function moscheeKarte() {
-    var woche = tage.slice(-7);
-    var n = woche.reduce(function (a, t) {
+    var n = Store.fensterBis(tag.datum, 7, tag).reduce(function (a, t) {
       return a + Gebetszeiten.PFLICHT.filter(function (k) {
         return t.gebete && t.gebete[k] === "moschee";
       }).length;
     }, 0);
-    var heute = Gebetszeiten.PFLICHT.filter(function (k) { return tag.gebete[k] === "moschee"; }).length;
-    n += heute;
     var ziel = Store.einstellungen.moscheeZielWoche;
     return UI.el("div.karte", [
       UI.el("span.etikett", { text: "Diese Woche in der Moschee" }),
@@ -89,7 +87,7 @@ var AnsichtGebete = (function () {
   }
 
   function wochenStreifen() {
-    var alle = tage.concat([tag]).slice(-7);
+    var alle = Store.fensterBis(tag.datum, 7, tag);
     return UI.el("div.karte", [
       UI.el("span.etikett", { text: "Letzte sieben Tage" }),
       UI.el("div.streifen", alle.map(function (t) {
@@ -111,35 +109,37 @@ var AnsichtGebete = (function () {
 
   function zeichne() {
     if (!wurzel) return;
-    var h = Hijri.fuer(new Date());
+    var h = Hijri.fuer(Store.ausKey(tag.datum));
     UI.leeren(wurzel);
     var gemacht = Gebetszeiten.PFLICHT.filter(function (k) {
       return tag.gebete[k] && tag.gebete[k] !== "verpasst";
     }).length;
-    wurzel.appendChild(UI.kopf("Gebete", "Heute " + gemacht + " von 5", h.textAr));
+    var sunnah = sunnahZeilen();
+    wurzel.appendChild(UI.kopf("Gebete", UI.tagWort() + " " + gemacht + " von 5", h.textAr));
     wurzel.appendChild(UI.el("div.inhalt", [
+      UI.datumsband(laden),
       UI.el("div.block", [
         UI.el("div.blockkopf", { text: "Pflichtgebete · tippen zum Bewerten" }),
         UI.el("div.gruppe", Gebetszeiten.PFLICHT.map(gebetsZeile))
       ]),
-      UI.el("div.block", [
+      sunnah.length ? UI.el("div.block", [
         UI.el("div.blockkopf", { text: "Freiwillig" }),
-        UI.el("div.gruppe", sunnahZeilen())
-      ]),
+        UI.el("div.gruppe", sunnah)
+      ]) : null,
       moscheeKarte(),
       wochenStreifen()
-    ]));
+    ].filter(Boolean)));
   }
 
-  function oeffnen(root) {
-    wurzel = root;
-    return Promise.all([Store.tag(), Store.letzteTage(7)]).then(function (r) {
-      tag = r[0];
-      tage = r[1].filter(function (t) { return t.datum !== tag.datum; });
-      zeiten = Gebetszeiten.fuer(new Date());
+  function laden() {
+    return Store.tag().then(function (t) {
+      tag = t;
+      zeiten = Gebetszeiten.fuer(Store.ausKey(tag.datum));
+      offenesGebet = null;
       zeichne();
     });
   }
+  function oeffnen(root) { wurzel = root; return laden(); }
   function schliessen() { wurzel = null; offenesGebet = null; }
 
   return { oeffnen: oeffnen, schliessen: schliessen };

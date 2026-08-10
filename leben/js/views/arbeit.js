@@ -9,10 +9,6 @@ var AnsichtArbeit = (function () {
     tag.score = Score.fuer(tag).wert;
     return Store.tagSpeichern(tag);
   }
-  function neuLaden() {
-    return Store.aufgaben().then(function (a) { liste = a; zeichne(); });
-  }
-
   /* --- Die drei Wichtigsten --- */
   function wichtigsteKarte() {
     var w = tag.arbeit.wichtigste || [];
@@ -38,7 +34,7 @@ var AnsichtArbeit = (function () {
     var gesetzt = w.filter(function (x) { return x.text; }).length;
 
     return UI.el("div.block", [
-      UI.el("div.blockkopf", { text: "Die drei Wichtigsten heute · " + fertig + " von " + gesetzt }),
+      UI.el("div.blockkopf", { text: "Die drei Wichtigsten · " + fertig + " von " + gesetzt }),
       UI.el("div.gruppe", zeilen),
       UI.el("p.klein", {
         text: "Drei. Nicht zehn. Was hier nicht steht, ist heute nicht wichtig."
@@ -155,7 +151,7 @@ var AnsichtArbeit = (function () {
 
   function wochenKarte() {
     var e = Store.einstellungen;
-    var d = new Date();
+    var d = Store.ausKey(tag.datum);
     var wochentag = (d.getDay() + 6) % 7;
     var istArbeitstag = (e.arbeitstage || []).indexOf(d.getDay()) >= 0;
     var offen = liste.filter(function (a) { return !a.erledigt; }).length;
@@ -184,21 +180,23 @@ var AnsichtArbeit = (function () {
     var offen = liste.filter(function (a) { return !a.erledigt; }).length;
     wurzel.appendChild(UI.kopf("Arbeit & Uni", offen + " Aufgaben offen", ""));
     wurzel.appendChild(UI.el("div.inhalt", [
-      wichtigsteKarte(),
+      UI.datumsband(neuLaden),
+      Sichtbar.an("arbeit.wichtigste") ? wichtigsteKarte() : null,
       wochenKarte(),
+      Eigene.block("arbeit", tag, neuLaden),
       projektFilter(),
       neueAufgabeKarte(),
       aufgabenBlock()
-    ]));
+    ].filter(Boolean)));
   }
 
-  function oeffnen(root) {
-    wurzel = root;
+  function neuLaden() {
     return Promise.all([Store.tag(), Store.aufgaben()]).then(function (r) {
       tag = r[0]; liste = r[1];
       zeichne();
     });
   }
+  function oeffnen(root) { wurzel = root; return neuLaden(); }
   return { oeffnen: oeffnen, schliessen: function () { wurzel = null; } };
 })();
 
@@ -236,8 +234,8 @@ var AnsichtBusiness = (function () {
 
   function wocheKarte() {
     var e = Store.einstellungen;
-    var woche = tage.slice(-6).concat([tag]);
-    var videos = woche.reduce(function (a, t) { return a + ((t.business && t.business.videos) || 0); }, 0);
+    var videos = Store.fensterBis(tag.datum, 7, tag)
+      .reduce(function (a, t) { return a + ((t.business && t.business.videos) || 0); }, 0);
     var ziel = e.business.videoZielWoche;
     return UI.el("div.karte.held", [
       UI.el("span.etikett", { text: "Videos diese Woche" }),
@@ -259,16 +257,29 @@ var AnsichtBusiness = (function () {
     ]);
   }
 
+  /* Die Merkliste war früher tot — vier Haken, die nichts taten.
+     Jetzt wird sie pro Tag gespeichert, damit du im Rückblick siehst,
+     ob du wirklich geprüft hast. */
+  var HALAL = [
+    "Produkt halāl-geprüft",
+    "KI-Kennzeichnung gesetzt",
+    "Affiliate-Hinweis gesetzt",
+    "Keine Musik im Video"
+  ];
+
   function halalKarte() {
+    if (!tag.business.check) tag.business.check = {};
+    var c = tag.business.check;
+    var fertig = HALAL.filter(function (t) { return c[t]; }).length;
     return UI.el("div.karte", [
-      UI.el("span.etikett", { text: "Vor jeder Veröffentlichung" }),
-      UI.el("div.gruppe.blank", [
-        UI.zeile({ haken: false, text: "Produkt halāl-geprüft" }),
-        UI.zeile({ haken: false, text: "KI-Kennzeichnung gesetzt" }),
-        UI.zeile({ haken: false, text: "Affiliate-Hinweis gesetzt" }),
-        UI.zeile({ haken: false, text: "Keine Musik im Video" })
-      ]),
-      UI.el("p.klein", { text: "Merkliste, keine Erfassung — die Haken setzt du im Kopf, bevor du hochlädst." })
+      UI.el("span.etikett", { text: "Vor jeder Veröffentlichung · " + fertig + " von " + HALAL.length }),
+      UI.el("div.gruppe.blank", HALAL.map(function (t) {
+        return UI.zeile({
+          haken: !!c[t], text: t,
+          onclick: function () { c[t] = !c[t]; speichern(); }
+        });
+      })),
+      UI.el("p.klein", { text: "Antippen bestätigt. Nochmal antippen nimmt es zurück." })
     ]);
   }
 
@@ -277,22 +288,27 @@ var AnsichtBusiness = (function () {
     UI.leeren(wurzel);
     wurzel.appendChild(UI.kopf("Business", "TikTok-Shop · halāl", ""));
     wurzel.appendChild(UI.el("div.inhalt", [
-      wocheKarte(),
-      zaehler("videos", "Videos hochgeladen", "Das Maß, das zählt."),
-      zaehler("produkte", "Produkte recherchiert", "Halāl-Prüfung vorher, immer."),
-      zaehler("skripte", "Skripte geschrieben", "Vorarbeit ist auch Arbeit."),
+      UI.datumsband(laden),
+      Sichtbar.an("business.videos") ? wocheKarte() : null,
+      Sichtbar.an("business.videos")
+        ? zaehler("videos", "Videos hochgeladen", "Das Maß, das zählt.") : null,
+      Sichtbar.an("business.produkte")
+        ? zaehler("produkte", "Produkte recherchiert", "Halāl-Prüfung vorher, immer.") : null,
+      Sichtbar.an("business.skripte")
+        ? zaehler("skripte", "Skripte geschrieben", "Vorarbeit ist auch Arbeit.") : null,
+      Eigene.block("business", tag, laden),
       halalKarte(),
       warumKarte()
-    ]));
+    ].filter(Boolean)));
   }
 
-  function oeffnen(root) {
-    wurzel = root;
+  function laden() {
     return Promise.all([Store.tag(), Store.letzteTage(14)]).then(function (r) {
       tag = r[0];
       tage = r[1].filter(function (t) { return t.datum !== tag.datum; });
       zeichne();
     });
   }
+  function oeffnen(root) { wurzel = root; return laden(); }
   return { oeffnen: oeffnen, schliessen: function () { wurzel = null; } };
 })();

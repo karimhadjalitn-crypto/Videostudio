@@ -378,7 +378,10 @@ var AnsichtMuhasaba = (function () {
     if (!wurzel) return;
     var sch = schritte[index];
     UI.leeren(wurzel);
-    wurzel.appendChild(UI.kopf("Muḥāsaba", "Schritt " + (index + 1) + " von " + schritte.length, "المحاسبة"));
+    wurzel.appendChild(UI.kopf("Muḥāsaba",
+      "Schritt " + (index + 1) + " von " + schritte.length +
+      (Store.istHeute() ? "" : "  ·  " + UI.datumLang(Store.ausKey(tag.datum))),
+      "المحاسبة"));
     wurzel.appendChild(UI.el("div.inhalt", [
       UI.el("div.punkteleiste", schritte.map(function (_, i) {
         return UI.el("i" + (i <= index ? ".an" : ""));
@@ -405,7 +408,7 @@ var AnsichtMuhasaba = (function () {
     return Promise.all([Store.tag(), Store.letzteTage(30)]).then(function (r) {
       tag = r[0];
       tage = r[1];
-      zeiten = Gebetszeiten.fuer(new Date());
+      zeiten = Gebetszeiten.fuer(Store.ausKey(tag.datum));
       schritte = bauenSchritte();
       index = 0;
       notizOffen = {};

@@ -56,7 +56,7 @@ var AnsichtFinanzen = (function () {
     if (!liste.length) return null;
     var summe = liste.reduce(function (a, x) { return a + x.betrag; }, 0);
     return UI.el("div.block", [
-      UI.el("div.blockkopf", { text: "Heute · " + euro(summe) }),
+      UI.el("div.blockkopf", { text: UI.tagWort() + " · " + euro(summe) }),
       UI.el("div.gruppe", liste.map(function (x, i) {
         return UI.el("div.zeile", [
           UI.el("span.zt", { text: x.kategorie }),
@@ -121,7 +121,7 @@ var AnsichtFinanzen = (function () {
     }
     var monat = monatsAusgaben().reduce(function (a, t) { return a + (t.sadaqa || 0); }, 0);
     return UI.el("div.karte.held", [
-      UI.el("span.etikett", { text: "Sadaqa heute" }),
+      UI.el("span.etikett", { text: "Sadaqa " + UI.tagWortKlein() }),
       anzeige,
       UI.el("div.zfknoepfe", [1, 2, 5, 10, 20].map(function (n) {
         return UI.el("button.mini", { type: "button", onclick: function () { dazu(n); } }, "+" + n);
@@ -181,18 +181,21 @@ var AnsichtFinanzen = (function () {
     UI.leeren(wurzel);
     wurzel.appendChild(UI.kopf("Finanzen", euro(summe) + " diesen Monat", ""));
     wurzel.appendChild(UI.el("div.inhalt", [
-      sadaqaKarte(), eingabeKarte(), heuteBlock(), monatKarte(), vermoegenKarte(), keineZakatKarte()
+      UI.datumsband(laden),
+      sadaqaKarte(), eingabeKarte(), heuteBlock(), monatKarte(), vermoegenKarte(),
+      Eigene.block("finanzen", tag, laden),
+      keineZakatKarte()
     ].filter(Boolean)));
   }
 
-  function oeffnen(root) {
-    wurzel = root;
+  function laden() {
     return Promise.all([Store.tag(), Store.letzteTage(90)]).then(function (r) {
       tag = r[0];
       tage = r[1].filter(function (t) { return t.datum !== tag.datum; });
       zeichne();
     });
   }
+  function oeffnen(root) { wurzel = root; return laden(); }
   return { oeffnen: oeffnen, schliessen: function () { wurzel = null; } };
 })();
 
@@ -203,19 +206,11 @@ var AnsichtSoziales = (function () {
   var wurzel = null, tag = null, tage = [];
 
   function speichern() {
-    tag.score = Score.fuer(tag, { letzterKontakt: letzteKontakte() }).wert;
+    tag.score = Score.fuer(tag).wert;
     return Store.tagSpeichern(tag).then(zeichne);
   }
 
-  function letzteKontakte() {
-    var out = {};
-    tage.forEach(function (t) {
-      Object.keys(t.kontakte || {}).forEach(function (n) {
-        if (t.kontakte[n]) out[n] = t.datum;
-      });
-    });
-    return out;
-  }
+  function letzteKontakte() { return Score.letzteKontakte(tag); }
 
   function zeichne() {
     if (!wurzel) return;
@@ -257,29 +252,31 @@ var AnsichtSoziales = (function () {
     UI.leeren(wurzel);
     wurzel.appendChild(UI.kopf("Soziales", faelligeAnzahl ? faelligeAnzahl + " wären dran" : "Alle im Takt", "صلة الرحم"));
     wurzel.appendChild(UI.el("div.inhalt", [
+      UI.datumsband(laden),
       UI.el("div.karte.hinweis", [
         UI.el("div.hz", {
           text: "Silat ar-Raḥim und Birr al-Wālidayn verfallen leise. Mīzān erinnert dich, wenn ein Abstand zu lang wird — die Abstände stellst du unter Mehr ein."
         })
       ]),
       UI.el("div.block", [
-        UI.el("div.blockkopf", { text: "Heute erreicht?" }),
+        UI.el("div.blockkopf", { text: (Store.istHeute() ? "Heute" : "An diesem Tag") + " erreicht?" }),
         UI.el("div.gruppe", zeilen)
       ]),
+      Eigene.block("soziales", tag, laden),
       UI.el("p.klein", {
         text: "Ein Anruf zählt. Eine Nachricht zählt. Es geht um den Kontakt, nicht um die Länge."
       })
     ]));
   }
 
-  function oeffnen(root) {
-    wurzel = root;
+  function laden() {
     return Promise.all([Store.tag(), Store.letzteTage(120)]).then(function (r) {
       tag = r[0];
       tage = r[1].filter(function (t) { return t.datum !== tag.datum; });
       zeichne();
     });
   }
+  function oeffnen(root) { wurzel = root; return laden(); }
   return { oeffnen: oeffnen, schliessen: function () { wurzel = null; } };
 })();
 
@@ -297,7 +294,7 @@ var AnsichtInnen = (function () {
   function stimmungKarte() {
     var stufen = ["Sehr schlecht", "Schlecht", "Geht so", "Gut", "Sehr gut"];
     return UI.el("div.karte", [
-      UI.el("span.etikett", { text: "Stimmung heute" }),
+      UI.el("span.etikett", { text: "Stimmung " + UI.tagWortKlein() }),
       UI.el("div.fragen", { style: "margin-top:.6rem" }, stufen.map(function (t, i) {
         var an = tag.stimmung === i + 1;
         return UI.el("button.fbtn" + (an ? ".an" : ""), {
@@ -338,7 +335,7 @@ var AnsichtInnen = (function () {
 
   function journalKarte() {
     var feld = UI.el("textarea.notizfeld", {
-      rows: 5, placeholder: "Was war heute?",
+      rows: 5, placeholder: Store.istHeute() ? "Was war heute?" : "Was war an dem Tag?",
       oninput: function () { tag.notiz = feld.value; },
       onblur: function () { speichern(false); }
     });
@@ -350,7 +347,7 @@ var AnsichtInnen = (function () {
   }
 
   function verlaufKarte() {
-    var alle = tage.slice(-30).concat([tag]).filter(function (t) { return t.stimmung; });
+    var alle = Store.fensterBis(tag.datum, 30, tag).filter(function (t) { return t.stimmung; });
     if (alle.length < 3) return null;
     var schnitt = alle.reduce(function (a, t) { return a + t.stimmung; }, 0) / alle.length;
     return UI.el("div.karte", [
@@ -371,17 +368,20 @@ var AnsichtInnen = (function () {
     UI.leeren(wurzel);
     wurzel.appendChild(UI.kopf("Innenleben", "Stimmung, Dankbarkeit, Journal", ""));
     wurzel.appendChild(UI.el("div.inhalt", [
-      stimmungKarte(), dankbarKarte(), journalKarte(), verlaufKarte()
+      UI.datumsband(laden),
+      stimmungKarte(), dankbarKarte(), journalKarte(),
+      Eigene.block("innen", tag, laden),
+      verlaufKarte()
     ].filter(Boolean)));
   }
 
-  function oeffnen(root) {
-    wurzel = root;
+  function laden() {
     return Promise.all([Store.tag(), Store.letzteTage(60)]).then(function (r) {
       tag = r[0];
       tage = r[1].filter(function (t) { return t.datum !== tag.datum; });
       zeichne();
     });
   }
+  function oeffnen(root) { wurzel = root; return laden(); }
   return { oeffnen: oeffnen, schliessen: function () { wurzel = null; } };
 })();

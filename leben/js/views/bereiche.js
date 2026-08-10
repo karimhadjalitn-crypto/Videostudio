@@ -22,7 +22,7 @@ var AnsichtBereiche = (function () {
   function zeichne() {
     if (!wurzel) return;
     var e = Store.einstellungen;
-    var h = Hijri.fuer(new Date());
+    var h = Hijri.fuer(Store.ausKey(tag.datum));
     var w = e.gewichte;
 
     /* --- Stände zusammensuchen --- */
@@ -30,17 +30,9 @@ var AnsichtBereiche = (function () {
       return tag.gebete[k] && tag.gebete[k] !== "verpasst";
     }).length;
 
-    var woche = tage.slice(-7).concat([tag]);
-    var wocheTrainings = woche.filter(function (t) {
-      return t.training && (t.training.arten || []).length;
-    }).length;
-
-    var letzterKontakt = {};
-    tage.forEach(function (t) {
-      Object.keys(t.kontakte || {}).forEach(function (n) {
-        if (t.kontakte[n]) letzterKontakt[n] = t.datum;
-      });
-    });
+    var woche = Store.fensterBis(tag.datum, 7, tag);
+    var wocheTrainings = Score.trainingsDieseWoche(tag);
+    var letzterKontakt = Score.letzteKontakte(tag);
     var faellig = (e.kontakte || []).filter(function (k) {
       if (tag.kontakte && tag.kontakte[k.name]) return false;
       var l = letzterKontakt[k.name];
@@ -48,7 +40,7 @@ var AnsichtBereiche = (function () {
       return Math.round((Store.ausKey(tag.datum) - Store.ausKey(l)) / 86400000) >= (k.intervall || 7);
     });
 
-    var s = Score.fuer(tag, { wocheTrainings: wocheTrainings, letzterKontakt: letzterKontakt });
+    var s = Score.fuer(tag);
 
     var arten = (tag.training && tag.training.arten) || [];
     var supps = (e.essen.supplemente || []).filter(function (n) {
@@ -63,6 +55,7 @@ var AnsichtBereiche = (function () {
     UI.leeren(wurzel);
     wurzel.appendChild(UI.kopf("Bereiche", "Dein Tag in Teilen", h.textAr));
     wurzel.appendChild(UI.el("div.inhalt", [
+      UI.datumsband(laden),
 
       UI.el("div.karte.scorekarte", [
         UI.ring(s.wert / 100, s.wert),
@@ -107,13 +100,13 @@ var AnsichtBereiche = (function () {
         videosWoche / (e.business.videoZielWoche || 4), null),
 
       kachel("finanzen", "Finanzen", null,
-        (ausgabenHeute > 0 ? UI.zahl(ausgabenHeute, 2).replace(".", ",") + " € heute" : "Heute nichts erfasst") +
+        (ausgabenHeute > 0 ? UI.zahl(ausgabenHeute, 2).replace(".", ",") + " €" : "Nichts erfasst") +
         (tag.sadaqa > 0 ? " · Sadaqa " + UI.zahl(tag.sadaqa, 2).replace(".", ",") + " €" : ""),
         null, null),
 
       kachel("innen", "Innenleben", null,
         tag.stimmung ? "Stimmung erfasst" + ((tag.dankbar || []).length ? " · dankbar für " + tag.dankbar.length : "")
-                     : "Heute noch nichts",
+                     : "Noch nichts eingetragen",
         s.bereiche.innen == null ? null : s.bereiche.innen / 100, w.innen),
 
       kachel("privat", "Geschützt", "🔒",
@@ -126,14 +119,14 @@ var AnsichtBereiche = (function () {
     ]));
   }
 
-  function oeffnen(root) {
-    wurzel = root;
+  function laden() {
     return Promise.all([Store.tag(), Store.letzteTage(30), Hifz.laden()]).then(function (r) {
       tag = r[0];
       tage = r[1].filter(function (t) { return t.datum !== tag.datum; });
       zeichne();
     });
   }
+  function oeffnen(root) { wurzel = root; return laden(); }
   function schliessen() { wurzel = null; }
 
   return { oeffnen: oeffnen, schliessen: schliessen };

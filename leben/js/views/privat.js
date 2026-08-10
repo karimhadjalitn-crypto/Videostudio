@@ -262,14 +262,13 @@ var AnsichtPrivat = (function () {
     wurzel.appendChild(UI.kopf("Geschützt", offen ? "Nur für dich" : "Gesperrt", ""));
     if (!offen) { wurzel.appendChild(schleuse()); return; }
     wurzel.appendChild(UI.el("div.inhalt", [
+      tab === "kaempfe" ? UI.datumsband(laden) : null,
       umschalter(),
       tab === "kaempfe" ? kaempfeAnsicht() : eheAnsicht()
-    ]));
+    ].filter(Boolean)));
   }
 
-  function oeffnen(root) {
-    wurzel = root;
-    offen = false; ausloeserFuer = null;
+  function laden() {
     return Promise.all([Store.tag(), Store.letzteTage(120)]).then(function (r) {
       tag = r[0];
       tage = r[1].filter(function (t) { return t.datum !== tag.datum; });
@@ -277,6 +276,11 @@ var AnsichtPrivat = (function () {
       if (!Store.einstellungen.sperre.bereichCode) offen = true;
       zeichne();
     });
+  }
+  function oeffnen(root) {
+    wurzel = root;
+    offen = false; ausloeserFuer = null;
+    return laden();
   }
   return { oeffnen: oeffnen, schliessen: function () { wurzel = null; offen = false; } };
 })();
