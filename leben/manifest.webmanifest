@@ -1,0 +1,20 @@
+{
+  "name": "Mīzān",
+  "short_name": "Mīzān",
+  "description": "Dein Tag, gewogen. Gebete, Qur'an, Score und Abendabrechnung — offline auf deinem Gerät.",
+  "lang": "de",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "categories": ["lifestyle", "health", "productivity"],
+  "icons": [
+    { "src": "assets/icons/icon.svg", "type": "image/svg+xml", "sizes": "any" },
+    { "src": "assets/icons/icon-192.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "assets/icons/icon-512.png", "type": "image/png", "sizes": "512x512" },
+    { "src": "assets/icons/icon-512-maskable.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" }
+  ]
+}
