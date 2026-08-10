@@ -7,7 +7,7 @@ Das vollständige Konzept steht in [`../KONZEPT.md`](../KONZEPT.md).
 
 ---
 
-## Was Phase 1 kann
+## Was die App kann
 
 **Heute** — ein Bildschirm. Nächstes Gebet ganz oben mit Restzeit und drei
 Schnellknöpfen, Tagesscore als Ring, was heute noch offen ist, ein Vers,
@@ -41,19 +41,16 @@ und ein Streifen über die letzten sieben Tage.
   Arabisch mit Ḥarakāt, deutsche Übersetzung und Anlass.
 - **Gebete** — siehe oben.
 
-**Muḥāsaba** — geführte Abendabrechnung in acht Schritten, unter einer Minute:
-Gebete nachtragen, drei täglich wechselnde Akhlāq-Fragen, Bildschirmzeit
-(gearbeitet und gescrollt getrennt), Stimmung, ein Satz, Abschluss mit Urteil
-und einer Sache für morgen.
+**Muḥāsaba** — geführte Abendabrechnung in zehn Schritten, unter einer Minute:
+Gebete nachtragen, drei täglich wechselnde Akhlāq-Fragen, ein Schnellcheck
+(Training, Kontakte, Zubettgehzeit), Bildschirmzeit getrennt nach gearbeitet und
+gescrollt, Stimmung, Dankbarkeit, ein Satz, Abschluss mit Urteil und einer Sache
+für morgen.
 
 Unter jeder Frage sitzt ein **freies Feld** („Etwas dazu schreiben"). Es ist
 eingeklappt, solange du es nicht brauchst. Ist es offen, springt die App nach
 deiner Antwort nicht weiter — sonst könntest du nicht zu Ende schreiben.
 Am Ende stehen alle Ergänzungen des Tages noch einmal zusammen.
-
-**Spiegel** — Wochenschnitt gegen Monatsschnitt, Heatmap der letzten sechs Wochen,
-Verteilung der Gebetsqualität über 30 Tage, und ein erster Zusammenhang
-(Moschee-Tage gegen andere Tage) — der erscheint erst, wenn genug Daten da sind.
 
 **Kalender** — Monatsraster mit gregorianischem **und** Hijri-Datum in jeder Zelle.
 Der Tagesscore färbt die Zelle ein. Markiert werden weiße Tage, Jumuʿa, islamische
@@ -114,10 +111,16 @@ Was noch nicht fällig war, zählt **nicht** gegen dich — der Score fällt als
 nur weil es erst Vormittag ist. Was du früh erledigst, hebt ihn sofort. Erst wenn
 der Tag abgeschlossen ist, zählt alles Offene als nicht erledigt.
 
-Gewichtung laut Konzept: Religion 45, Produktivität 18, Sport 12, Schlaf 8,
-Ernährung 8, Soziales 5, Innenleben und Finanzen 4. In Phase 1 gibt es nur
-Religion, Ernährung (Wasser), Schlaf und Innenleben — die übrigen Gewichte
-verteilen sich so lange anteilig auf die aktiven Bereiche.
+Ein Pflichtgebet zählt erst gegen dich, wenn sein **Fenster zu ist** — nicht
+schon, wenn es aufgeht. Um 13:21 gilt Ẓuhr nicht als versäumt, du hast bis ʿAṣr Zeit.
+
+Gewichtung: Religion 45 · Arbeit & Uni 18 · Sport 12 · Schlaf 8 · Ernährung 8 ·
+Soziales 5 · Innenleben und Finanzen 4. Alle Prozente sind unter
+*Mehr → Gewichtung* verschiebbar.
+
+Die **Scrollzeit zählt negativ, gearbeitete Bildschirmzeit nicht** — beides wird
+getrennt erfasst. Auf Reisen und im Ramaḍān werden Sport und Ernährung nicht
+eingefordert.
 
 ---
 
