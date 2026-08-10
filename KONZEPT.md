@@ -539,7 +539,7 @@ Wochenplanung). Ohne Sync — Daten kommen per Exportdatei rüber.
 | Phase | Inhalt |
 |---|---|
 | **1** ✔ | Gerüst, Speicher, „Heute", Gebete mit Qualitätsstufen, Gebetszeiten, Hijri, Score, Abendabrechnung |
-| **2** | Religion vollständig: Qur'an/Hifz/Murājaʿa, Adhkār, Fasten, Duʿā'-Sammlung |
+| **2** ✔ | Religion vollständig: Qur'an/Hifz/Murājaʿa, Adhkār, Fasten, Duʿāʾ-Sammlung |
 | **3** ✔ | Kalender, `.ics`-Export, Kurzbefehl-Übernahme, Erinnerungen |
 | **4** | Sport, Ernährung, Schlaf |
 | **5** | Produktivität, Wochenplanung, Business, Bildschirmzeit |

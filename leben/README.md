@@ -26,6 +26,21 @@ und ab Maghrib die Abendabrechnung.
 Dazu Sunan Rawātib, Witr, Ḍuḥā, Ishrāq, Tahajjud, das Wochenziel für die Moschee
 und ein Streifen über die letzten sieben Tage.
 
+**Religion** — Übersicht mit dem Religions-Anteil des Tagesscores und fünf Bereichen:
+
+- **Qur'an** — Hifz-Bestand mit Status je Sure, die Sure, die du gerade lernst,
+  und der **Murājaʿa-Plan**: dein Bestand in sechs Tagesblöcken, aufgeteilt nach
+  **Versanzahl** statt nach Suren-Anzahl. Sonntag ist Prüfungstag. Was du als
+  *wackelig* markierst, kommt bis auf Weiteres täglich dran. Der Fortschrittsbalken
+  läuft auf **Juz' 29 komplett** zu, nicht auf eine abstrakte Prozentzahl.
+- **Adhkār** — Morgen und Abend, dazu Istighfār- und Salawāt-Zähler mit großer
+  Tippfläche. Freitags verdreifacht sich das Salawāt-Ziel.
+- **Fasten** — heutiger Anlass mit Suḥūr- und Ifṭār-Zeit, Vorschau auf die nächsten
+  empfohlenen Tage, **Qaḍāʾ-Konto** für offene Nachholtage, Bilanz über 30 Tage.
+- **Duʿāʾ** — 18 Bittgebete der Propheten aus dem Qur'an und 9 aus der Sunnah,
+  Arabisch mit Ḥarakāt, deutsche Übersetzung und Anlass.
+- **Gebete** — siehe oben.
+
 **Muḥāsaba** — geführte Abendabrechnung in acht Schritten, unter einer Minute:
 Gebete nachtragen, drei täglich wechselnde Akhlāq-Fragen, Bildschirmzeit
 (gearbeitet und gescrollt getrennt), Stimmung, ein Satz, Abschluss mit Urteil
@@ -98,10 +113,16 @@ verteilen sich so lange anteilig auf die aktiven Bereiche.
 
 ## Religiöse Inhalte
 
-Es sind **nur Qur'an-Verse** eingebaut, jeder mit Sure und Versnummer,
-als Übersetzung der Bedeutung gekennzeichnet. Die **Hadith-Sammlung fehlt
-absichtlich**: sie kommt erst, wenn Sammlung, Nummer und Authentizitätsgrad
-geprüft sind. Lieber nichts als etwas Unbelegtes.
+**Qur'an-Stellen** sind mit Sure und Vers eindeutig belegt und als Übersetzung der
+Bedeutung gekennzeichnet — das gilt für den Vers des Tages und für die 18
+Bittgebete der Propheten.
+
+**Bei den 9 Bittgebeten aus der Sunnah** stehen Sammlung und Nummer dabei, aber die
+Zählung weicht zwischen Druckausgaben ab. Die App sagt das an der Stelle selbst:
+für ein Zitat gegen die eigene Ausgabe prüfen. Ein **Hadith des Tages** ist bewusst
+noch nicht eingebaut — dafür fehlt die Prüfung des Authentizitätsgrads.
+
+Die Versanzahlen der Suren folgen der kufischen Zählung (Ḥafṣ ʿan ʿĀṣim).
 
 ---
 
@@ -196,11 +217,10 @@ Kein Build-Werkzeug, keine Abhängigkeiten. Reine Dateien, wie die Arabisch-App.
 
 ## Stand
 
-Fertig: **Phase 1** (Gerüst, Heute, Gebete, Score, Muḥāsaba) und
-**Phase 3** (Kalender, `.ics`-Export, Kurzbefehl-Übernahme).
+Fertig: **Phase 1** (Gerüst, Heute, Gebete, Score, Muḥāsaba) ·
+**Phase 2** (Religion vollständig: Qur'an mit Hifz und Murājaʿa, Adhkār, Fasten,
+Duʿāʾ) · **Phase 3** (Kalender, `.ics`-Export, Kurzbefehl-Übernahme).
 
-Offen: Religion vollständig — Hifz-Plan, Adhkār-Zähler, Fasten, Duʿā'-Sammlung
-(Phase 2) · Sport, Ernährung, Schlaf (Phase 4) · Produktivität und Business
-(Phase 5) · Finanzen, Zakat, Soziales, Ehe, geschützter Bereich (Phase 6) ·
-die große Auswertung mit Zusammenhängen (Phase 7) · Reise- und Ramadan-Modus
-(Phase 8).
+Offen: Sport, Ernährung, Schlaf (Phase 4) · Produktivität und Business (Phase 5) ·
+Finanzen, Zakat, Soziales, Ehe, geschützter Bereich (Phase 6) · die große
+Auswertung mit Zusammenhängen (Phase 7) · Reise- und Ramadan-Modus (Phase 8).

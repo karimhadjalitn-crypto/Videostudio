@@ -5,9 +5,20 @@
   var ANSICHTEN = {
     heute:    { titel: "Heute",    symbol: "◆",   modul: function () { return AnsichtHeute; } },
     kalender: { titel: "Kalender", symbol: "▦",   modul: function () { return AnsichtKalender; } },
-    gebete:   { titel: "Gebete",   symbol: "☰",   modul: function () { return AnsichtGebete; } },
+    religion: { titel: "Religion", symbol: "☰",   modul: function () { return AnsichtReligion; } },
     spiegel:  { titel: "Spiegel",  symbol: "◐",   modul: function () { return AnsichtSpiegel; } },
     mehr:     { titel: "Mehr",     symbol: "•••", modul: function () { return AnsichtMehr; } },
+
+    gebete: { titel: "Gebete", versteckt: true, reiter: "religion",
+              modul: function () { return AnsichtGebete; } },
+    quran:  { titel: "Qur'an", versteckt: true, reiter: "religion",
+              modul: function () { return AnsichtQuran; } },
+    adhkar: { titel: "Adhkār", versteckt: true, reiter: "religion",
+              modul: function () { return AnsichtAdhkar; } },
+    fasten: { titel: "Fasten", versteckt: true, reiter: "religion",
+              modul: function () { return AnsichtFasten; } },
+    duas:   { titel: "Duʿāʾ",  versteckt: true, reiter: "religion",
+              modul: function () { return AnsichtDuas; } },
     muhasaba:     { titel: "Muḥāsaba", versteckt: true, vollbild: true,
                     modul: function () { return AnsichtMuhasaba; } },
     erinnerungen: { titel: "Erinnerungen", versteckt: true, reiter: "kalender",
@@ -62,6 +73,13 @@
     leiste = document.getElementById("leiste");
     UI.themaAnwenden();
     UI.themaBeobachten();
+
+    // Erstbefüllung des Hifz-Bestands beim allerersten Start
+    var hifz = Store.einstellungen.hifz;
+    if (!hifz.status || !Object.keys(hifz.status).length) {
+      hifz.status = Hifz.grundbestand();
+      Store.einstellungenSpeichern();
+    }
     window.addEventListener("hashchange", wechseln);
     wechseln();
 

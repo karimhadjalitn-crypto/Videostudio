@@ -23,7 +23,10 @@ var Store = (function () {
     schlafZiel: "00:00",
     wasserZiel: 3.0,
     moscheeZielWoche: 7,
-    hifz: { aktuell: "al-Jinn (72)", verse: 28 },
+    /* Rückwärts durch den Mushaf: an-Nās (114) bis al-Muzzammil (73) sitzen,
+       al-Jinn (72) wird gerade gelernt. Wird beim ersten Start befüllt. */
+    hifz: { status: {}, richtung: "rueckwaerts" },
+    fasten: { qada: 0 },
     thema: "dunkel",        // dunkel | hell | system
     gewichte: {
       religion: 45, produktivitaet: 18, sport: 12,
@@ -116,6 +119,9 @@ var Store = (function () {
       return anfrage(tx("kv").get("einstellungen"));
     }).then(function (row) {
       einstellungen = tief(DEFAULTS, row ? row.wert : {});
+      // Altlast: früher stand hier ein Text statt der Suren-Tabelle
+      if (typeof einstellungen.hifz.aktuell === "string") delete einstellungen.hifz.aktuell;
+      if (typeof einstellungen.hifz.verse === "number") delete einstellungen.hifz.verse;
       API.einstellungen = einstellungen;
       return einstellungen;
     });

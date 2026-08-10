@@ -145,8 +145,10 @@ var AnsichtMehr = (function () {
             function (v) { s.wasserZiel = v; Store.einstellungenSpeichern(); }, " l"),
           zahlZeile("Moschee pro Woche", s.moscheeZielWoche, 1, 0, 35,
             function (v) { s.moscheeZielWoche = v; Store.einstellungenSpeichern(); }, "×"),
-          textZeile("Hifz — aktuelle Sure", s.hifz.aktuell,
-            function (v) { s.hifz.aktuell = v; Store.einstellungenSpeichern(); }, "al-Jinn (72)")
+          UI.zeile({
+            text: "Hifz-Bestand", wert: "unter Religion → Qur'an",
+            onclick: function () { location.hash = "#/quran"; }
+          })
         ])
       ]),
 

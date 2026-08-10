@@ -89,9 +89,20 @@ var Assistent = (function () {
   /* Was ist heute noch offen? Für die Liste auf „Heute“. */
   function offen(tag, e) {
     var liste = [];
+    var dran = (typeof Hifz !== "undefined" && Hifz.aktuelle) ? Hifz.heuteDran() : null;
     if (!tag.dhikr.morgens) liste.push({ key: "dhikr.morgens", text: "Adhkār am Morgen", ar: "الأذكار" });
-    if (!tag.quran.murajaa) liste.push({ key: "quran.murajaa", text: "Murājaʿa", wert: e.hifz.aktuell });
-    if (!tag.quran.hifz) liste.push({ key: "quran.hifz", text: "Hifz — neu gelernt", wert: e.hifz.verse + " Verse" });
+    if (!tag.quran.murajaa) {
+      liste.push({
+        key: "quran.murajaa", text: "Murājaʿa",
+        wert: dran ? (dran.pruefung ? "Prüfungstag" : dran.verse + " Verse") : null
+      });
+    }
+    if (!tag.quran.hifz) {
+      liste.push({
+        key: "quran.hifz", text: "Hifz — neu gelernt",
+        wert: dran && dran.neu ? dran.neu.de + " · " + dran.neu.verse + " V." : null
+      });
+    }
     if (!tag.quran.gelesen) liste.push({ key: "quran.gelesen", text: "Qur'an gelesen" });
     if ((tag.wasser || 0) < e.wasserZiel) {
       liste.push({
