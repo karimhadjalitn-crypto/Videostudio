@@ -105,11 +105,36 @@ Im Hochsommer greift für Fajr/ʿIshā' eine Hochbreiten-Regel (einstellbar), we
 die Sonne in München im Juni nicht tief genug sinkt.
 
 #### Qur'an — Lesen, Hifz, Murājaʿa
+
+**Dein Stand:** auswendig von **an-Nās (114) bis al-Muzzammil (73)** — 42 Suren.
+Das ist das **komplette Juz' 30** plus fünf Suren aus Juz' 29
+(al-Muzzammil, al-Muddaththir, al-Qiyāma, al-Insān, al-Mursalāt).
+Du lernst **rückwärts durch den Mushaf**.
+
+**Dein nächstes Ziel: Juz' 29 komplett.** Noch sechs Suren, 234 Verse:
+
+| Sure | Verse |
+|---|---|
+| al-Jinn (72) | 28 |
+| Nūḥ (71) | 28 |
+| al-Maʿārij (70) | 44 |
+| al-Ḥāqqa (69) | 52 |
+| al-Qalam (68) | 52 |
+| al-Mulk (67) | 30 |
+
+Die App kennt diesen Weg und plant von selbst weiter: Sure, Versanzahl, realistische
+Tagesportion, und der Fortschrittsbalken läuft auf **Juz' 29 komplett** zu — nicht auf
+eine abstrakte Prozentzahl.
+
 - **Lesen:** Seiten oder Juz' pro Tag, freies Ziel
-- **Hifz:** deine Suren-Liste mit Status *neu lernend / gefestigt / wackelig*
-- **Murājaʿa:** automatischer Wiederholungsplan.
-  Neu Gelerntes täglich → nach 7 Tagen alle 3 Tage → nach einem Monat wöchentlich.
-  Was du beim Testen als „wackelig" markierst, fällt sofort zurück auf täglich.
+- **Hifz:** Suren-Liste mit Status *neu lernend / gefestigt / wackelig*
+- **Murājaʿa — Wiederholungsplan:**
+  - **Täglich:** die Sure, die du gerade lernst
+  - **Alle 3 Tage:** die zuletzt gefestigten Suren
+  - **Wöchentlich:** dein gesamter Bestand, aufgeteilt in **sechs Tagesblöcke**
+    (Tag 7 ist Prüfung). Die App teilt die Blöcke nach **Versanzahl**, nicht nach
+    Suren-Anzahl — sonst hast du an einem Tag zehn kurze und am nächsten al-Mursalāt.
+  - Was du beim Testen als **„wackelig"** markierst, fällt sofort zurück auf täglich
 - **Qur'an-Unterricht** (Präsenz) als wiederkehrender Kalendertermin
 
 #### Adhkār & Dhikr
@@ -513,14 +538,18 @@ Nach jeder Phase kannst du die App benutzen. Kein Warten auf „fertig".
 
 ## 12. Offene Punkte
 
-1. **Deine Hifz-Liste.** Welche Suren hast du fertig, welche lernst du gerade?
-   In deiner Zusammenfassung stand „Sūra As-Sābiqūn" — eine Sure dieses Namens
-   kenne ich nicht. *As-sābiqūn* steht in **al-Wāqiʿa 56:10**, *as-sābiqāt* in
-   **an-Nāziʿāt 79:4**, beides Verse, keine Surennamen. Und vorher hattest du
-   al-Muzzammil und al-Jinn genannt. Ich rate hier nichts zusammen — schreib mir
-   die tatsächliche Liste, ohne sie ist der Wiederholungsplan wertlos.
+1. **Hifz — eine Kleinigkeit.** Deine Liste endet bei **al-Muzzammil (73)**, damit wäre
+   **al-Jinn (72)** die Sure, die du gerade lernst. In deiner Zusammenfassung stand
+   al-Jinn aber als „davor". Lernst du al-Jinn noch, oder bist du schon bei **Nūḥ (71)**?
 2. **Akhlāq-Liste** (§4.1): streichen, ergänzen, so lassen?
 3. **Reisemodus** wie beschrieben — passt das?
 4. **Name der App.** Mīzān, oder etwas anderes?
 5. **Umstellungsdatum Jumuʿa** Sommer/Winter, sobald du es weißt.
 6. **Design** — besprechen wir separat, wie du wolltest.
+
+## 13. Abgenommen
+
+- TikTok wird zweimal gezählt (gearbeitet / gescrollt) ✔
+- Business misst Videos statt Umsatz ✔
+- Streaks reißen nicht auf null, Reisetage pausieren ✔
+- Geteilter Schlaf als zwei Blöcke ✔
