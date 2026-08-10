@@ -809,3 +809,9 @@ body.ohne-leiste #leiste { display: none; }
   color: var(--text-3); margin: 1rem 0 .45rem;
 }
 .unterkopf:first-child { margin-top: .2rem; }
+.m-termin { background: var(--text-2); }
+.zw.wdh { color: var(--jade-dim); font-size: .95rem; }
+.karte.tippbar { cursor: pointer; }
+.karte.tippbar:active { background: var(--flaeche-3); }
+.briefinghinweis { font-size: .74rem; color: var(--jade); font-weight: 600; margin-top: .3rem; }
+.kopf.tippbar { cursor: pointer; }

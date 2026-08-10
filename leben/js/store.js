@@ -51,6 +51,19 @@ var Store = (function () {
 
     /* ---------- Arbeit, Uni, Selbstständigkeit ---------- */
     projekte: ["FOM Wirtschaftspsychologie", "LMU Klinikum", "Bewerbungen", "Selbstständigkeit"],
+
+    /* Wiederkehrende Termine — Wochentage 0=So … 6=Sa */
+    termine: [
+      { id: "t1", name: "Arbeit · LMU Klinikum", tage: [3, 4, 5], von: "08:00", bis: "12:30", art: "arbeit" },
+      { id: "t2", name: "Jumuʿa", tage: [5], von: "14:45", bis: "15:45", art: "religion" },
+      { id: "t3", name: "Qur'an-Unterricht", tage: [6], von: "18:00", bis: "19:30", art: "religion" },
+      { id: "t4", name: "Arabisch online", tage: [2], von: "19:00", bis: "20:00", art: "lernen" }
+    ],
+
+    /* Bücher mit Lesefortschritt */
+    buecher: [
+      { titel: "Minhāj al-Muslim", autor: "Abū Bakr al-Jazāʾirī", seiten: 0, stand: 0 }
+    ],
     business: { videoZielWoche: 4 },
 
     /* ---------- Finanzen: keine Zakāt-Berechnung, nur Sadaqa ---------- */
@@ -97,9 +110,10 @@ var Store = (function () {
     return {
       datum: datum, v: SCHEMA,
       gebete: { fajr: null, dhuhr: null, asr: null, maghrib: null, isha: null },
-      sunnah: { rawatib: false, witr: false, duha: false, tahajjud: false, ishraq: false },
+      sunnah: { rawatib: false, witr: false, duha: false, tahajjud: false, ishraq: false, tarawih: false },
       quran: { gelesen: 0, murajaa: false, hifz: false },
-      dhikr: { morgens: false, abends: false, istighfar: 0, salawat: 0 },
+      buecher: {},          // Titel -> heute gelesene Seiten
+      dhikr: { morgens: false, abends: false, nachGebet: 0, istighfar: 0, salawat: 0 },
       fasten: false,
       akhlaq: {},
       notizen: {},        // freie Ergänzung zu einzelnen Fragen

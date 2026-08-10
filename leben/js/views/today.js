@@ -199,7 +199,14 @@ var AnsichtHeute = (function () {
     var jetzt = new Date();
     var h = Hijri.fuer(jetzt);
     UI.leeren(wurzel);
-    wurzel.appendChild(UI.kopf("Heute", UI.datumLang(jetzt), h.textAr));
+    var kopf = UI.kopf("Heute", UI.datumLang(jetzt), h.textAr);
+    // Vor Ẓuhr führt ein Tipp auf den Titel ins Morgenbriefing
+    if (jetzt < zeiten.dhuhr) {
+      kopf.classList.add("tippbar");
+      kopf.addEventListener("click", function () { location.hash = "#/briefing"; });
+      kopf.appendChild(UI.el("div.briefinghinweis", { text: "Morgenbriefing öffnen ›" }));
+    }
+    wurzel.appendChild(kopf);
     var inhalt = UI.el("div.inhalt", [
       UI.el("div.assistent", { text: Assistent.satzZumVortag(tage, tag.datum) }),
       gebetsKarte(),

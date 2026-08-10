@@ -125,6 +125,25 @@ var ICS = (function () {
         }
       }
 
+      /* Wiederkehrende Termine (Arbeit, Unterricht …) */
+      if (opt.termineEigene !== false) {
+        Termine.fuerTag(d).forEach(function (x) {
+          if (x.art === "religion" && x.name.indexOf("Jumu") === 0) return;  // kommt unten
+          var u = (x.von || "09:00").split(":");
+          var s = new Date(d.getFullYear(), d.getMonth(), d.getDate(), +u[0], +u[1]);
+          var b = (x.bis || "").split(":");
+          var ende = b.length === 2
+            ? new Date(d.getFullYear(), d.getMonth(), d.getDate(), +b[0], +b[1])
+            : new Date(s.getTime() + 3600000);
+          zeilen = zeilen.concat(ereignis({
+            uid: "mizan-termin-" + x.id + "-" + schluessel + "@mizan",
+            start: s, ende: ende, titel: x.name,
+            text: "Wiederkehrender Termin aus Mīzān.",
+            alarmMin: 15, alarmText: x.name + " in 15 Minuten"
+          }));
+        });
+      }
+
       if (opt.jumua !== false && d.getDay() === 5) {
         var sommer = d.getMonth() >= 3 && d.getMonth() <= 9;
         var uhr = (sommer ? e.jumua.sommer : e.jumua.winter).split(":");

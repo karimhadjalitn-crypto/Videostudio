@@ -71,6 +71,15 @@ var AnsichtAdhkar = (function () {
             haken: tag.dhikr.abends, text: "Adhkār am Abend", ar: "أذكار المساء",
             wert: "nach ʿAṣr",
             onclick: function () { tag.dhikr.abends = !tag.dhikr.abends; speichern(); }
+          }),
+          UI.zeile({
+            haken: (tag.dhikr.nachGebet || 0) >= 5,
+            text: "Adhkār nach dem Gebet",
+            wert: (tag.dhikr.nachGebet || 0) + " von 5",
+            onclick: function () {
+              tag.dhikr.nachGebet = ((tag.dhikr.nachGebet || 0) + 1) % 6;
+              speichern();
+            }
           })
         ])
       ]),

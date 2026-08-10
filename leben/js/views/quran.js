@@ -181,6 +181,39 @@ var AnsichtQuran = (function () {
     ]);
   }
 
+  /* ---------- Bücher mit Lesefortschritt ---------- */
+  function buecherBlock() {
+    var e = Store.einstellungen;
+    var liste = e.buecher || [];
+    if (!liste.length) return null;
+    return UI.el("div.block", [
+      UI.el("div.blockkopf", { text: "Bücher" }),
+      UI.el("div.gruppe", liste.map(function (b) {
+        var heute = (tag.buecher && tag.buecher[b.titel]) || 0;
+        var anteil = b.seiten > 0 ? b.stand / b.seiten : 0;
+        return UI.el("div.zeile.tippbar", {
+          onclick: function () {
+            if (!tag.buecher) tag.buecher = {};
+            tag.buecher[b.titel] = heute + 5;
+            b.stand = (b.stand || 0) + 5;
+            Store.einstellungenSpeichern().then(function () {
+              UI.meldung("+5 Seiten · " + b.titel);
+              speichern();
+            });
+          }
+        }, [
+          UI.el("span.zt.dehnbar", { text: b.titel }),
+          UI.el("span.zw", {
+            text: b.seiten > 0
+              ? b.stand + " / " + b.seiten + (heute ? "  (+" + heute + ")" : "")
+              : "S. " + (b.stand || 0) + (heute ? "  (+" + heute + ")" : "")
+          })
+        ]);
+      })),
+      UI.el("p.klein", { text: "Antippen zählt fünf Seiten dazu. Titel und Umfang pflegst du unter Mehr → Ziele & Listen." })
+    ]);
+  }
+
   function zeichne() {
     if (!wurzel) return;
     var h = Hijri.fuer(new Date());
@@ -192,6 +225,7 @@ var AnsichtQuran = (function () {
       aktuellKarte(),
       murajaaBlock(),
       lesenKarte(),
+      buecherBlock(),
       bestandBlock(),
       UI.el("p.klein", {
         text: "Der Wiederholungsplan teilt deinen Bestand in sechs Tagesblöcke, aufgeteilt nach Versanzahl. Sonntag ist Prüfungstag. Was du als wackelig markierst, kommt bis auf Weiteres täglich dran."

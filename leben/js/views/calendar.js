@@ -64,6 +64,7 @@ var AnsichtKalender = (function () {
         else if (anlass && anlass.art === "fasten") marken.push(UI.el("i.m-fasten"));
         if (anlass && anlass.art === "gross") marken.push(UI.el("i.m-gross"));
         if (d.getDay() === 5) marken.push(UI.el("i.m-jumua"));
+        if (Termine.fuerTag(d).length) marken.push(UI.el("i.m-termin"));
 
         zellen.push(UI.el(klassen, {
           onclick: function () { gewaehlt = gewaehlt === k ? null : k; zeichne(); }
@@ -88,6 +89,7 @@ var AnsichtKalender = (function () {
       UI.el("span", [UI.el("i.m-bid"), "Weißer Tag"]),
       UI.el("span", [UI.el("i.m-jumua"), "Jumuʿa"]),
       UI.el("span", [UI.el("i.m-gross"), "Islamischer Termin"]),
+      UI.el("span", [UI.el("i.m-termin"), "Termin"]),
       UI.el("span", [UI.el("i.feld.s3"), "Tagesscore"])
     ]);
   }
@@ -101,6 +103,7 @@ var AnsichtKalender = (function () {
     var anlass = Hijri.anlass(d);
     var e = Store.einstellungen;
 
+    var termine = Termine.fuerTag(d);
     var hinweise = [];
     if (anlass) hinweise.push(anlass.name);
     if (d.getDay() === 5) {
@@ -121,6 +124,9 @@ var AnsichtKalender = (function () {
       hinweise.length ? UI.el("div.thinweise", hinweise.map(function (x) {
         return UI.el("span.thin", { text: x });
       })) : null,
+      termine.length ? UI.el("div.gruppe.blank", termine.map(function (x) {
+        return UI.zeile({ text: x.name, wert: x.von + (x.bis ? "–" + x.bis : "") });
+      })) : null,
       UI.el("div.gzeiten", ["fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha"].map(function (k) {
         var w = eintrag && eintrag.gebete ? eintrag.gebete[k] : null;
         return UI.el("span.gz" + (w ? ".w-" + w : ""), [
@@ -129,6 +135,60 @@ var AnsichtKalender = (function () {
         ]);
       }))
     ].filter(Boolean));
+  }
+
+  /* Auto-Planung: bleibt aus, bis genug Tage vorliegen.
+     „Wenn sie weiß, wie ich handel, sonst nicht." */
+  function planungKarte() {
+    var liste = Object.keys(tage).map(function (k) { return tage[k]; })
+      .filter(function (t) { return typeof t.score === "number"; });
+    if (liste.length < 30) {
+      return UI.el("div.karte.hinweis", [
+        UI.el("div.hz", {
+          text: "Selbst planen kann Mīzān erst, wenn sie dein Verhalten kennt — ab 30 erfassten Tagen. " +
+                "Du hast " + liste.length + ". Vorher würde sie nach einem Ideal planen statt nach dir."
+        })
+      ]);
+    }
+
+    /* Was sagen die Daten über deine Woche? */
+    var proTag = [[], [], [], [], [], [], []];
+    var trainingProTag = [0, 0, 0, 0, 0, 0, 0];
+    var gesamtProTag = [0, 0, 0, 0, 0, 0, 0];
+    liste.forEach(function (t) {
+      var d = Store.ausKey(t.datum).getDay();
+      proTag[d].push(t.score);
+      gesamtProTag[d]++;
+      if (t.training && (t.training.arten || []).length) trainingProTag[d]++;
+    });
+    function schnitt(l) {
+      return l.length ? l.reduce(function (a, b) { return a + b; }, 0) / l.length : null;
+    }
+    var werte = proTag.map(function (l, i) { return { tag: i, s: schnitt(l), n: l.length }; })
+      .filter(function (x) { return x.n >= 3; });
+    if (werte.length < 5) return null;
+    werte.sort(function (a, b) { return b.s - a.s; });
+    var stark = werte[0], schwach = werte[werte.length - 1];
+
+    var trainingsTage = trainingProTag.map(function (n, i) {
+      return { tag: i, quote: gesamtProTag[i] ? n / gesamtProTag[i] : 0 };
+    }).filter(function (x) { return x.quote >= 0.5; }).map(function (x) { return UI.WOCHENTAGE[x.tag]; });
+
+    return UI.el("div.karte.held", [
+      UI.el("span.etikett", { text: "Was Mīzān über deine Woche weiß" }),
+      UI.el("p.aurteil", {
+        text: UI.WOCHENTAGE[stark.tag] + " ist dein stärkster Tag (Schnitt " + Math.round(stark.s) +
+              "), " + UI.WOCHENTAGE[schwach.tag] + " dein schwächster (" + Math.round(schwach.s) + "). " +
+              (trainingsTage.length ? "Trainiert wird meist " + trainingsTage.join(" und ") + "." : "")
+      }),
+      UI.el("p.aurteil.ziel", {
+        text: "Vorschlag: Leg Schweres auf " + UI.WOCHENTAGE[stark.tag] +
+              " und plane " + UI.WOCHENTAGE[schwach.tag] + " bewusst leichter."
+      }),
+      UI.el("p.klein", {
+        text: "Mīzān trägt nichts von selbst ein. Sie sagt dir, was sie sieht — entscheiden tust du."
+      })
+    ]);
   }
 
   function exportKarte() {
@@ -153,6 +213,7 @@ var AnsichtKalender = (function () {
       raster(),
       legende(),
       tagesKarte(),
+      planungKarte(),
       exportKarte()
     ].filter(Boolean)));
   }

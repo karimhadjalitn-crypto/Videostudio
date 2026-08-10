@@ -108,6 +108,16 @@ var AnsichtArbeit = (function () {
             ev.stopPropagation();
             a.erledigt = !a.erledigt;
             a.erledigtAm = a.erledigt ? new Date().toISOString() : null;
+            /* Wiederholende Aufgabe: beim Abhaken rückt die Fälligkeit weiter,
+               statt dass die Aufgabe verschwindet. */
+            if (a.erledigt && a.wiederholung) {
+              var basis = a.faellig ? Store.ausKey(a.faellig) : new Date();
+              var tage = a.wiederholung === "taeglich" ? 1
+                       : a.wiederholung === "woechentlich" ? 7 : 30;
+              a.faellig = Store.key(new Date(basis.getTime() + tage * 86400000));
+              a.erledigt = false; a.erledigtAm = null;
+              UI.meldung("Erledigt · nächste Fälligkeit " + a.faellig.slice(8) + "." + a.faellig.slice(5, 7) + ".");
+            }
             Store.aufgabeSpeichern(a).then(neuLaden);
           }
         }),
@@ -116,6 +126,7 @@ var AnsichtArbeit = (function () {
         a.faellig ? UI.el("span.zw" + (ueberfaellig ? ".warn" : ""), {
           text: a.faellig === heute ? "heute" : a.faellig.slice(8) + "." + a.faellig.slice(5, 7) + "."
         }) : null,
+        a.wiederholung ? UI.el("span.zw.wdh", { text: "⟳" }) : null,
         UI.el("button.loeschen", {
           type: "button",
           onclick: function (ev) {

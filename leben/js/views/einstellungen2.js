@@ -175,6 +175,48 @@ var AnsichtZiele = (function () {
       liste("Projekte", e.projekte, sichern, "Projekt hinzufügen …"),
 
       UI.el("div.block", [
+        UI.el("div.blockkopf", { text: "Bücher · Lesefortschritt" }),
+        UI.el("div.gruppe", (e.buecher || []).map(function (b, i) {
+          return UI.el("div.zeile", [
+            UI.el("span.zt.dehnbar", { text: b.titel }),
+            (function () {
+              var a = UI.el("span.zw", { text: (b.stand || 0) + (b.seiten ? "/" + b.seiten : "") });
+              return UI.el("span", [a, UI.el("span.stepper", [
+                UI.el("button.mini", {
+                  type: "button",
+                  onclick: function () {
+                    b.seiten = Math.max(0, (b.seiten || 0) - 50);
+                    a.textContent = (b.stand || 0) + (b.seiten ? "/" + b.seiten : ""); still();
+                  }
+                }, "−50"),
+                UI.el("button.mini", {
+                  type: "button",
+                  onclick: function () {
+                    b.seiten = (b.seiten || 0) + 50;
+                    a.textContent = (b.stand || 0) + (b.seiten ? "/" + b.seiten : ""); still();
+                  }
+                }, "+50")
+              ])]);
+            })(),
+            UI.el("button.loeschen", {
+              type: "button", onclick: function () { e.buecher.splice(i, 1); sichern(); }
+            }, "×")
+          ]);
+        }).concat([(function () {
+          var eingabe = UI.el("input.aufgabenfeld", {
+            type: "text", placeholder: "Buch hinzufügen …",
+            onkeydown: function (ev) {
+              if (ev.key === "Enter" && eingabe.value.trim()) {
+                e.buecher.push({ titel: eingabe.value.trim(), autor: "", seiten: 0, stand: 0 });
+                sichern();
+              }
+            }
+          });
+          return UI.el("div.zeile", [eingabe]);
+        })()]))
+      ]),
+
+      UI.el("div.block", [
         UI.el("div.blockkopf", { text: "Finanzen" }),
         UI.el("div.gruppe", [
           zahlZeile("Ausgaben einzeln erfassen ab", e.finanzen.schwelle, 5, 0, 200,

@@ -5,7 +5,22 @@
 var Assistent = (function () {
   "use strict";
 
-  function anrede(ton) { return ton; }
+  /* Der eingestellte Ton entscheidet, wie hart formuliert wird.
+     "fordernd" ist der Standard; "sanft" nimmt die Schärfe raus,
+     "hart" verstärkt sie. */
+  function ton() {
+    return (Store.einstellungen && Store.einstellungen.ton) || "fordernd";
+  }
+
+  function schaerfen(text, sanftText) {
+    var t = ton();
+    if (t === "sanft" && sanftText) return sanftText;
+    if (t === "hart") {
+      // Satzzeichen behalten, sonst klebt der Zusatz am Vorsatz
+      return /[.!?]$/.test(text) ? text + " Keine Ausreden." : text + ". Keine Ausreden.";
+    }
+    return text;
+  }
 
   /* Wie war die Lage der letzten Tage? */
   function lage(tage, heuteKey) {
@@ -29,8 +44,12 @@ var Assistent = (function () {
     var verpasst = Gebetszeiten.PFLICHT.filter(function (k) { return g[k] === "verpasst"; }).length;
     var moschee = Gebetszeiten.PFLICHT.filter(function (k) { return g[k] === "moschee"; }).length;
 
-    if (verpasst >= 2) return "Gestern " + verpasst + " Gebete verpasst. Heute nicht.";
-    if (verpasst === 1) return "Gestern ein Gebet verpasst. Das muss heute nicht wieder passieren.";
+    if (verpasst >= 2) return schaerfen(
+      "Gestern " + verpasst + " Gebete verpasst. Heute nicht.",
+      "Gestern lief es mit den Gebeten nicht rund. Heute ist ein neuer Anlauf.");
+    if (verpasst === 1) return schaerfen(
+      "Gestern ein Gebet verpasst. Das muss heute nicht wieder passieren.",
+      "Gestern ist ein Gebet liegengeblieben. Heute geht das besser.");
     if (l.tief && moschee > 0) return "Harte Tage gerade. Du warst gestern trotzdem in der Moschee. Das zählt.";
     if (moschee >= 1 && gestern.score >= 70) return "Gestern " + gestern.score + ". Halt das.";
     if (gestern.score >= 80) return "Gestern " + gestern.score + " — dein bisher stärkster Bereich ist die Beständigkeit. Nutz sie.";
@@ -53,7 +72,9 @@ var Assistent = (function () {
       urteil = offenGebete.length + " Gebete hast du gar nicht eingetragen. Ohne Eintrag weiß weder die App noch du, wie der Tag wirklich war.";
       morgen = "Morgen: trag jedes Gebet direkt danach ein. Dauert drei Sekunden.";
     } else if (verpasst.length >= 2) {
-      urteil = verpasst.length + " Gebete heute verpasst. Du sagst, das ist dir das Wichtigste — dieser Tag sagt etwas anderes.";
+      urteil = schaerfen(
+        verpasst.length + " Gebete heute verpasst. Du sagst, das ist dir das Wichtigste — dieser Tag sagt etwas anderes.",
+        verpasst.length + " Gebete sind heute liegengeblieben. Das kommt vor. Morgen zählt.");
       morgen = "Morgen: kein einziges verpasstes Gebet. Nichts sonst.";
     } else if (verpasst.length === 1) {
       urteil = Gebetszeiten.NAMEN[verpasst[0]].de + " verpasst. Ein Gebet, das nicht mehr wiederkommt.";
@@ -137,5 +158,5 @@ var Assistent = (function () {
     return liste;
   }
 
-  return { satzZumVortag: satzZumVortag, abschluss: abschluss, offen: offen, lage: lage, anrede: anrede };
+  return { satzZumVortag: satzZumVortag, abschluss: abschluss, offen: offen, lage: lage, ton: ton };
 })();

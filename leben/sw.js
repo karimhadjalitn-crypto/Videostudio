@@ -1,5 +1,5 @@
 /* Mīzān – Service Worker. Offline-Betrieb. */
-var CACHE = "mizan-v5";
+var CACHE = "mizan-v6";
 var ASSETS = [
   "./",
   "index.html",
@@ -21,6 +21,7 @@ var ASSETS = [
   "js/assistant.js",
   "js/views/today.js",
   "js/views/calendar.js",
+  "js/views/termine.js",
   "js/views/bereiche.js",
   "js/views/religion.js",
   "js/views/prayers.js",

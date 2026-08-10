@@ -87,6 +87,11 @@ var AnsichtMehr = (function () {
       UI.el("div.block", [
         UI.el("div.blockkopf", { text: "Erscheinungsbild" }),
         UI.el("div.gruppe", [
+          auswahl("Ton des Assistenten", s.ton, [
+            { wert: "fordernd", text: "Direkt und fordernd (Standard)" },
+            { wert: "hart", text: "Hart — ohne Rücksicht" },
+            { wert: "sanft", text: "Sanft und ermutigend" }
+          ], function (v) { s.ton = v; Store.einstellungenSpeichern().then(zeichne); }),
           auswahl("Darstellung", s.thema, [
             { wert: "dunkel", text: "Dunkel (Standard)" },
             { wert: "hell", text: "Hell" },
@@ -173,6 +178,14 @@ var AnsichtMehr = (function () {
           UI.zeile({
             text: "Ziele & Listen", wert: "Sport, Essen, Finanzen, Kontakte",
             onclick: function () { location.hash = "#/ziele"; }
+          }),
+          UI.zeile({
+            text: "Morgenbriefing", wert: "ansehen",
+            onclick: function () { location.hash = "#/briefing"; }
+          }),
+          UI.zeile({
+            text: "Wiederkehrende Termine", wert: (s.termine || []).length + " angelegt",
+            onclick: function () { location.hash = "#/termine"; }
           }),
           UI.zeile({
             text: "Erinnerungen", wert: "Kalender & Kurzbefehle",
