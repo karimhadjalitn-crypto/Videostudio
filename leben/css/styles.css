@@ -1,0 +1,413 @@
+/* Mīzān – dunkel, ruhig, wertig.
+   Genau zwei Akzente: Jade für Fortschritt, Messing für arabische Schrift. */
+
+:root {
+  --black:      #000000;
+  --surface-1:  #0C0C0E;
+  --surface-2:  #17171A;
+  --surface-3:  #212125;
+  --hairline:   rgba(255,255,255,.08);
+  --hairline-2: rgba(255,255,255,.14);
+
+  --text-1: #F5F5F7;
+  --text-2: rgba(235,235,245,.60);
+  --text-3: rgba(235,235,245,.32);
+
+  --jade:      #4FC79A;
+  --jade-dim:  #2E8666;
+  --jade-deep: #1E4C3C;
+  --brass:     #C9A96A;
+  --rose:      #FF6F61;
+  --amber:     #E5B45F;
+
+  --f-ui: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+  --f-ar: "SF Arabic", "Geeza Pro", "Al Bayan", "Noto Naskh Arabic", "Traditional Arabic", serif;
+
+  --r-karte: 16px;
+  --r-gruppe: 13px;
+
+  --oben: env(safe-area-inset-top, 0px);
+  --unten: env(safe-area-inset-bottom, 0px);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html { background: var(--black); }
+
+body {
+  margin: 0;
+  background: var(--black);
+  color: var(--text-1);
+  font-family: var(--f-ui);
+  font-size: 17px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  padding: var(--oben) 0 calc(4.7rem + var(--unten));
+  overscroll-behavior-y: none;
+}
+body.ohne-leiste { padding-bottom: calc(1.5rem + var(--unten)); }
+
+button, input, select, textarea { font: inherit; color: inherit; }
+button { background: none; border: 0; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--jade); outline-offset: 2px; border-radius: 6px; }
+
+/* ---------- Kopf ---------- */
+.kopf { padding: 1.4rem 1.15rem .3rem; }
+.kopf h1 {
+  margin: 0; font-size: 2.05rem; font-weight: 700;
+  letter-spacing: -.033em; line-height: 1.1;
+}
+.kopfzeile {
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: .75rem; margin-top: .2rem;
+  color: var(--text-2); font-size: .81rem; font-weight: 500;
+}
+.kopfzeile .hij {
+  color: var(--brass); font-family: var(--f-ar); font-size: .95rem;
+  direction: rtl; white-space: nowrap;
+}
+
+/* ---------- Inhalt ---------- */
+.inhalt {
+  padding: .6rem 1.15rem 1.5rem;
+  display: flex; flex-direction: column; gap: .9rem;
+  max-width: 34rem; margin: 0 auto;
+}
+
+.assistent {
+  color: var(--text-2); font-size: .92rem; line-height: 1.45;
+  padding: 0 .15rem; text-wrap: pretty;
+}
+
+/* ---------- Karten ---------- */
+.karte {
+  background: var(--surface-2);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-karte);
+  padding: .95rem 1rem;
+}
+.karte.held {
+  background:
+    radial-gradient(120% 100% at 0% 0%, rgba(79,199,154,.15) 0%, rgba(79,199,154,0) 58%),
+    var(--surface-2);
+  border-color: rgba(79,199,154,.22);
+}
+.karte.hinweis { background: var(--surface-1); }
+.karte.hinweis .hz {
+  color: var(--text-2); font-size: .85rem; line-height: 1.5;
+}
+.karte.hinweis .hz + .hz { margin-top: .45rem; }
+.karte.fertig { text-align: center; }
+.karte.fertig .ft { font-weight: 600; color: var(--jade); }
+.karte.fertig .fs { color: var(--text-2); font-size: .84rem; }
+
+.etikett {
+  display: block; font-size: .64rem; font-weight: 700;
+  letter-spacing: .13em; text-transform: uppercase; color: var(--jade);
+}
+.karte.hinweis .etikett, .karte.schritt .etikett { color: var(--text-3); }
+
+.aurteil { margin: .5rem 0 0; font-size: .95rem; line-height: 1.5; text-wrap: pretty; }
+
+.notiz {
+  color: var(--text-3); font-size: .82rem; text-align: center;
+  padding: .5rem; line-height: 1.45;
+}
+.fuss { color: var(--text-3); font-size: .76rem; text-align: center; margin: .5rem 0 0; line-height: 1.5; }
+
+/* ---------- Gebetskarte ---------- */
+.gebetzeile { display: flex; align-items: baseline; gap: .5rem; margin-top: .35rem; }
+.gname { font-size: 1.62rem; font-weight: 700; letter-spacing: -.03em; }
+.gname.klein { font-size: 1.35rem; }
+.ar { font-family: var(--f-ar); color: var(--brass); direction: rtl; }
+.gebetzeile .ar { font-size: 1.15rem; }
+.gzeit {
+  margin-left: auto; font-size: .82rem; color: var(--text-2); font-weight: 600;
+  font-variant-numeric: tabular-nums; text-align: right;
+}
+
+.balken { height: 3px; border-radius: 2px; background: rgba(255,255,255,.09); margin: .7rem 0 .8rem; }
+.balken i {
+  display: block; height: 100%; border-radius: 2px;
+  background: linear-gradient(90deg, var(--jade-deep), var(--jade));
+}
+
+.chips { display: flex; gap: .4rem; }
+.chip {
+  flex: 1; text-align: center; font-size: .78rem; font-weight: 600;
+  padding: .52rem .3rem; border-radius: 10px; letter-spacing: -.01em;
+  background: rgba(255,255,255,.055); color: var(--text-2);
+  border: 1px solid transparent;
+}
+.chip.an { background: rgba(79,199,154,.16); color: var(--jade); border-color: rgba(79,199,154,.38); }
+
+.gzeiten {
+  display: flex; gap: .3rem; margin-top: .85rem;
+  padding-top: .75rem; border-top: 1px solid var(--hairline);
+}
+.gz {
+  flex: 1; text-align: center; display: flex; flex-direction: column; gap: .12rem;
+  font-variant-numeric: tabular-nums;
+}
+.gz i { font-style: normal; font-size: .6rem; color: var(--text-3); font-weight: 600; }
+.gz b { font-size: .76rem; font-weight: 600; color: var(--text-2); }
+.gz.jetzt i, .gz.jetzt b { color: var(--text-1); }
+.gz.w-moschee b, .gz.w-puenktlich b { color: var(--jade); }
+.gz.w-fenster b { color: var(--jade-dim); }
+.gz.w-spaet b { color: var(--amber); }
+.gz.w-verpasst b { color: var(--rose); }
+
+/* ---------- Score ---------- */
+.scorekarte { display: flex; align-items: center; gap: 1rem; }
+.ring { position: relative; flex: none; line-height: 0; }
+.ring svg { transform: rotate(-90deg); display: block; }
+.ringwert {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  font-size: 1.3rem; font-weight: 700; letter-spacing: -.03em;
+  font-variant-numeric: tabular-nums; line-height: 1;
+}
+.smeta .st { font-size: .95rem; font-weight: 600; }
+.smeta .ss { font-size: .8rem; color: var(--text-2); }
+.smeta .hoch { color: var(--jade); font-weight: 700; }
+.smeta .tief { color: var(--rose); font-weight: 700; }
+
+/* ---------- Blöcke und Zeilen ---------- */
+.block { display: flex; flex-direction: column; }
+.blockkopf {
+  font-size: .64rem; font-weight: 700; letter-spacing: .13em;
+  text-transform: uppercase; color: var(--text-3); padding: 0 .3rem .4rem;
+}
+.gruppe {
+  background: var(--surface-2); border: 1px solid var(--hairline);
+  border-radius: var(--r-gruppe); overflow: hidden;
+}
+.zeile {
+  display: flex; align-items: center; gap: .6rem;
+  padding: .68rem .85rem; font-size: .9rem; letter-spacing: -.01em;
+  border-bottom: 1px solid var(--hairline); min-height: 2.9rem;
+}
+.zeile:last-child { border-bottom: 0; }
+.zeile.tippbar { cursor: pointer; }
+.zeile.tippbar:active { background: rgba(255,255,255,.05); }
+.zeile.leer { color: var(--text-3); justify-content: center; }
+.zeile .zt { flex: none; }
+.zeile .ar { font-size: .95rem; }
+.zeile .zw {
+  margin-left: auto; color: var(--text-2); font-size: .79rem;
+  font-variant-numeric: tabular-nums; text-align: right;
+}
+.zeile .haken {
+  width: 1.2rem; height: 1.2rem; border-radius: 999px; flex: none;
+  border: 1.5px solid var(--text-3); position: relative;
+}
+.zeile.erledigt { color: var(--text-3); }
+.zeile.erledigt .haken { border-color: var(--jade); background: var(--jade); }
+.zeile.erledigt .haken::after {
+  content: "✓"; position: absolute; inset: 0; display: grid; place-items: center;
+  color: #04120C; font-size: .72rem; font-weight: 800;
+}
+.zeile.offen .zt { color: var(--text-1); }
+.zeile.offen::before {
+  content: ""; width: 3px; align-self: stretch; margin: -.68rem .1rem -.68rem -.85rem;
+  background: var(--jade); flex: none;
+}
+
+/* ---------- Gebetsstufen ---------- */
+/* Festes 5-Spalten-Raster: passt auch auf schmalen iPhones ohne Überlauf. */
+.stufen {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: .25rem;
+  padding: .1rem .85rem .8rem; background: var(--surface-2);
+}
+.stufe {
+  min-width: 0; font-size: .6rem; font-weight: 600; padding: .4rem .12rem;
+  border-radius: 8px; background: rgba(255,255,255,.05);
+  color: var(--text-2); border: 1px solid transparent; letter-spacing: -.02em;
+  line-height: 1.15; min-height: 2.4rem;
+  display: grid; place-items: center; hyphens: none;
+}
+.stufe.an.f-jade     { background: rgba(79,199,154,.18); color: var(--jade); border-color: rgba(79,199,154,.4); }
+.stufe.an.f-jade-dim { background: rgba(46,134,102,.2);  color: var(--jade-dim); border-color: rgba(46,134,102,.45); }
+.stufe.an.f-amber    { background: rgba(229,180,95,.16); color: var(--amber); border-color: rgba(229,180,95,.38); }
+.stufe.an.f-rose     { background: rgba(255,111,97,.15); color: var(--rose); border-color: rgba(255,111,97,.36); }
+
+.punkte { display: flex; gap: .2rem; margin-left: .5rem; flex: none; }
+.punkte i { width: .5rem; height: .5rem; border-radius: 999px; background: rgba(255,255,255,.12); }
+.punkte i.f-jade     { background: var(--jade); }
+.punkte i.f-jade-dim { background: var(--jade-dim); }
+.punkte i.f-amber    { background: var(--amber); }
+.punkte i.f-rose     { background: var(--rose); }
+
+/* ---------- Wochenstreifen ---------- */
+.streifen { display: flex; gap: .35rem; margin-top: .7rem; }
+.tagsaeule { flex: 1; display: flex; flex-direction: column; align-items: center; gap: .3rem; }
+.saeule { display: flex; flex-direction: column-reverse; gap: 2px; width: 100%; }
+.saeule i { height: .5rem; border-radius: 2px; background: rgba(255,255,255,.07); }
+.saeule i.f-jade { background: var(--jade); }
+.saeule i.f-jade-dim { background: var(--jade-dim); }
+.saeule i.f-amber { background: var(--amber); }
+.saeule i.f-rose { background: var(--rose); }
+.tagname { font-size: .6rem; color: var(--text-3); font-weight: 600; }
+
+/* ---------- Heatmap ---------- */
+.heat {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+  margin-top: .7rem;
+}
+.feld { aspect-ratio: 1; border-radius: 3px; background: rgba(255,255,255,.05); display: block; }
+.feld.s1 { background: rgba(79,199,154,.20); }
+.feld.s2 { background: rgba(79,199,154,.40); }
+.feld.s3 { background: rgba(79,199,154,.68); }
+.feld.s4 { background: var(--jade); }
+.legende {
+  display: flex; align-items: center; gap: .3rem; margin-top: .7rem;
+  color: var(--text-3); font-size: .68rem;
+}
+.legende .feld { width: .7rem; height: .7rem; aspect-ratio: auto; }
+
+/* ---------- Verteilung ---------- */
+.verteilung { display: flex; flex-direction: column; gap: .45rem; margin-top: .7rem; }
+.vz { display: flex; align-items: center; gap: .6rem; font-size: .8rem; }
+.vt { width: 7.2rem; flex: none; color: var(--text-2); }
+.vbalken { flex: 1; height: 6px; border-radius: 3px; background: rgba(255,255,255,.06); overflow: hidden; }
+.vbalken i { display: block; height: 100%; border-radius: 3px; }
+.vbalken i.f-jade { background: var(--jade); }
+.vbalken i.f-jade-dim { background: var(--jade-dim); }
+.vbalken i.f-amber { background: var(--amber); }
+.vbalken i.f-rose { background: var(--rose); }
+.vw { width: 2rem; text-align: right; font-variant-numeric: tabular-nums; color: var(--text-2); }
+
+/* ---------- Āya ---------- */
+.karte.aya { text-align: center; padding: 1.15rem 1rem; }
+.karte.aya .a {
+  font-family: var(--f-ar); direction: rtl; color: var(--brass);
+  font-size: 1.24rem; line-height: 2.1;
+}
+.karte.aya .de { color: var(--text-2); font-size: .85rem; margin-top: .55rem; line-height: 1.5; }
+.karte.aya .quelle {
+  color: var(--text-3); font-size: .7rem; margin-top: .4rem;
+  letter-spacing: .05em; font-weight: 600;
+}
+
+/* ---------- Muḥāsaba ---------- */
+.punkteleiste { display: flex; gap: .25rem; }
+.punkteleiste i { flex: 1; height: 2.5px; border-radius: 2px; background: rgba(255,255,255,.12); }
+.punkteleiste i.an { background: var(--jade); }
+
+.karte.schritt { padding: 1.15rem 1.1rem; }
+.grossefrage {
+  font-size: 1.32rem; font-weight: 600; letter-spacing: -.026em;
+  line-height: 1.28; margin: .4rem 0 1rem; text-wrap: pretty;
+}
+.unter { color: var(--text-2); font-size: .86rem; margin: .35rem 0 .9rem; line-height: 1.45; }
+
+.fragen { display: flex; flex-direction: column; gap: .5rem; }
+.fbtn {
+  text-align: left; padding: .78rem .9rem; border-radius: 11px;
+  font-size: .92rem; font-weight: 600; letter-spacing: -.01em;
+  background: var(--surface-3); border: 1px solid var(--hairline);
+}
+.fbtn.an { background: rgba(79,199,154,.15); border-color: rgba(79,199,154,.4); color: var(--jade); }
+.fbtn:active { transform: scale(.985); }
+
+.mzeile { padding: .7rem .85rem; border-bottom: 1px solid var(--hairline); }
+.mzeile:last-child { border-bottom: 0; }
+.mkopf { display: flex; align-items: baseline; gap: .5rem; margin-bottom: .5rem; font-size: .9rem; }
+.mzeile .stufen { padding: 0; background: none; }
+
+.zeitfeld {
+  background: var(--surface-3); border: 1px solid var(--hairline);
+  border-radius: 12px; padding: .8rem .9rem; margin-bottom: .6rem;
+}
+.zflabel { display: flex; flex-direction: column; }
+.zflabel b { font-size: .92rem; font-weight: 600; }
+.zflabel span { font-size: .76rem; color: var(--text-2); }
+.zfwert {
+  font-size: 1.5rem; font-weight: 700; letter-spacing: -.03em;
+  font-variant-numeric: tabular-nums; margin: .3rem 0 .55rem;
+}
+.zfknoepfe { display: flex; gap: .35rem; }
+.mini {
+  flex: 1; font-size: .76rem; font-weight: 600; padding: .38rem .2rem;
+  border-radius: 8px; background: rgba(255,255,255,.06); color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+.mini.null { flex: 0 0 2.4rem; }
+.mini:active { background: rgba(255,255,255,.12); }
+
+.notizfeld {
+  width: 100%; background: var(--surface-3); border: 1px solid var(--hairline);
+  border-radius: 11px; padding: .75rem .85rem; resize: vertical;
+  font-size: .95rem; line-height: 1.5;
+}
+
+.abschluss { display: flex; flex-direction: column; align-items: center; gap: .5rem; padding: .6rem 0 1rem; }
+.abschluss .at { color: var(--text-2); font-size: .84rem; font-weight: 600; }
+
+.navi { display: flex; align-items: center; gap: .6rem; }
+.navi .zurueck { color: var(--text-2); font-size: .88rem; font-weight: 600; padding: .6rem .2rem; }
+.navi .cta { flex: 1; }
+
+.cta {
+  display: block; width: 100%; text-align: center;
+  padding: .85rem; border-radius: 13px;
+  font-size: .95rem; font-weight: 700; letter-spacing: -.01em;
+  background: linear-gradient(180deg, #5AD3A6, #35A87F); color: #03150E;
+}
+.cta:active { filter: brightness(.94); }
+.cta.schmal { padding: .72rem; }
+/* Überspringen soll nicht aussehen wie der Hauptweg */
+.cta.leise {
+  background: none; border: 1px solid var(--hairline-2);
+  color: var(--text-2); font-weight: 600;
+}
+
+/* ---------- Formularfelder ---------- */
+.feld {
+  margin-left: auto; background: rgba(255,255,255,.06);
+  border: 1px solid var(--hairline); border-radius: 9px;
+  padding: .38rem .55rem; font-size: .84rem; max-width: 60%;
+  text-align: right; -webkit-appearance: none; appearance: none;
+}
+select.feld { text-align: left; }
+.stepper { display: flex; gap: .3rem; margin-left: .5rem; flex: none; }
+.stepper .mini { flex: 0 0 2rem; font-size: 1rem; }
+
+/* ---------- Reiterleiste ---------- */
+#leiste {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+  display: flex; padding: .5rem .3rem calc(.45rem + var(--unten));
+  border-top: 1px solid var(--hairline);
+  background: rgba(10,10,12,.88);
+  backdrop-filter: blur(26px) saturate(160%);
+  -webkit-backdrop-filter: blur(26px) saturate(160%);
+}
+body.ohne-leiste #leiste { display: none; }
+.reiter {
+  flex: 1; text-align: center; text-decoration: none;
+  font-size: .6rem; font-weight: 600; color: var(--text-3);
+  display: flex; flex-direction: column; gap: .1rem; padding: .15rem 0;
+}
+.reiter .ic { font-size: 1rem; line-height: 1.1; }
+.reiter.an { color: var(--jade); }
+
+/* ---------- Meldung ---------- */
+.meldung {
+  position: fixed; left: 50%; bottom: calc(5.4rem + var(--unten));
+  transform: translate(-50%, 12px); z-index: 40;
+  background: var(--surface-3); border: 1px solid var(--hairline-2);
+  border-radius: 999px; padding: .55rem 1.1rem;
+  font-size: .84rem; font-weight: 600; color: var(--text-1);
+  box-shadow: 0 12px 30px rgba(0,0,0,.55);
+  opacity: 0; transition: opacity .22s ease, transform .22s ease;
+  pointer-events: none; max-width: 88vw; text-align: center;
+}
+.meldung.an { opacity: 1; transform: translate(-50%, 0); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+@media (min-width: 40rem) {
+  .kopf { max-width: 34rem; margin: 0 auto; }
+}

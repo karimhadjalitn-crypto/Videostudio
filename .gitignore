@@ -6,3 +6,7 @@ node_modules/
 
 # generierte Zwischendatei
 tools/_splash_links.html
+
+# Python-Zwischendateien
+__pycache__/
+*.pyc
