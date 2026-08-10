@@ -791,3 +791,21 @@ body.ohne-leiste #leiste { display: none; }
 @media (min-width: 40rem) {
   .kopf { max-width: 34rem; margin: 0 auto; }
 }
+
+/* ---------- Ergänzungen Phase 7 & 8 ---------- */
+.karte.ramadan { border-color: var(--an-amber-rand); }
+.karte.ramadan .etikett { color: var(--amber); }
+.marke {
+  display: inline-block; margin-top: .6rem; font-size: .62rem; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--jade);
+  background: var(--an-jade-bg); border: 1px solid var(--an-jade-rand);
+  border-radius: 999px; padding: .18rem .6rem;
+}
+.aurteil.ziel { color: var(--jade); font-weight: 600; margin-top: .7rem; }
+.zeile.summe { background: var(--fuell-1); font-weight: 600; }
+.zeile.summe .zw.warn { color: var(--amber); }
+.unterkopf {
+  font-size: .64rem; font-weight: 700; letter-spacing: .13em; text-transform: uppercase;
+  color: var(--text-3); margin: 1rem 0 .45rem;
+}
+.unterkopf:first-child { margin-top: .2rem; }

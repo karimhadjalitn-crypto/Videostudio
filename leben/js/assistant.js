@@ -113,6 +113,27 @@ var Assistent = (function () {
     if (!tag.sunnah.rawatib) liste.push({ key: "sunnah.rawatib", text: "Sunan Rawātib", wert: "12 Rakʿa" });
     if (!tag.sunnah.witr) liste.push({ key: "sunnah.witr", text: "Witr" });
     if (!tag.dhikr.abends) liste.push({ key: "dhikr.abends", text: "Adhkār am Abend", ar: "الأذكار" });
+
+    /* Die übrigen Bereiche führen nicht zum Abhaken hierher, sondern
+       verlinken dorthin, wo die Erfassung wirklich stattfindet. */
+    var nachsicht = (typeof Modi !== "undefined") ? Modi.nachsicht(tag) : {};
+    var w = (tag.arbeit && tag.arbeit.wichtigste) || [];
+    var gesetzt = w.filter(function (x) { return x && x.text; });
+    if (!gesetzt.length) {
+      liste.push({ key: "#/arbeit", ziel: true, text: "Die drei Wichtigsten setzen" });
+    } else {
+      var offenAnzahl = gesetzt.filter(function (x) { return !x.erledigt; }).length;
+      if (offenAnzahl) {
+        liste.push({ key: "#/arbeit", ziel: true, text: "Wichtigste Aufgaben",
+                     wert: offenAnzahl + " von " + gesetzt.length + " offen" });
+      }
+    }
+    if (!nachsicht.sportLocker && !(tag.training && (tag.training.arten || []).length)) {
+      liste.push({ key: "#/koerper", ziel: true, text: "Training" });
+    }
+    if (!tag.schlaf.bett) {
+      liste.push({ key: "#/schlaf", ziel: true, text: "Zubettgehzeit eintragen" });
+    }
     return liste;
   }
 

@@ -165,6 +165,106 @@ var AnsichtMuhasaba = (function () {
     };
   }
 
+  /* Mehrere kleine Dinge auf einem Bildschirm — sonst wird die
+     Abrechnung länger als die Minute, die sie dauern soll. */
+  function schrittSchnellcheck() {
+    return {
+      titel: "Kurz durchgehen",
+      unter: "Antippen, was heute war.",
+      bauen: function () {
+        var e = Store.einstellungen;
+        var arten = (tag.training && tag.training.arten) || [];
+
+        var trainingChips = UI.el("div.chips.umbruch", e.sport.arten.map(function (a) {
+          var an = arten.indexOf(a) >= 0;
+          return UI.el("button.chip" + (an ? ".an" : ""), {
+            type: "button",
+            onclick: function () {
+              tag.training.arten = an
+                ? arten.filter(function (x) { return x !== a; })
+                : arten.concat([a]);
+              speichern().then(zeichne);
+            }
+          }, a);
+        }));
+
+        var kontaktChips = UI.el("div.chips.umbruch", (e.kontakte || []).map(function (k) {
+          var an = !!(tag.kontakte && tag.kontakte[k.name]);
+          return UI.el("button.chip" + (an ? ".an" : ""), {
+            type: "button",
+            onclick: function () {
+              if (!tag.kontakte) tag.kontakte = {};
+              tag.kontakte[k.name] = !an;
+              speichern().then(zeichne);
+            }
+          }, k.name);
+        }));
+
+        var bettFeld = UI.el("input.feld.zeit", {
+          type: "time", value: tag.schlaf.bett || "",
+          onchange: function () { tag.schlaf.bett = bettFeld.value || null; speichern(); }
+        });
+
+        return UI.el("div", [
+          UI.el("div.unterkopf", { text: "Trainiert?" }), trainingChips,
+          UI.el("div.unterkopf", { text: "Wen hast du erreicht?" }), kontaktChips,
+          UI.el("div.unterkopf", { text: "Wann gehst du ins Bett?" }),
+          UI.el("div.zeitreihe", [
+            bettFeld,
+            UI.el("button.mini", {
+              type: "button",
+              onclick: function () {
+                var d = new Date();
+                tag.schlaf.bett = String(d.getHours()).padStart(2, "0") + ":" +
+                                  String(d.getMinutes()).padStart(2, "0");
+                speichern().then(zeichne);
+              }
+            }, "Jetzt")
+          ]),
+          notizFeld("schnellcheck")
+        ]);
+      },
+      fertig: function () {
+        return !!(tag.schlaf.bett || (tag.training && tag.training.arten.length));
+      }
+    };
+  }
+
+  function schrittDankbar() {
+    return {
+      titel: "Dankbarkeit",
+      grossefrage: "Wofür bist du heute dankbar?",
+      unter: null,
+      bauen: function () {
+        var liste = tag.dankbar || [];
+        var eingabe = UI.el("input.aufgabenfeld.gross", {
+          type: "text", placeholder: "Eine Sache genügt …",
+          onkeydown: function (ev) { if (ev.key === "Enter") dazu(); }
+        });
+        function dazu() {
+          var t = eingabe.value.trim();
+          if (!t) return;
+          tag.dankbar = liste.concat([t]);
+          eingabe.value = "";
+          speichern().then(zeichne);
+        }
+        return UI.el("div", [
+          UI.el("div.zeitreihe", [eingabe, UI.el("button.mini", { type: "button", onclick: dazu }, "+")]),
+          liste.length ? UI.el("div.gruppe.blank", liste.map(function (t, i) {
+            return UI.el("div.zeile", [
+              UI.el("span.zt.dehnbar", { text: "· " + t }),
+              UI.el("button.loeschen", {
+                type: "button",
+                onclick: function () { tag.dankbar.splice(i, 1); speichern().then(zeichne); }
+              }, "×")
+            ]);
+          })) : null
+        ].filter(Boolean));
+      },
+      fertig: function () { return (tag.dankbar || []).length > 0; }
+    };
+  }
+
   function schrittStimmung() {
     return {
       titel: "Stimmung",
@@ -265,8 +365,10 @@ var AnsichtMuhasaba = (function () {
   function bauenSchritte() {
     var s = [schrittGebete()];
     fragenFuerHeute(tag.datum).forEach(function (f) { s.push(schrittAkhlaq(f)); });
+    s.push(schrittSchnellcheck());
     s.push(schrittBildschirm());
     s.push(schrittStimmung());
+    s.push(schrittDankbar());
     s.push(schrittNotiz());
     s.push(schrittAbschluss());
     return s;

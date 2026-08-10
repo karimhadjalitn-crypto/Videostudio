@@ -133,7 +133,7 @@ var AnsichtKoerper = (function () {
   function zeichne() {
     if (!wurzel) return;
     UI.leeren(wurzel);
-    wurzel.appendChild(UI.kopf("Körper", wocheTrainings() + " Trainings diese Woche", ""));
+    wurzel.appendChild(UI.kopf("Körper", UI.plural(wocheTrainings(), "Training", "Trainings") + " diese Woche", ""));
     wurzel.appendChild(UI.el("div.inhalt", [
       trainingKarte(), wocheKarte(), gewichtKarte(), schritteKarte()
     ]));

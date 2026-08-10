@@ -73,7 +73,7 @@ var AnsichtBereiche = (function () {
       ]),
 
       kachel("religion", "Religion", "الدين",
-        gemacht + " von 5 Gebeten · " + Hifz.fertige().length + " Suren auswendig",
+        gemacht + " von 5 Gebeten · " + UI.plural(Hifz.fertige().length, "Sure", "Suren") + " auswendig",
         (s.bereiche.religion || 0) / 100, w.religion),
 
       kachel("arbeit", "Arbeit & Uni", null,

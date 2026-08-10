@@ -91,6 +91,13 @@ var AnsichtHeute = (function () {
       ]);
     }
     var zeilen = liste.slice(0, 8).map(function (p) {
+      // Punkte, die woanders erfasst werden, führen dorthin
+      if (p.ziel) {
+        return UI.zeile({
+          haken: false, text: p.text, wert: p.wert,
+          onclick: function () { location.hash = p.key; }
+        });
+      }
       if (p.key === "wasser") {
         return UI.zeile({
           haken: false, text: p.text, wert: p.wert,
@@ -122,17 +129,47 @@ var AnsichtHeute = (function () {
     ]);
   }
 
+  /* Ramaḍān bekommt eine eigene, prominente Karte */
+  function ramadanKarte() {
+    var r = Modi.ramadanInfo();
+    if (!r || !r.aktiv) return null;
+    return UI.el("div.karte.held.ramadan", [
+      UI.el("span.etikett", { text: "Ramaḍān · Tag " + r.tag + (r.letzteZehn ? " · die letzten zehn" : "") }),
+      UI.el("div.gzeiten", [
+        UI.el("span.gz", [UI.el("i", { text: "Suḥūr bis" }), UI.el("b", { text: Gebetszeiten.uhr(r.suhurBis) })]),
+        UI.el("span.gz", [UI.el("i", { text: "Ifṭār" }), UI.el("b", { text: Gebetszeiten.uhr(r.iftar) })]),
+        UI.el("span.gz", [UI.el("i", { text: "Qur'an" }), UI.el("b", { text: "Juz' " + r.juzHeute })])
+      ]),
+      UI.el("div.chips", { style: "margin-top:.7rem" }, [
+        UI.el("button.chip" + (tag.fasten ? ".an" : ""), {
+          type: "button",
+          onclick: function () { tag.fasten = !tag.fasten; speichern(); }
+        }, tag.fasten ? "Gefastet" : "Ich faste"),
+        UI.el("button.chip" + (tag.sunnah.tarawih ? ".an" : ""), {
+          type: "button",
+          onclick: function () { tag.sunnah.tarawih = !tag.sunnah.tarawih; speichern(); }
+        }, "Tarāwīḥ")
+      ]),
+      r.ungeradeNacht ? UI.el("p.klein", {
+        text: "Ungerade Nacht der letzten zehn — Laylat al-Qadr wird in ihnen gesucht."
+      }) : null
+    ].filter(Boolean));
+  }
+
   function hinweisKarte() {
     var h = Hijri.fuer(new Date());
     var jetzt = new Date();
     var punkte = [];
+    var reise = Modi.reiseInfo();
+    if (reise) punkte.push(reise.satz);
     if (h.weisserTag) punkte.push("Weißer Tag — " + h.tag + ". " + h.monatName);
-    if (h.ramadan) punkte.push(h.letzteZehn ? "Ramaḍān · die letzten zehn Nächte" : "Ramaḍān");
     if (jetzt.getDay() === 5) {
       var sommer = jetzt.getMonth() >= 3 && jetzt.getMonth() <= 9;
       punkte.push("Jumuʿa um " + (sommer ? Store.einstellungen.jumua.sommer : Store.einstellungen.jumua.winter));
     }
     if (jetzt.getDay() === 1 || jetzt.getDay() === 4) punkte.push("Fastenvorschlag: Montag / Donnerstag");
+    var ram = Modi.ramadanInfo();
+    if (ram && ram.kommend && ram.tage <= 30) punkte.push("Ramaḍān beginnt in " + UI.plural(ram.tage, "Tag", "Tagen") + ".");
     if (!punkte.length) return null;
     return UI.el("div.karte.hinweis", punkte.map(function (p) {
       return UI.el("div.hz", { text: p });
@@ -167,6 +204,7 @@ var AnsichtHeute = (function () {
       UI.el("div.assistent", { text: Assistent.satzZumVortag(tage, tag.datum) }),
       gebetsKarte(),
       scoreKarte(),
+      ramadanKarte(),
       hinweisKarte(),
       offenBlock(),
       ayaKarte(),

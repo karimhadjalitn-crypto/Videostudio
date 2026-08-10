@@ -153,6 +153,11 @@ var UI = (function () {
   function datumLang(d) {
     return WOCHENTAGE[d.getDay()] + ", " + d.getDate() + ". " + MONATE[d.getMonth()];
   }
+  /* "1 Sure" statt "1 Suren" */
+  function plural(n, einzahl, mehrzahl) {
+    return n + " " + (n === 1 ? einzahl : mehrzahl);
+  }
+
   function zahl(n, stellen) {
     return Number(n).toLocaleString("de-DE", {
       minimumFractionDigits: stellen || 0, maximumFractionDigits: stellen || 0
@@ -163,6 +168,6 @@ var UI = (function () {
     el: el, leeren: leeren, karte: karte, gruppe: gruppe, zeile: zeile,
     ring: ring, balken: balken, knopf: knopf, kopf: kopf, meldung: meldung,
     themaAnwenden: themaAnwenden, themaBeobachten: themaBeobachten,
-    datumLang: datumLang, zahl: zahl, WOCHENTAGE: WOCHENTAGE, MONATE: MONATE
+    datumLang: datumLang, zahl: zahl, plural: plural, WOCHENTAGE: WOCHENTAGE, MONATE: MONATE
   };
 })();

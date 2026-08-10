@@ -541,11 +541,11 @@ Wochenplanung). Ohne Sync — Daten kommen per Exportdatei rüber.
 | **1** ✔ | Gerüst, Speicher, „Heute", Gebete mit Qualitätsstufen, Gebetszeiten, Hijri, Score, Abendabrechnung |
 | **2** ✔ | Religion vollständig: Qur'an/Hifz/Murājaʿa, Adhkār, Fasten, Duʿāʾ-Sammlung |
 | **3** ✔ | Kalender, `.ics`-Export, Kurzbefehl-Übernahme, Erinnerungen |
-| **4** | Sport, Ernährung, Schlaf |
-| **5** | Produktivität, Wochenplanung, Business, Bildschirmzeit |
-| **6** | Finanzen, Zakat, Soziales, Ehe, Innenleben, geschützter Bereich |
-| **7** | Spiegel: Zusammenhänge, Heatmaps, Wochenbericht |
-| **8** | Reisemodus, Ramadan-Modus, Feinschliff, Design |
+| **4** ✔ | Sport, Ernährung, Schlaf |
+| **5** ✔ | Produktivität, Wochenplanung, Business, Bildschirmzeit |
+| **6** ✔ | Finanzen, Zakat, Soziales, Ehe, Innenleben, geschützter Bereich |
+| **7** ✔ | Spiegel: Zusammenhänge, Heatmaps, Wochenbericht |
+| **8** ✔ | Reisemodus, Ramadan-Modus, Feinschliff, Design |
 
 Nach jeder Phase kannst du die App benutzen. Kein Warten auf „fertig".
 

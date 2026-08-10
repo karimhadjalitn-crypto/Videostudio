@@ -163,11 +163,30 @@ var AnsichtMehr = (function () {
       ]),
 
       UI.el("div.block", [
-        UI.el("div.blockkopf", { text: "Erinnerungen" }),
+        UI.el("div.blockkopf", { text: "Einrichten" }),
         UI.el("div.gruppe", [
           UI.zeile({
-            text: "Kalenderdatei und Kurzbefehle", wert: "einrichten",
+            text: "Gewichtung des Tagesscores",
+            wert: "Religion " + s.gewichte.religion + " %",
+            onclick: function () { location.hash = "#/gewichtung"; }
+          }),
+          UI.zeile({
+            text: "Ziele & Listen", wert: "Sport, Essen, Finanzen, Kontakte",
+            onclick: function () { location.hash = "#/ziele"; }
+          }),
+          UI.zeile({
+            text: "Erinnerungen", wert: "Kalender & Kurzbefehle",
             onclick: function () { location.hash = "#/erinnerungen"; }
+          }),
+          UI.zeile({
+            text: "Sperre", wert: (s.sperre.appCode ? "App" : "") +
+              (s.sperre.appCode && s.sperre.bereichCode ? " + " : "") +
+              (s.sperre.bereichCode ? "Bereich" : "") || "kein Code",
+            onclick: function () { location.hash = "#/sperre"; }
+          }),
+          UI.zeile({
+            text: "Reisemodus", wert: s.reise.aktiv ? (s.reise.ort || "aktiv") : "aus",
+            onclick: function () { location.hash = "#/reise"; }
           })
         ])
       ]),

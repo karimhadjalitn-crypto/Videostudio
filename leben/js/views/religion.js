@@ -62,7 +62,7 @@ var AnsichtReligion = (function () {
         faellig ? gemacht / faellig : 0),
 
       bereich("quran", "Qur'an", "القرآن",
-        fertig.length + " Suren auswendig" +
+        UI.plural(fertig.length, "Sure", "Suren") + " auswendig" +
         (f ? " · Juz' " + f.juz + " zu " + Math.round(f.anteil * 100) + " %" : "") +
         (d.neu ? " · lernt " + d.neu.de : ""),
         f ? f.anteil : null),

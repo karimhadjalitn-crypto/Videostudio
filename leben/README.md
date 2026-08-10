@@ -60,9 +60,19 @@ Der Tagesscore färbt die Zelle ein. Markiert werden weiße Tage, Jumuʿa, islam
 Termine, Fastenvorschläge und deine Arbeitstage. Ein Tipp auf einen Tag zeigt
 Gebetszeiten, Anlässe und was an dem Tag erfasst wurde.
 
-**Mehr** — Erscheinungsbild, Gebetszeit-Methode, ʿAṣr-Berechnung, Sommerregel,
-Feinjustierung pro Gebet in Minuten, Hijri-Versatz, Ziele, Jumuʿa-Zeiten,
-Erinnerungen, Export und Import.
+**Bereiche** — Übersicht über alle Lebensbereiche mit Tagesscore und dem
+Gewicht, mit dem jeder eingeht: Religion · Arbeit & Uni · Körper & Sport ·
+Schlaf · Ernährung · Soziales & Familie · Business · Finanzen · Innenleben ·
+Geschützt.
+
+**Spiegel** — Wochen- gegen Monatsschnitt, Serie mit Schonfrist, Heatmap über
+bis zu ein Jahr (umschaltbar auf Score, Gebete, Qur'an, Sport oder Schlaf),
+Bereichsvergleich mit der schwächsten Stelle zuerst, Verteilung der
+Gebetsqualität, Wochenbericht und die **Zusammenhänge**.
+
+**Mehr** — Erscheinungsbild, Gebetszeiten mit Feinjustierung, Hijri-Versatz,
+Gewichtung des Tagesscores, Ziele & Listen, Erinnerungen, Sperre, Reisemodus,
+Export und Import.
 
 ## Erscheinungsbild
 
@@ -217,10 +227,53 @@ Kein Build-Werkzeug, keine Abhängigkeiten. Reine Dateien, wie die Arabisch-App.
 
 ## Stand
 
-Fertig: **Phase 1** (Gerüst, Heute, Gebete, Score, Muḥāsaba) ·
-**Phase 2** (Religion vollständig: Qur'an mit Hifz und Murājaʿa, Adhkār, Fasten,
-Duʿāʾ) · **Phase 3** (Kalender, `.ics`-Export, Kurzbefehl-Übernahme).
+**Alle acht Phasen sind gebaut.** Die App ist vollständig.
 
-Offen: Sport, Ernährung, Schlaf (Phase 4) · Produktivität und Business (Phase 5) ·
-Finanzen, Zakat, Soziales, Ehe, geschützter Bereich (Phase 6) · die große
-Auswertung mit Zusammenhängen (Phase 7) · Reise- und Ramadan-Modus (Phase 8).
+| Phase | Inhalt |
+|---|---|
+| 1 | Gerüst, Speicher, Heute, Gebete mit Qualitätsstufen, Score, Muḥāsaba |
+| 2 | Religion: Qur'an mit Hifz und Murājaʿa, Adhkār, Fasten, Duʿāʾ |
+| 3 | Kalender, `.ics`-Export, Kurzbefehl-Übernahme |
+| 4 | Körper & Sport, Ernährung, Schlaf |
+| 5 | Arbeit & Uni mit Aufgaben, Business |
+| 6 | Finanzen, Soziales, Innenleben, Ehe, geschützter Bereich |
+| 7 | Spiegel: Heatmaps, Serie, Wochenbericht, Zusammenhänge |
+| 8 | Reise- und Ramaḍān-Modus |
+
+
+---
+
+## Die Zusammenhänge
+
+Der Kern des Spiegels. Mīzān vergleicht deine Bereiche gegeneinander und sagt
+im Klartext, was sie findet — zum Beispiel:
+
+> An den 40 Tagen, an denen du vor 0 Uhr im Bett warst, hast du Fajr 40-mal
+> gehalten. An den 20 späteren Nächten 10-mal. Das ist kein Zufall mehr.
+
+Geprüft werden acht Regeln: Schlafenszeit ↔ Fajr · Scrollzeit ↔ Murājaʿa ·
+Moschee ↔ Tagesscore · Sport ↔ Stimmung am Folgetag · Schlafenszeit ↔ Rückfälle ·
+Arbeitstage ↔ alles andere · Fajr in der Moschee ↔ erledigte Hauptaufgaben ·
+stärkster und schwächster Wochentag.
+
+**Eine Aussage erscheint erst**, wenn beide Verglichsgruppen mindestens vier Tage
+umfassen und der Unterschied deutlich ist. Bei dünner Datenlage sagt die App das
+offen, statt zu raten. Die Regel zu Rückfällen läuft ausschließlich im
+geschützten Bereich und taucht im Spiegel nie auf.
+
+## Sondermodi
+
+**Reise** — Serie pausiert statt zu brechen, Sport und Ernährung werden nicht
+eingefordert, Hinweis auf Qaṣr und Jamʿ. Die Erfassung der Gebete bleibt gleich:
+ob gekürzt oder zusammengelegt wurde, ist eine Frage des Fiqh, nicht der App.
+
+**Ramaḍān** — schaltet sich am 1. Ramaḍān von selbst ein: Suḥūr- und Ifṭār-Zeit,
+Tarāwīḥ, täglicher Juz', die letzten zehn Nächte hervorgehoben mit Markierung der
+ungeraden Nächte.
+
+## Sperre
+
+Zwei getrennte Codes, beide optional: einer beim Öffnen der App, einer für den
+geschützten Bereich. Sie werden **nur als SHA-256-Prüfsumme** gespeichert — nie im
+Klartext, auch nicht in der Sicherungsdatei. Ein vergessener Code lässt sich nicht
+wiederherstellen.

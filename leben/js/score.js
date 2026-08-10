@@ -118,7 +118,7 @@ var Score = (function () {
   }
 
   /* ---------- Sport und Körper ---------- */
-  function sport(tag, tagZu, e, wocheTrainings) {
+  function sport(tag, tagZu, e, wocheTrainings, locker) {
     var arten = (tag.training && tag.training.arten) || [];
     var ziel = (e.sport && e.sport.wochenziel) || 4;
 
@@ -126,6 +126,8 @@ var Score = (function () {
     // die Bewertung danach, ob das Wochenziel noch erreichbar ist.
     if (arten.length) return paar(100, 100);
     if (!tagZu) return paar(0, 0);
+    // Auf Reisen und im Ramaḍān wird Sport nicht eingefordert
+    if (locker) return paar(0, 0);
     // Tag zu und nicht trainiert: nur anteilig abwerten, Ruhetage gehören dazu
     var anteilWoche = Math.min(1, (wocheTrainings || 0) / ziel);
     return paar(anteilWoche * 100, 100);
@@ -242,12 +244,18 @@ var Score = (function () {
       innen(tag, tagZu), finanzen(tag, tagZu, e)
     ]);
 
+    /* Reise und Ramaḍān senken die Erwartung, statt dich an einem
+       Maßstab zu messen, der gerade nicht gilt. */
+    var n = (typeof Modi !== "undefined")
+      ? Modi.nachsicht(tag)
+      : { sportLocker: false, essenLocker: false };
+
     var bereiche = [
       { key: "religion",       gewicht: w.religion,       wert: religion(tag, abgelaufen, tagZu) },
       { key: "produktivitaet", gewicht: w.produktivitaet, wert: produktivitaet(tag, tagZu, e) },
-      { key: "sport",          gewicht: w.sport,          wert: sport(tag, tagZu, e, optionen.wocheTrainings) },
+      { key: "sport",          gewicht: w.sport,          wert: sport(tag, tagZu, e, optionen.wocheTrainings, n.sportLocker) },
       { key: "schlaf",         gewicht: w.schlaf,         wert: schlaf(tag, tagZu) },
-      { key: "ernaehrung",     gewicht: w.ernaehrung,     wert: ernaehrung(tag, tagZu, e) },
+      { key: "ernaehrung",     gewicht: w.ernaehrung,     wert: ernaehrung(tag, n.essenLocker ? false : tagZu, e) },
       { key: "soziales",       gewicht: w.soziales,       wert: soziales(tag, tagZu, e, optionen.letzterKontakt) },
       { key: "innen",          gewicht: w.innen,          wert: innenUndGeld }
     ];

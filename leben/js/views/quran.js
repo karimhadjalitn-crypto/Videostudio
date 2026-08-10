@@ -19,7 +19,7 @@ var AnsichtQuran = (function () {
     return UI.el("div.karte.held", [
       UI.el("span.etikett", { text: "Ziel: Juz' " + f.juz + " komplett" }),
       UI.el("div.gebetzeile", [
-        UI.el("span.gname.klein", { text: f.offen.length + " Suren" }),
+        UI.el("span.gname.klein", { text: UI.plural(f.offen.length, "Sure", "Suren") }),
         UI.el("span.gzeit", { text: f.offeneVerse + " Verse offen" })
       ]),
       UI.balken(f.anteil),
@@ -148,7 +148,7 @@ var AnsichtQuran = (function () {
     var f = Hifz.fertige();
     var kopf = UI.zeile({
       text: "Mein Bestand",
-      wert: f.length + " Suren · " + Hifz.gesamtVerse(f) + " Verse",
+      wert: UI.plural(f.length, "Sure", "Suren") + " · " + UI.plural(Hifz.gesamtVerse(f), "Vers", "Verse"),
       onclick: function () { bestandOffen = !bestandOffen; zeichne(); }
     });
     if (!bestandOffen) {
@@ -186,7 +186,7 @@ var AnsichtQuran = (function () {
     var h = Hijri.fuer(new Date());
     UI.leeren(wurzel);
     var f = Hifz.fertige();
-    wurzel.appendChild(UI.kopf("Qur'an", f.length + " Suren auswendig", "القرآن"));
+    wurzel.appendChild(UI.kopf("Qur'an", UI.plural(f.length, "Sure", "Suren") + " auswendig", "القرآن"));
     wurzel.appendChild(UI.el("div.inhalt", [
       juzKarte(),
       aktuellKarte(),
