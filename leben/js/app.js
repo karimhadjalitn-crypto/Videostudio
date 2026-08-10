@@ -106,9 +106,25 @@
     );
   });
 
+  /* Eine PWA auf dem iPhone bleibt oft wochenlang offen. Ohne Hinweis
+     merkt man nie, dass eine neue Fassung bereitliegt. */
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
-      navigator.serviceWorker.register("sw.js").catch(function () { /* offline egal */ });
+      navigator.serviceWorker.register("sw.js").then(function (reg) {
+        reg.addEventListener("updatefound", function () {
+          var neu = reg.installing;
+          if (!neu) return;
+          neu.addEventListener("statechange", function () {
+            if (neu.state === "installed" && navigator.serviceWorker.controller) {
+              var m = UI.el("button.aktualisieren", {
+                type: "button", onclick: function () { location.reload(); }
+              }, "Neue Fassung bereit — tippen zum Laden");
+              document.body.appendChild(m);
+              requestAnimationFrame(function () { m.classList.add("an"); });
+            }
+          });
+        });
+      }).catch(function () { /* offline egal */ });
     });
   }
 })();

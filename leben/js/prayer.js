@@ -107,9 +107,21 @@ var Gebetszeiten = (function () {
     return t;
   }
 
+  /* Zwischenspeicher: Score, „Heute“ und Kalender fragen dieselben Tage
+     mehrfach ab. Der Schlüssel enthält alle Einstellungen, die das
+     Ergebnis verändern — ändert sich eine, greift der Speicher nicht mehr. */
+  var speicher = {};
+  function leeren() { speicher = {}; }
+
   /* Öffentlich: liefert echte Date-Objekte in der Gerätezeitzone. */
   function fuer(datum, e) {
     e = e || Store.einstellungen;
+    var k = e.korrektur || {};
+    var schluessel = datum.getFullYear() + "-" + datum.getMonth() + "-" + datum.getDate() +
+      "|" + e.ort.lat + "," + e.ort.lng + "|" + e.methode + "|" + e.asr + "|" + e.hochbreiten +
+      "|" + [k.fajr, k.sunrise, k.dhuhr, k.asr, k.maghrib, k.isha].join(",");
+    if (speicher[schluessel]) return speicher[schluessel];
+
     var lat = e.ort.lat, lng = e.ort.lng;
     var faktor = e.asr === "hanafi" ? 2 : 1;
     var t = roh(datum, lat, lng, e.methode, faktor, e.hochbreiten);
@@ -121,6 +133,9 @@ var Gebetszeiten = (function () {
       var korr = (e.korrektur && e.korrektur[k]) || 0; // Feinjustierung in Minuten
       out[k] = new Date(mitternachtUTC + std * 3600000 + korr * 60000);
     });
+    // Bei sehr langen Läufen (12-Monats-Kalender) nicht unbegrenzt wachsen
+    if (Object.keys(speicher).length > 800) speicher = {};
+    speicher[schluessel] = out;
     return out;
   }
 
@@ -157,11 +172,27 @@ var Gebetszeiten = (function () {
     };
   }
 
-  /* Welche Pflichtgebete sind heute schon fällig gewesen? */
+  /* Welche Pflichtgebete haben ihr Fenster schon geöffnet? */
   function faellig(jetzt, e) {
     jetzt = jetzt || new Date();
     var t = fuer(jetzt, e);
     return PFLICHT.filter(function (k) { return jetzt >= t[k]; });
+  }
+
+  /* Welche Fenster sind bereits zu?
+     Nur diese dürfen im Score gegen dich zählen — solange die Zeit
+     noch läuft, ist ein nicht eingetragenes Gebet kein verpasstes. */
+  function abgelaufen(jetzt, e) {
+    jetzt = jetzt || new Date();
+    var t = fuer(jetzt, e);
+    var ende = {
+      fajr: t.sunrise,   // Fajr endet mit Sonnenaufgang
+      dhuhr: t.asr,
+      asr: t.maghrib,
+      maghrib: t.isha,
+      isha: null         // läuft bis in die Nacht — zählt erst beim Tagesabschluss
+    };
+    return PFLICHT.filter(function (k) { return ende[k] && jetzt >= ende[k]; });
   }
 
   function uhr(d) {
@@ -179,7 +210,7 @@ var Gebetszeiten = (function () {
   }
 
   return {
-    fuer: fuer, aktuell: aktuell, faellig: faellig,
+    fuer: fuer, aktuell: aktuell, faellig: faellig, abgelaufen: abgelaufen, leeren: leeren,
     uhr: uhr, restText: restText,
     NAMEN: NAMEN, PFLICHT: PFLICHT, METHODEN: METHODEN
   };

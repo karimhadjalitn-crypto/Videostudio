@@ -156,13 +156,15 @@ var Store = (function () {
   }
 
   /* ---------- Export / Import ---------- */
+  /* Tiefe Kopie, keine lebende Referenz: sonst verändert sich eine schon
+     erzeugte Sicherung mit, sobald danach eine Einstellung angefasst wird. */
   function exportieren() {
     return alleTage().then(function (tage) {
       return {
         app: "mizan", schema: SCHEMA,
         erstellt: new Date().toISOString(),
-        einstellungen: einstellungen,
-        tage: tage
+        einstellungen: JSON.parse(JSON.stringify(einstellungen)),
+        tage: JSON.parse(JSON.stringify(tage))
       };
     });
   }
@@ -182,12 +184,25 @@ var Store = (function () {
     });
   }
 
+  /* Wartet, bis die Transaktion wirklich durch ist. Vorher wurde die
+     nächste Transaktion geöffnet, während die Puts noch liefen — dabei
+     konnten Tage verlorengehen. */
   function importieren(daten) {
     if (!daten || daten.app !== "mizan") throw new Error("Das ist keine Mīzān-Sicherung.");
-    var store = tx("tage", "readwrite");
-    (daten.tage || []).forEach(function (t) { store.put(tief(leererTag(t.datum), t)); });
-    einstellungen = tief(DEFAULTS, daten.einstellungen || {});
-    return einstellungenSpeichern();
+    return new Promise(function (ok, fehler) {
+      var t = db.transaction("tage", "readwrite");
+      var store = t.objectStore("tage");
+      (daten.tage || []).forEach(function (x) {
+        if (x && x.datum) store.put(tief(leererTag(x.datum), x));
+      });
+      t.oncomplete = function () { ok(); };
+      t.onerror = function () { fehler(t.error); };
+      t.onabort = function () { fehler(t.error || new Error("Import abgebrochen")); };
+    }).then(function () {
+      einstellungen = tief(DEFAULTS, daten.einstellungen || {});
+      if (typeof einstellungen.hifz.aktuell === "string") delete einstellungen.hifz.aktuell;
+      return einstellungenSpeichern();
+    });
   }
 
   var API = {

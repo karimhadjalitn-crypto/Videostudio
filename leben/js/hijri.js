@@ -16,15 +16,21 @@ var Hijri = (function () {
     "رمضان", "شوال", "ذو القعدة", "ذو الحجة"
   ];
 
-  var intlOk = null;
+  var intlOk = null, formatierer = null;
   function pruefeIntl() {
     if (intlOk !== null) return intlOk;
     try {
-      var f = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura", { day: "numeric" });
-      intlOk = f.resolvedOptions().calendar.indexOf("islamic") === 0;
-    } catch (e) { intlOk = false; }
+      formatierer = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura", {
+        day: "numeric", month: "numeric", year: "numeric"
+      });
+      intlOk = formatierer.resolvedOptions().calendar.indexOf("islamic") === 0;
+    } catch (e) { intlOk = false; formatierer = null; }
     return intlOk;
   }
+
+  /* Der Kalender fragt 60 Tage am Stück ab. Ein Formatierer und ein
+     Zwischenspeicher sparen dabei den Löwenanteil der Rechenzeit. */
+  var speicher = {};
 
   /* Ersatzrechnung, falls das Gerät den Kalender nicht kennt (tabellarisch) */
   function ersatz(date) {
@@ -47,15 +53,16 @@ var Hijri = (function () {
     versatz = versatz === undefined
       ? ((Store.einstellungen && Store.einstellungen.hijriOffset) || 0)
       : versatz;
+    var schluessel = date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate() + "|" + versatz;
+    if (speicher[schluessel]) return speicher[schluessel];
+
     // Mittag nehmen, damit Zeitzonen-Ränder nicht kippen
     var d = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0);
     d = new Date(d.getTime() + versatz * 86400000);
 
     var tag, monat, jahr;
     if (pruefeIntl()) {
-      var teile = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura", {
-        day: "numeric", month: "numeric", year: "numeric"
-      }).formatToParts(d);
+      var teile = formatierer.formatToParts(d);
       teile.forEach(function (t) {
         if (t.type === "day") tag = parseInt(t.value, 10);
         if (t.type === "month") monat = parseInt(t.value, 10);
@@ -66,7 +73,7 @@ var Hijri = (function () {
       tag = e.tag; monat = e.monat; jahr = e.jahr;
     }
 
-    return {
+    var ergebnis = {
       tag: tag, monat: monat, jahr: jahr,
       monatName: MONATE[monat - 1] || "",
       monatAr: MONATE_AR[monat - 1] || "",
@@ -76,7 +83,12 @@ var Hijri = (function () {
       text: tag + ". " + (MONATE[monat - 1] || "") + " " + jahr,
       textAr: arabischeZiffern(tag) + " " + (MONATE_AR[monat - 1] || "") + " " + arabischeZiffern(jahr)
     };
+    speicher[schluessel] = ergebnis;
+    return ergebnis;
   }
+
+  /* Nach einer Änderung des Versatzes muss der Zwischenspeicher weg. */
+  function leeren() { speicher = {}; }
 
   function arabischeZiffern(n) {
     var z = "٠١٢٣٤٥٦٧٨٩";
@@ -96,5 +108,8 @@ var Hijri = (function () {
     return null;
   }
 
-  return { fuer: fuer, anlass: anlass, MONATE: MONATE, MONATE_AR: MONATE_AR, ziffern: arabischeZiffern };
+  return {
+    fuer: fuer, anlass: anlass, leeren: leeren,
+    MONATE: MONATE, MONATE_AR: MONATE_AR, ziffern: arabischeZiffern
+  };
 })();

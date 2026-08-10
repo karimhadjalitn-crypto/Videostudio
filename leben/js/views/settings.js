@@ -52,9 +52,11 @@ var AnsichtMehr = (function () {
         leser.onload = function () {
           try {
             Store.importieren(JSON.parse(leser.result)).then(function () {
-              UI.meldung("Sicherung eingelesen.");
-              zeichne();
-            });
+              UI.meldung("Sicherung eingelesen — die App startet neu.");
+              // Neu laden, damit Hifz-Bestand, Thema und alle Ansichten
+              // wirklich auf dem eingelesenen Stand aufsetzen.
+              setTimeout(function () { location.reload(); }, 900);
+            }).catch(function () { UI.meldung("Der Import ist fehlgeschlagen."); });
           } catch (err) { UI.meldung("Konnte die Datei nicht lesen."); }
         };
         leser.readAsText(f);

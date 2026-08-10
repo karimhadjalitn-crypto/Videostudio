@@ -19,14 +19,17 @@ var ICS = (function () {
                     .replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
   }
 
-  /* iCalendar erlaubt höchstens 75 Oktette je Zeile. */
+  /* iCalendar erlaubt höchstens 75 Oktette je Zeile.
+     Ein Encoder für alles — bei zwölf Monaten sind das über 20.000 Zeilen. */
+  var encoder = new TextEncoder();
+  function oktette(s) { return encoder.encode(s).length; }
+
   function falten(zeile) {
-    var bytes = new TextEncoder().encode(zeile);
-    if (bytes.length <= 75) return zeile;
+    if (oktette(zeile) <= 75) return zeile;
     var teile = [], rest = zeile, grenze = 74;
-    while (new TextEncoder().encode(rest).length > grenze) {
+    while (oktette(rest) > grenze) {
       var schnitt = grenze;
-      while (new TextEncoder().encode(rest.slice(0, schnitt)).length > grenze) schnitt--;
+      while (oktette(rest.slice(0, schnitt)) > grenze) schnitt--;
       teile.push(rest.slice(0, schnitt));
       rest = rest.slice(schnitt);
       grenze = 73; // Folgezeilen beginnen mit einem Leerzeichen

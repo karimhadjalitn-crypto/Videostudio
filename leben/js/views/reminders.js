@@ -29,6 +29,18 @@ var AnsichtErinnerungen = (function () {
     ]);
   }
 
+  /* Ein-/Ausschalter. Bewusst kein Haken: ein Haken heißt in dieser App
+     „erledigt“ und graut die Zeile aus — hier wäre das genau verkehrt. */
+  function schalter(text, schluessel) {
+    var an = !!opt[schluessel];
+    return UI.el("div.zeile.tippbar", {
+      onclick: function () { opt[schluessel] = !an; zeichne(); }
+    }, [
+      UI.el("span.zt", { text: text }),
+      UI.el("span.schalter" + (an ? ".an" : ""), { text: an ? "dabei" : "aus" })
+    ]);
+  }
+
   function schritte(liste) {
     return UI.el("ol.schrittliste", liste.map(function (s) {
       return UI.el("li", { html: s });
@@ -77,18 +89,9 @@ var AnsichtErinnerungen = (function () {
             { wert: 10, text: "10 Minuten" },
             { wert: 20, text: "20 Minuten" }
           ], function (v) { opt.alarmMin = +v; zeichne(); }),
-          UI.zeile({
-            text: "Weiße Tage", wert: opt.weisseTage ? "dabei" : "aus", haken: opt.weisseTage,
-            onclick: function () { opt.weisseTage = !opt.weisseTage; zeichne(); }
-          }),
-          UI.zeile({
-            text: "Islamische Termine", wert: opt.termine ? "dabei" : "aus", haken: opt.termine,
-            onclick: function () { opt.termine = !opt.termine; zeichne(); }
-          }),
-          UI.zeile({
-            text: "Jumuʿa freitags", wert: opt.jumua ? "dabei" : "aus", haken: opt.jumua,
-            onclick: function () { opt.jumua = !opt.jumua; zeichne(); }
-          })
+          schalter("Weiße Tage", "weisseTage"),
+          schalter("Islamische Termine", "termine"),
+          schalter("Jumuʿa freitags", "jumua")
         ])
       ]),
 

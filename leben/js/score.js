@@ -42,17 +42,16 @@ var Score = (function () {
   function anteil(p) { return p.max > 0 ? p.got / p.max : 0; }
 
   /* ---------- Religion ---------- */
-  function religion(tag, faellig, tagZu) {
+  function religion(tag, abgelaufen, tagZu) {
     var teile = [];
 
-    // Pflichtgebete – nur die, deren Zeit schon begonnen hat
+    /* Pflichtgebete: Ein Gebet zählt erst gegen dich, wenn sein Fenster
+       ZU ist — nicht schon, wenn es aufgeht. Eingetragenes zählt sofort. */
     var g = { got: 0, max: 0 };
     Gebetszeiten.PFLICHT.forEach(function (k) {
       var wert = tag.gebete[k];
-      var istFaellig = faellig.indexOf(k) >= 0;
       if (wert) { g.got += GEBETSWERT[wert]; g.max += 1; }
-      else if (istFaellig && tagZu) { g.max += 1; }
-      else if (istFaellig) { g.max += 1; }   // fällig und nicht eingetragen = zählt
+      else if (abgelaufen.indexOf(k) >= 0) { g.max += 1; }
     });
     teile.push(paar(g.got * RELIGION.gebete, g.max * RELIGION.gebete));
 
@@ -122,13 +121,13 @@ var Score = (function () {
     // optionen.schliessen: so rechnen, als wäre der Tag schon abgeschlossen.
     // Sonst zeigt die Abendabrechnung eine geschönte Zahl, die danach fällt.
     var tagZu = !!optionen.schliessen || !!tag.muhasaba || tag.datum < heute;
-    var faellig = (optionen.schliessen || tag.datum !== heute)
+    var abgelaufen = (optionen.schliessen || tag.datum !== heute)
       ? Gebetszeiten.PFLICHT.slice()
-      : Gebetszeiten.faellig(jetzt, e);
+      : Gebetszeiten.abgelaufen(jetzt, e);
 
     var w = e.gewichte;
     var bereiche = [
-      { key: "religion",   gewicht: w.religion,   wert: religion(tag, faellig, tagZu) },
+      { key: "religion",   gewicht: w.religion,   wert: religion(tag, abgelaufen, tagZu) },
       { key: "ernaehrung", gewicht: w.ernaehrung, wert: ernaehrung(tag, tagZu, e) },
       { key: "schlaf",     gewicht: w.schlaf,     wert: schlaf(tag, tagZu) },
       { key: "innen",      gewicht: w.innen,      wert: innen(tag, tagZu) }
@@ -149,7 +148,7 @@ var Score = (function () {
       wert: max > 0 ? Math.round(got / max * 100) : 0,
       bereiche: detail,
       tagZu: tagZu,
-      faellig: faellig
+      abgelaufen: abgelaufen
     };
   }
 
