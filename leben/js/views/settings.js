@@ -83,6 +83,23 @@ var AnsichtMehr = (function () {
       ]),
 
       UI.el("div.block", [
+        UI.el("div.blockkopf", { text: "Erscheinungsbild" }),
+        UI.el("div.gruppe", [
+          auswahl("Darstellung", s.thema, [
+            { wert: "dunkel", text: "Dunkel (Standard)" },
+            { wert: "hell", text: "Hell" },
+            { wert: "system", text: "Automatisch — folgt dem iPhone" }
+          ], function (v) {
+            s.thema = v;
+            Store.einstellungenSpeichern().then(function () {
+              UI.themaAnwenden(v);
+              zeichne();
+            });
+          })
+        ])
+      ]),
+
+      UI.el("div.block", [
         UI.el("div.blockkopf", { text: "Gebetszeiten" }),
         UI.el("div.gruppe", [
           textZeile("Ort", s.ort.label, function (v) { s.ort.label = v; sichern(false); }),

@@ -24,6 +24,7 @@ var Store = (function () {
     wasserZiel: 3.0,
     moscheeZielWoche: 7,
     hifz: { aktuell: "al-Jinn (72)", verse: 28 },
+    thema: "dunkel",        // dunkel | hell | system
     gewichte: {
       religion: 45, produktivitaet: 18, sport: 12,
       schlaf: 8, ernaehrung: 8, soziales: 5, innen: 4
@@ -44,6 +45,7 @@ var Store = (function () {
       dhikr: { morgens: false, abends: false, istighfar: 0, salawat: 0 },
       fasten: false,
       akhlaq: {},
+      notizen: {},        // freie Ergänzung zu einzelnen Fragen
       wasser: 0,
       training: null,
       gewicht: null,

@@ -31,12 +31,27 @@ Gebete nachtragen, drei täglich wechselnde Akhlāq-Fragen, Bildschirmzeit
 (gearbeitet und gescrollt getrennt), Stimmung, ein Satz, Abschluss mit Urteil
 und einer Sache für morgen.
 
+Unter jeder Frage sitzt ein **freies Feld** („Etwas dazu schreiben"). Es ist
+eingeklappt, solange du es nicht brauchst. Ist es offen, springt die App nach
+deiner Antwort nicht weiter — sonst könntest du nicht zu Ende schreiben.
+Am Ende stehen alle Ergänzungen des Tages noch einmal zusammen.
+
 **Spiegel** — Wochenschnitt gegen Monatsschnitt, Heatmap der letzten sechs Wochen,
 Verteilung der Gebetsqualität über 30 Tage, und ein erster Zusammenhang
 (Moschee-Tage gegen andere Tage) — der erscheint erst, wenn genug Daten da sind.
 
-**Mehr** — Gebetszeit-Methode, ʿAṣr-Berechnung, Sommerregel, Feinjustierung pro
-Gebet in Minuten, Hijri-Versatz, Ziele, Jumuʿa-Zeiten, Export und Import.
+**Mehr** — Erscheinungsbild, Gebetszeit-Methode, ʿAṣr-Berechnung, Sommerregel,
+Feinjustierung pro Gebet in Minuten, Hijri-Versatz, Ziele, Jumuʿa-Zeiten,
+Export und Import.
+
+## Erscheinungsbild
+
+**Dunkel ist der Standard** — echtes OLED-Schwarz, damit es um 3 Uhr vor Fajr
+nicht blendet. Zusätzlich gibt es **Hell** (für draußen im Sommer) und
+**Automatisch**, das dem iPhone folgt. Umschaltbar unter *Mehr → Erscheinungsbild*.
+
+Jede Farbe läuft über eine CSS-Variable — es gibt keine fest verdrahtete Farbe,
+die nur in einer der beiden Varianten funktioniert.
 
 ---
 

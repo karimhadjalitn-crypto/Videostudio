@@ -16,6 +16,33 @@ var AnsichtMuhasaba = (function () {
 
   var tag = null, tage = [], zeiten = null, wurzel = null;
   var schritte = [], index = 0;
+  var notizOffen = {};
+
+  /* Freies Feld zu jeder Frage. Ist es offen, springt die App nach der
+     Antwort nicht weiter — sonst könntest du nichts dazuschreiben. */
+  function notizFeld(schluessel) {
+    var hatText = !!(tag.notizen[schluessel] || "").trim();
+    if (!notizOffen[schluessel] && !hatText) {
+      return UI.el("button.notizlink", {
+        type: "button",
+        onclick: function () { notizOffen[schluessel] = true; zeichne(); }
+      }, "＋  Etwas dazu schreiben");
+    }
+    var ta = UI.el("textarea.notizfeld.klein", {
+      rows: 3, placeholder: "Deine Ergänzung …",
+      oninput: function () { tag.notizen[schluessel] = ta.value; },
+      onblur: function () { speichern(); }
+    });
+    ta.value = tag.notizen[schluessel] || "";
+    return UI.el("div.notizraum", [
+      UI.el("div.notizkopf", { text: "Deine Ergänzung" }),
+      ta
+    ]);
+  }
+
+  function notizIstOffen(schluessel) {
+    return !!notizOffen[schluessel] || !!(tag.notizen[schluessel] || "").trim();
+  }
 
   /* Drei Fragen, die täglich wechseln */
   function fragenFuerHeute(datum) {
@@ -43,7 +70,16 @@ var AnsichtMuhasaba = (function () {
       titel: "Die fünf Gebete",
       unter: "Trag nach, was noch fehlt.",
       bauen: function () {
-        return UI.el("div.gruppe", Gebetszeiten.PFLICHT.map(function (k) {
+        return UI.el("div", [gebetsListe(), notizFeld("gebete")]);
+      },
+      fertig: function () {
+        return Gebetszeiten.PFLICHT.every(function (k) { return !!tag.gebete[k]; });
+      }
+    };
+  }
+
+  function gebetsListe() {
+    return UI.el("div.gruppe", Gebetszeiten.PFLICHT.map(function (k) {
           return UI.el("div.mzeile", [
             UI.el("div.mkopf", [
               UI.el("span.zt", { text: Gebetszeiten.NAMEN[k].de }),
@@ -58,12 +94,7 @@ var AnsichtMuhasaba = (function () {
               }, s.kurz);
             }))
           ]);
-        }));
-      },
-      fertig: function () {
-        return Gebetszeiten.PFLICHT.every(function (k) { return !!tag.gebete[k]; });
-      }
-    };
+    }));
   }
 
   function schrittAkhlaq(frage) {
@@ -77,13 +108,19 @@ var AnsichtMuhasaba = (function () {
           { w: "teils", t: "Teils — es war knapp" },
           { w: "nein", t: "Nein" }
         ];
-        return UI.el("div.fragen", opt.map(function (o) {
-          var an = tag.akhlaq[frage.k] === o.w;
-          return UI.el("button.fbtn" + (an ? ".an" : ""), {
-            type: "button",
-            onclick: function () { tag.akhlaq[frage.k] = o.w; speichern().then(weiter); }
-          }, o.t);
-        }));
+        return UI.el("div", [
+          UI.el("div.fragen", opt.map(function (o) {
+            var an = tag.akhlaq[frage.k] === o.w;
+            return UI.el("button.fbtn" + (an ? ".an" : ""), {
+              type: "button",
+              onclick: function () {
+                tag.akhlaq[frage.k] = o.w;
+                speichern().then(notizIstOffen(frage.k) ? zeichne : weiter);
+              }
+            }, o.t);
+          })),
+          notizFeld(frage.k)
+        ]);
       },
       fertig: function () { return !!tag.akhlaq[frage.k]; }
     };
@@ -118,7 +155,8 @@ var AnsichtMuhasaba = (function () {
         }
         return UI.el("div", [
           feld("gearbeitet", "TikTok gearbeitet", "Videos, Recherche, Skripte"),
-          feld("gescrollt", "Gescrollt", "TikTok, Instagram")
+          feld("gescrollt", "Gescrollt", "TikTok, Instagram"),
+          notizFeld("bildschirm")
         ]);
       },
       fertig: function () {
@@ -133,13 +171,19 @@ var AnsichtMuhasaba = (function () {
       unter: "Wie war der Tag in dir?",
       bauen: function () {
         var stufen = ["Sehr schlecht", "Schlecht", "Geht so", "Gut", "Sehr gut"];
-        return UI.el("div.fragen", stufen.map(function (t, i) {
-          var an = tag.stimmung === i + 1;
-          return UI.el("button.fbtn" + (an ? ".an" : ""), {
-            type: "button",
-            onclick: function () { tag.stimmung = i + 1; speichern().then(weiter); }
-          }, t);
-        }));
+        return UI.el("div", [
+          UI.el("div.fragen", stufen.map(function (t, i) {
+            var an = tag.stimmung === i + 1;
+            return UI.el("button.fbtn" + (an ? ".an" : ""), {
+              type: "button",
+              onclick: function () {
+                tag.stimmung = i + 1;
+                speichern().then(notizIstOffen("stimmung") ? zeichne : weiter);
+              }
+            }, t);
+          })),
+          notizFeld("stimmung")
+        ]);
       },
       fertig: function () { return !!tag.stimmung; }
     };
@@ -168,6 +212,17 @@ var AnsichtMuhasaba = (function () {
       bauen: function () {
         var s = Score.fuer(tag, { jetzt: new Date(), schliessen: true });
         var a = Assistent.abschluss(tag, s.wert, tage);
+
+        // Was du heute dazugeschrieben hast, bleibt sichtbar
+        var beschriftung = {
+          gebete: "Zu den Gebeten", stimmung: "Zur Stimmung",
+          bildschirm: "Zur Bildschirmzeit"
+        };
+        AKHLAQ.forEach(function (f) { beschriftung[f.k] = f.f; });
+        var meine = Object.keys(tag.notizen || {}).filter(function (k) {
+          return (tag.notizen[k] || "").trim();
+        });
+
         return UI.el("div", [
           UI.el("div.abschluss", [
             UI.ring(s.wert / 100, s.wert, 96),
@@ -181,6 +236,15 @@ var AnsichtMuhasaba = (function () {
             UI.el("span.etikett", { text: "Eine Sache für morgen" }),
             UI.el("p.aurteil", { text: a.morgen })
           ]),
+          meine.length ? UI.el("div.karte", [
+            UI.el("span.etikett", { text: "Was du dazugeschrieben hast" }),
+            UI.el("div.meinenotizen", meine.map(function (k) {
+              return UI.el("div.mn", [
+                UI.el("div.mnk", { text: beschriftung[k] || k }),
+                UI.el("div.mnt", { text: tag.notizen[k] })
+              ]);
+            }))
+          ]) : null,
           UI.el("button.cta", {
             type: "button",
             onclick: function () {
@@ -242,6 +306,7 @@ var AnsichtMuhasaba = (function () {
       zeiten = Gebetszeiten.fuer(new Date());
       schritte = bauenSchritte();
       index = 0;
+      notizOffen = {};
       zeichne();
     });
   }

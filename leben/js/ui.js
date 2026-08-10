@@ -70,7 +70,7 @@ var UI = (function () {
     svg.setAttribute("width", groesse); svg.setAttribute("height", groesse);
     svg.setAttribute("viewBox", "0 0 " + groesse + " " + groesse);
     svg.setAttribute("aria-hidden", "true");
-    [["rgba(255,255,255,.09)", u, 0], ["var(--jade)", u, u * (1 - Math.max(0, Math.min(1, wert)))]]
+    [["var(--spur)", u, 0], ["var(--jade)", u, u * (1 - Math.max(0, Math.min(1, wert)))]]
       .forEach(function (s, i) {
         var c = document.createElementNS(ns, "circle");
         c.setAttribute("cx", groesse / 2); c.setAttribute("cy", groesse / 2);
@@ -121,6 +121,28 @@ var UI = (function () {
     }, 2200);
   }
 
+  /* ---------- Erscheinungsbild ----------
+     Standard ist dunkel. „system“ folgt dem iPhone, „hell“ erzwingt hell. */
+  function themaAnwenden(thema) {
+    thema = thema || (Store.einstellungen && Store.einstellungen.thema) || "dunkel";
+    document.documentElement.setAttribute("data-theme", thema);
+    var hell = thema === "hell" ||
+      (thema === "system" && window.matchMedia("(prefers-color-scheme: light)").matches);
+    document.documentElement.style.colorScheme = hell ? "light" : "dark";
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", hell ? "#F1F1F4" : "#000000");
+  }
+
+  function themaBeobachten() {
+    if (!window.matchMedia) return;
+    var mq = window.matchMedia("(prefers-color-scheme: light)");
+    var beiWechsel = function () {
+      if (Store.einstellungen && Store.einstellungen.thema === "system") themaAnwenden();
+    };
+    if (mq.addEventListener) mq.addEventListener("change", beiWechsel);
+    else if (mq.addListener) mq.addListener(beiWechsel);
+  }
+
   /* ---------- Formate ---------- */
   var WOCHENTAGE = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
   var MONATE = ["Januar", "Februar", "März", "April", "Mai", "Juni",
@@ -138,6 +160,7 @@ var UI = (function () {
   return {
     el: el, leeren: leeren, karte: karte, gruppe: gruppe, zeile: zeile,
     ring: ring, balken: balken, knopf: knopf, kopf: kopf, meldung: meldung,
+    themaAnwenden: themaAnwenden, themaBeobachten: themaBeobachten,
     datumLang: datumLang, zahl: zahl, WOCHENTAGE: WOCHENTAGE, MONATE: MONATE
   };
 })();

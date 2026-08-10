@@ -51,6 +51,8 @@
   function start() {
     wurzel = document.getElementById("app");
     leiste = document.getElementById("leiste");
+    UI.themaAnwenden();
+    UI.themaBeobachten();
     window.addEventListener("hashchange", wechseln);
     wechseln();
 

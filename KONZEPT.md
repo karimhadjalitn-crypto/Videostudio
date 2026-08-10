@@ -162,7 +162,13 @@ Aus deiner Antwort („was meinen Dienst beeinflusst"):
 8. Geduld gehabt, als es unangenehm wurde?
 
 **Nicht alle acht jeden Abend.** Die App fragt rotierend 3–4, sonst hakst du nach zwei
-Wochen blind durch. Antwort in drei Stufen: *ja / teils / nein*, optional ein Satz dazu.
+Wochen blind durch. Antwort in drei Stufen: *ja / teils / nein*.
+
+Unter **jeder** Frage sitzt ein **freies Feld** („Etwas dazu schreiben"), falls du
+etwas ergänzen willst — auch bei den Gebeten, der Bildschirmzeit und der Stimmung.
+Es ist eingeklappt, solange du es nicht brauchst. Sobald es offen ist, springt die App
+nach deiner Antwort **nicht** weiter, sonst könntest du gar nicht zu Ende schreiben.
+Am Ende der Abrechnung stehen alle deine Ergänzungen noch einmal zusammen.
 
 #### Duʿā' & Wissen
 - **Überlieferte Bittgebete** — Arabisch mit Ḥarakāt, deutsche Übersetzung darunter,
@@ -538,11 +544,8 @@ Nach jeder Phase kannst du die App benutzen. Kein Warten auf „fertig".
 
 ## 12. Offene Punkte
 
-1. **Akhlāq-Liste** (§4.1): streichen, ergänzen, so lassen?
-2. **Reisemodus** wie beschrieben — passt das?
-3. **Name der App.** Mīzān, oder etwas anderes?
-4. **Umstellungsdatum Jumuʿa** Sommer/Winter, sobald du es weißt.
-5. **Helle Variante** zusätzlich zu dunkel — bauen oder weglassen? (siehe §14)
+1. **Umstellungsdatum Jumuʿa** Sommer/Winter, sobald du es weißt.
+   Bis dahin an die Sommer-/Winterzeit gekoppelt.
 
 ## 13. Abgenommen
 
@@ -551,6 +554,11 @@ Nach jeder Phase kannst du die App benutzen. Kein Warten auf „fertig".
 - Streaks reißen nicht auf null, Reisetage pausieren ✔
 - Geteilter Schlaf als zwei Blöcke ✔
 - Hifz: an-Nās (114) bis al-Muzzammil (73) fertig, **al-Jinn (72) wird gerade gelernt** ✔
+- Akhlāq-Liste: die acht Fragen bleiben wie vorgeschlagen ✔
+- Reisemodus wie in §9 beschrieben ✔
+- Name: **Mīzān** ✔
+- **Helle Variante wird zusätzlich gebaut** — Standard bleibt dunkel ✔
+- **Freies Notizfeld an jeder Frage** der Abendabrechnung ✔
 
 ---
 
@@ -600,8 +608,10 @@ dieser App **immer** dasselbe und wird nirgends dekorativ eingesetzt.
 | **SF Symbols** | Lizenz auf Apple-Plattformen beschränkt. Ersatz: eigener Symbolsatz im gleichen Strichgewicht |
 | **Squircles** (weich verlaufende Ecken) | Im Web nur angenähert. Im Alltag nicht zu sehen |
 
-### Hell oder nur dunkel
+### Hell und dunkel
 
-**Dunkel-first** entworfen — ausgelegt darauf, um 3 Uhr vor Fajr nicht zu blenden.
-Eine helle Variante würde ich als Nebensache mitbauen (draußen im Sommer),
-umschaltbar, Standard bleibt dunkel. **Offen:** willst du sie überhaupt?
+**Dunkel ist der Standard** — ausgelegt darauf, um 3 Uhr vor Fajr nicht zu blenden.
+Die **helle Variante** ist gebaut, für draußen im Sommer. Drei Einstellungen unter
+*Mehr → Erscheinungsbild*: **Dunkel** (Standard) · **Hell** · **Automatisch**
+(folgt dem iPhone). Jede Farbe der App läuft über eine Variable, damit keine
+der beiden Varianten bricht.
