@@ -1,0 +1,2543 @@
+<title>Sūq</title>
+<style>
+/* ══════════════════════════════════════════════════════════════
+   Sūq — Werkstatt für TikTok-Shop-Videos
+
+   Dunkel ist hier die eigentliche Identität: das ist ein Schnittplatz,
+   kein Journal. Die helle Fassung ist eigens entworfen und keine
+   Umkehrung. Jede Farbe steht als Variable im :root — sonst bricht
+   eine der drei Theme-Lagen (hell, dunkel, System).
+   ══════════════════════════════════════════════════════════════ */
+
+/* ---------- HELL: Tageslicht am Schnittplatz ---------- */
+:root {
+  --grund:       #E7E3D9;
+  --flaeche:     #F4F1EA;
+  --flaeche-2:   #FBF9F5;
+  --vertieft:    #DED9CC;
+  --linie:       rgba(36,30,22,.14);
+  --linie-2:     rgba(36,30,22,.26);
+
+  --text:        #241E16;
+  --text-2:      rgba(36,30,22,.62);
+  --text-3:      rgba(36,30,22,.40);
+
+  --messing:     #8A6A22;
+  --messing-weich: rgba(138,106,34,.13);
+  --messing-kante: rgba(138,106,34,.34);
+  --auf-messing: #FBF9F5;
+
+  --frei:   #46702F;
+  --acht:   #8F6316;
+  --stop:   #A34124;
+  --frei-weich: rgba(70,112,47,.12);
+  --acht-weich: rgba(143,99,22,.13);
+  --stop-weich: rgba(163,65,36,.12);
+  --frei-kante: rgba(70,112,47,.32);
+  --acht-kante: rgba(143,99,22,.34);
+  --stop-kante: rgba(163,65,36,.32);
+
+  --fuell:  rgba(36,30,22,.06);
+  --spur:   rgba(36,30,22,.11);
+  --schatten: 0 1px 2px rgba(36,30,22,.05), 0 8px 24px -16px rgba(36,30,22,.32);
+  --hoch:     0 2px 4px rgba(36,30,22,.07), 0 20px 44px -22px rgba(36,30,22,.40);
+
+  --f-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --f-nr: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  --r-gross: 14px;
+  --r-mittel: 10px;
+  --r-klein: 7px;
+}
+
+/* ---------- DUNKEL: der Schnittplatz ---------- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="hell"]) {
+    --grund:     #14120E;
+    --flaeche:   #1D1A15;
+    --flaeche-2: #26211A;
+    --vertieft:  #100E0B;
+    --linie:     rgba(237,227,210,.11);
+    --linie-2:   rgba(237,227,210,.22);
+
+    --text:      #EDE3D2;
+    --text-2:    rgba(237,227,210,.60);
+    --text-3:    rgba(237,227,210,.36);
+
+    --messing:   #C9A253;
+    --messing-weich: rgba(201,162,83,.15);
+    --messing-kante: rgba(201,162,83,.34);
+    --auf-messing: #14120E;
+
+    --frei: #8FBE74;
+    --acht: #DDA43A;
+    --stop: #DE7A57;
+    --frei-weich: rgba(143,190,116,.14);
+    --acht-weich: rgba(221,164,58,.14);
+    --stop-weich: rgba(222,122,87,.14);
+    --frei-kante: rgba(143,190,116,.34);
+    --acht-kante: rgba(221,164,58,.36);
+    --stop-kante: rgba(222,122,87,.34);
+
+    --fuell: rgba(237,227,210,.06);
+    --spur:  rgba(237,227,210,.10);
+    --schatten: 0 1px 2px rgba(0,0,0,.34), 0 8px 24px -16px rgba(0,0,0,.60);
+    --hoch:     0 2px 6px rgba(0,0,0,.40), 0 22px 48px -22px rgba(0,0,0,.70);
+  }
+}
+:root[data-theme="dunkel"] {
+  --grund:     #14120E;
+  --flaeche:   #1D1A15;
+  --flaeche-2: #26211A;
+  --vertieft:  #100E0B;
+  --linie:     rgba(237,227,210,.11);
+  --linie-2:   rgba(237,227,210,.22);
+
+  --text:      #EDE3D2;
+  --text-2:    rgba(237,227,210,.60);
+  --text-3:    rgba(237,227,210,.36);
+
+  --messing:   #C9A253;
+  --messing-weich: rgba(201,162,83,.15);
+  --messing-kante: rgba(201,162,83,.34);
+  --auf-messing: #14120E;
+
+  --frei: #8FBE74;
+  --acht: #DDA43A;
+  --stop: #DE7A57;
+  --frei-weich: rgba(143,190,116,.14);
+  --acht-weich: rgba(221,164,58,.14);
+  --stop-weich: rgba(222,122,87,.14);
+  --frei-kante: rgba(143,190,116,.34);
+  --acht-kante: rgba(221,164,58,.36);
+  --stop-kante: rgba(222,122,87,.34);
+
+  --fuell: rgba(237,227,210,.06);
+  --spur:  rgba(237,227,210,.10);
+  --schatten: 0 1px 2px rgba(0,0,0,.34), 0 8px 24px -16px rgba(0,0,0,.60);
+  --hoch:     0 2px 6px rgba(0,0,0,.40), 0 22px 48px -22px rgba(0,0,0,.70);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--grund);
+  color: var(--text);
+  font-family: var(--f-ui);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible { outline: 2px solid var(--messing); outline-offset: 2px; border-radius: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+/* ---------- Kopf ---------- */
+.kopf {
+  position: sticky; top: 0; z-index: 30;
+  background: color-mix(in srgb, var(--grund) 92%, transparent);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  border-bottom: 1px solid var(--linie);
+}
+.kopfinnen {
+  max-width: 74rem; margin: 0 auto; padding: .7rem 1.1rem;
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+}
+.wortmarke { display: flex; align-items: baseline; gap: .5rem; flex: none; }
+.wortmarke b {
+  font-size: 1.2rem; font-weight: 700; letter-spacing: -.02em;
+}
+.wortmarke .ar {
+  font-size: 1rem; color: var(--messing); direction: rtl;
+  font-family: "SF Arabic", "Geeza Pro", "Noto Naskh Arabic", serif;
+}
+
+.reiter { display: flex; gap: .15rem; flex: 1; min-width: 0; overflow-x: auto; }
+.reiter::-webkit-scrollbar { height: 0; }
+.rbtn {
+  flex: none; padding: .4rem .7rem; border: 0; border-radius: var(--r-klein);
+  background: none; color: var(--text-3);
+  font: inherit; font-size: .82rem; font-weight: 600; cursor: pointer;
+  white-space: nowrap; transition: color .15s, background .15s;
+}
+.rbtn:hover { color: var(--text-2); background: var(--fuell); }
+.rbtn.an { color: var(--text); background: var(--flaeche); box-shadow: var(--schatten); }
+
+/* ---------- Rahmen ---------- */
+.bahn { max-width: 74rem; margin: 0 auto; padding: 1.1rem 1.1rem 5rem; }
+.spalten { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+@media (min-width: 62rem) {
+  .spalten { grid-template-columns: minmax(0,1.55fr) minmax(0,1fr); align-items: start; }
+  .haftend { position: sticky; top: 4.4rem; }
+}
+
+.stapel { display: flex; flex-direction: column; gap: 1rem; }
+.stapel.eng { gap: .6rem; }
+
+/* ---------- Karten ---------- */
+.karte {
+  background: var(--flaeche); border: 1px solid var(--linie);
+  border-radius: var(--r-gross); box-shadow: var(--schatten);
+  overflow: hidden;
+}
+.kkopf {
+  display: flex; align-items: center; gap: .6rem; flex-wrap: wrap;
+  padding: .7rem .9rem; border-bottom: 1px solid var(--linie);
+  background: var(--flaeche-2);
+}
+.kkopf h2 {
+  margin: 0; flex: 1; min-width: 0;
+  font-size: .68rem; font-weight: 700; letter-spacing: .11em;
+  text-transform: uppercase; color: var(--text-3);
+}
+.kleib { padding: .9rem; }
+.kleib.satt { padding: 0; }
+
+h1 { margin: 0 0 .2rem; font-size: 1.7rem; font-weight: 700; letter-spacing: -.03em; text-wrap: balance; }
+.unterzeile { color: var(--text-2); font-size: .88rem; margin: 0 0 1rem; }
+
+/* ---------- Zeitleiste: das Leitinstrument ---------- */
+.leiste { padding: .9rem; }
+.lkopf {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: .8rem; margin-bottom: .6rem; flex-wrap: wrap;
+}
+.lziel { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-3); }
+.lwert { font-family: var(--f-nr); font-size: 1.5rem; font-weight: 600; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.lwert.knapp { color: var(--acht); }
+.lwert.drueber { color: var(--stop); }
+.lbudget { font-size: .76rem; color: var(--text-2); font-variant-numeric: tabular-nums; }
+
+.balken {
+  position: relative; height: 2.6rem; border-radius: var(--r-klein);
+  background: var(--vertieft); overflow: hidden; display: flex;
+  border: 1px solid var(--linie);
+}
+.seg {
+  position: relative; min-width: 0; display: flex; align-items: center; justify-content: center;
+  border-right: 1px solid var(--grund); transition: flex-grow .25s;
+  overflow: hidden;
+}
+.seg:last-child { border-right: 0; }
+.seg span {
+  font-size: .6rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+  white-space: nowrap; padding: 0 .2rem; color: var(--auf-messing);
+}
+.seg.s0 { background: var(--messing); }
+.seg.s1 { background: color-mix(in srgb, var(--messing) 72%, var(--flaeche)); }
+.seg.s2 { background: color-mix(in srgb, var(--messing) 50%, var(--flaeche)); }
+.seg.s3 { background: color-mix(in srgb, var(--messing) 34%, var(--flaeche)); }
+.seg.s4 { background: color-mix(in srgb, var(--messing) 22%, var(--flaeche)); }
+.seg.s5 { background: color-mix(in srgb, var(--messing) 14%, var(--flaeche)); }
+.seg.s2 span, .seg.s3 span, .seg.s4 span, .seg.s5 span { color: var(--text); }
+.seg.ueber { background: repeating-linear-gradient(45deg,
+  var(--stop) 0 6px, color-mix(in srgb, var(--stop) 70%, transparent) 6px 12px); }
+
+/* Sekundenstriche — das Lineal unter dem Balken */
+.lineal { position: relative; height: 1.1rem; margin-top: .25rem; }
+.tick { position: absolute; top: 0; width: 1px; height: .32rem; background: var(--linie-2); }
+.tick.voll { height: .5rem; background: var(--text-3); }
+.tickz {
+  position: absolute; top: .55rem; transform: translateX(-50%);
+  font-family: var(--f-nr); font-size: .6rem; color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 9:16-Rahmen ---------- */
+.rahmenkarte { display: flex; gap: .9rem; align-items: flex-start; }
+.rahmen {
+  flex: none; width: 8.2rem; aspect-ratio: 9/16;
+  border-radius: var(--r-mittel); border: 1px solid var(--linie-2);
+  background: linear-gradient(170deg, var(--vertieft), var(--flaeche-2));
+  position: relative; overflow: hidden;
+}
+.zone {
+  position: absolute; left: 0; right: 0;
+  background: repeating-linear-gradient(45deg,
+    var(--fuell) 0 4px, transparent 4px 8px);
+  border-color: var(--linie); border-style: dashed;
+}
+.zone.oben { top: 0; height: 11%; border-bottom-width: 1px; }
+.zone.unten { bottom: 0; height: 22%; border-top-width: 1px; }
+.zone b {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+  font-size: .42rem; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--text-3); white-space: nowrap;
+}
+.marke-werbung {
+  position: absolute; top: 13%; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,.72); color: #fff;
+  padding: .12rem .38rem; border-radius: 3px;
+  font-size: .48rem; font-weight: 700; white-space: nowrap;
+}
+.marke-ut {
+  position: absolute; bottom: 24%; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,.55); color: #fff;
+  padding: .12rem .3rem; border-radius: 3px;
+  font-size: .42rem; text-align: center; max-width: 82%; line-height: 1.25;
+}
+.rahmentext { flex: 1; min-width: 0; font-size: .8rem; color: var(--text-2); line-height: 1.5; }
+.rahmentext b { color: var(--text); font-weight: 600; }
+
+/* ---------- Abschnitte ---------- */
+.abschnitt { padding: .75rem .9rem; border-bottom: 1px solid var(--linie); }
+.abschnitt:last-child { border-bottom: 0; }
+.akopf { display: flex; align-items: baseline; gap: .5rem; margin-bottom: .4rem; }
+.anr {
+  font-family: var(--f-nr); font-size: .66rem; font-weight: 700;
+  color: var(--messing); flex: none;
+}
+.aname { font-size: .82rem; font-weight: 700; letter-spacing: -.005em; flex: none; }
+.afrage {
+  flex: 1; min-width: 0; font-size: .72rem; color: var(--text-3);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.asek {
+  flex: none; font-family: var(--f-nr); font-size: .72rem; font-weight: 600;
+  color: var(--text-2); font-variant-numeric: tabular-nums;
+}
+.asek.drueber { color: var(--stop); }
+
+/* ---------- Felder ---------- */
+textarea, input, select {
+  width: 100%; padding: .55rem .65rem;
+  border: 1px solid var(--linie-2); border-radius: var(--r-klein);
+  background: var(--flaeche-2); color: var(--text);
+  font: inherit; font-size: .9rem;
+}
+textarea { resize: vertical; line-height: 1.5; min-height: 2.6rem; }
+textarea:focus, input:focus, select:focus { border-color: var(--messing-kante); outline: none; }
+textarea.gesperrt, input.gesperrt { border-color: var(--stop-kante); background: var(--stop-weich); }
+select { appearance: none; -webkit-appearance: none; padding-right: 1.8rem;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+                    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - 1rem) 1.05rem, calc(100% - .75rem) 1.05rem;
+  background-size: 5px 5px; background-repeat: no-repeat; }
+
+label.feld { display: block; }
+label.feld + label.feld { margin-top: .7rem; }
+.fl {
+  display: block; font-size: .68rem; font-weight: 700; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--text-3); margin-bottom: .28rem;
+}
+.fh { display: block; font-size: .74rem; color: var(--text-3); margin-top: .28rem; line-height: 1.45; }
+.reihe { display: grid; gap: .7rem; grid-template-columns: 1fr 1fr; }
+@media (max-width: 34rem) { .reihe { grid-template-columns: 1fr; } }
+
+/* ---------- Knöpfe ---------- */
+button { font: inherit; cursor: pointer; }
+.knopf {
+  padding: .48rem .8rem; border: 1px solid var(--linie-2);
+  border-radius: var(--r-klein); background: var(--flaeche-2); color: var(--text);
+  font-size: .82rem; font-weight: 600; transition: background .15s, border-color .15s;
+}
+.knopf:hover { background: var(--fuell); border-color: var(--text-3); }
+.knopf:disabled { opacity: .42; cursor: default; }
+.knopf.klein { padding: .28rem .55rem; font-size: .72rem; }
+.knopf.stark {
+  background: var(--messing); border-color: var(--messing); color: var(--auf-messing);
+}
+.knopf.stark:hover { filter: brightness(1.08); }
+.knopf.warn { background: var(--stop-weich); border-color: var(--stop-kante); color: var(--stop); }
+.knopfreihe { display: flex; gap: .45rem; flex-wrap: wrap; }
+
+/* ---------- Chips ---------- */
+.chips { display: flex; gap: .35rem; flex-wrap: wrap; }
+.chip {
+  padding: .32rem .68rem; border: 1px solid var(--linie-2); border-radius: 999px;
+  background: var(--flaeche-2); color: var(--text-2);
+  font-size: .76rem; font-weight: 600; white-space: nowrap;
+}
+.chip:hover { border-color: var(--text-3); }
+.chip.an { background: var(--messing-weich); border-color: var(--messing-kante); color: var(--messing); }
+
+/* ---------- Marken ---------- */
+.marke {
+  display: inline-flex; align-items: center; gap: .25rem;
+  padding: .16rem .45rem; border-radius: 999px;
+  font-size: .66rem; font-weight: 700; letter-spacing: .02em;
+  border: 1px solid var(--linie); background: var(--fuell); color: var(--text-2);
+  white-space: nowrap;
+}
+.marke.frei { background: var(--frei-weich); border-color: var(--frei-kante); color: var(--frei); }
+.marke.acht { background: var(--acht-weich); border-color: var(--acht-kante); color: var(--acht); }
+.marke.stop { background: var(--stop-weich); border-color: var(--stop-kante); color: var(--stop); }
+
+/* ---------- Wächter ---------- */
+.wkarte { border-width: 1px; border-style: solid; }
+.wkarte.frei { border-color: var(--frei-kante); }
+.wkarte.acht { border-color: var(--acht-kante); }
+.wkarte.stop { border-color: var(--stop-kante); }
+.wkopf { display: flex; align-items: flex-start; gap: .6rem; padding: .8rem .9rem; }
+.wkarte.frei .wkopf { background: var(--frei-weich); }
+.wkarte.acht .wkopf { background: var(--acht-weich); }
+.wkarte.stop .wkopf { background: var(--stop-weich); }
+.wzeichen {
+  flex: none; width: 1.5rem; height: 1.5rem; border-radius: 999px;
+  display: grid; place-items: center; font-size: .8rem; font-weight: 700;
+}
+.wkarte.frei .wzeichen { background: var(--frei); color: var(--grund); }
+.wkarte.acht .wzeichen { background: var(--acht); color: var(--grund); }
+.wkarte.stop .wzeichen { background: var(--stop); color: var(--grund); }
+.wtitel { font-size: .92rem; font-weight: 700; letter-spacing: -.01em; }
+.wkarte.frei .wtitel { color: var(--frei); }
+.wkarte.acht .wtitel { color: var(--acht); }
+.wkarte.stop .wtitel { color: var(--stop); }
+.wsatz { font-size: .8rem; color: var(--text-2); line-height: 1.45; }
+
+.befund { padding: .6rem .9rem; border-top: 1px solid var(--linie); display: flex; gap: .55rem; }
+.bstreifen { flex: none; width: 2px; border-radius: 2px; }
+.befund.stop .bstreifen { background: var(--stop); }
+.befund.acht .bstreifen { background: var(--acht); }
+.bort {
+  font-size: .62rem; font-weight: 700; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--text-3);
+}
+.bwort { font-family: var(--f-nr); font-size: .7rem; color: var(--stop); }
+.bwarum { font-size: .82rem; line-height: 1.45; margin-top: .1rem; }
+.bersatz { font-size: .78rem; color: var(--text-2); line-height: 1.45; margin-top: .18rem; }
+
+/* ---------- Hooks ---------- */
+.hooks { display: flex; flex-direction: column; }
+.hook {
+  display: flex; align-items: center; gap: .6rem; text-align: left; width: 100%;
+  padding: .6rem .9rem; border: 0; border-bottom: 1px solid var(--linie);
+  background: none; color: var(--text); font-size: .86rem; line-height: 1.4;
+  transition: background .13s;
+}
+.hook:last-child { border-bottom: 0; }
+.hook:hover { background: var(--fuell); }
+.hook.an { background: var(--messing-weich); }
+.hookt { flex: 1; min-width: 0; }
+.hooksek {
+  flex: none; font-family: var(--f-nr); font-size: .68rem; color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Listen ---------- */
+.zeile {
+  display: flex; align-items: center; gap: .6rem; width: 100%; text-align: left;
+  padding: .62rem .9rem; border: 0; border-bottom: 1px solid var(--linie);
+  background: none; color: var(--text); font-size: .88rem;
+}
+.zeile:last-child { border-bottom: 0; }
+button.zeile:hover { background: var(--fuell); }
+.zwuchs { flex: 1; min-width: 0; }
+.ztitel { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.zunter { font-size: .74rem; color: var(--text-3); }
+.zwert { flex: none; font-family: var(--f-nr); font-size: .8rem; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.leer { padding: 1.1rem .9rem; text-align: center; color: var(--text-3); font-size: .85rem; }
+
+/* ---------- Fortschritt ---------- */
+.stufen { display: flex; gap: .12rem; padding: 0 .9rem .7rem; }
+.stufe {
+  flex: 1; padding: .3rem .1rem; border: 0; border-bottom: 2px solid var(--spur);
+  background: none; color: var(--text-3);
+  font-size: .6rem; font-weight: 700; letter-spacing: .01em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.stufe.erreicht { color: var(--text-2); border-bottom-color: color-mix(in srgb, var(--messing) 55%, transparent); }
+.stufe.jetzt { color: var(--messing); border-bottom-color: var(--messing); }
+
+/* ---------- Shots ---------- */
+.shot { padding: .7rem .9rem; border-bottom: 1px solid var(--linie); display: flex; flex-direction: column; gap: .45rem; }
+.shot:last-child { border-bottom: 0; }
+.shot.gesperrt { background: var(--stop-weich); }
+.skopf { display: flex; align-items: baseline; gap: .5rem; }
+.snr { font-family: var(--f-nr); font-size: .76rem; font-weight: 700; color: var(--messing); }
+.szeit { font-family: var(--f-nr); font-size: .68rem; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.sabs { flex: 1; font-size: .62rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
+.sreihe { display: grid; gap: .4rem; grid-template-columns: 1fr 1fr; }
+
+/* ---------- Prompt ---------- */
+.promptfeld {
+  font-family: var(--f-nr); font-size: .74rem; line-height: 1.55;
+  background: var(--vertieft); min-height: 20rem; white-space: pre;
+  overflow-x: auto;
+}
+
+/* ---------- Zahlen ---------- */
+.kacheln { display: grid; grid-template-columns: repeat(2,1fr); gap: .5rem; }
+@media (min-width: 44rem) { .kacheln { grid-template-columns: repeat(4,1fr); } }
+.kachel { background: var(--flaeche-2); border: 1px solid var(--linie); border-radius: var(--r-mittel); padding: .65rem .75rem; }
+.kw { font-family: var(--f-nr); font-size: 1.2rem; font-weight: 600; letter-spacing: -.02em; font-variant-numeric: tabular-nums; display: block; }
+.kn { font-size: .66rem; font-weight: 600; letter-spacing: .05em; color: var(--text-3); }
+
+.rang { display: flex; align-items: center; gap: .6rem; padding: .62rem .9rem; border-bottom: 1px solid var(--linie); }
+.rang:last-child { border-bottom: 0; }
+.rnr {
+  flex: none; width: 1.5rem; height: 1.5rem; border-radius: 999px; display: grid; place-items: center;
+  background: var(--fuell); font-family: var(--f-nr); font-size: .7rem; font-weight: 700; color: var(--text-2);
+}
+.rnr.eins { background: var(--frei-weich); color: var(--frei); }
+
+/* ---------- Kleinkram ---------- */
+.hinweis {
+  padding: .7rem .9rem; background: var(--flaeche-2); border: 1px solid var(--linie);
+  border-radius: var(--r-mittel); font-size: .82rem; color: var(--text-2); line-height: 1.5;
+}
+.hinweis + .hinweis { margin-top: .5rem; }
+.hinweis b { color: var(--text); font-weight: 600; }
+.hinweis.warn { background: var(--acht-weich); border-color: var(--acht-kante); }
+
+.fuss { color: var(--text-3); font-size: .74rem; line-height: 1.55; text-align: center; margin: 1.4rem 0 0; }
+
+.meldung {
+  position: fixed; left: 50%; bottom: 1.4rem; transform: translate(-50%, .8rem);
+  z-index: 60; background: var(--text); color: var(--grund);
+  padding: .55rem .95rem; border-radius: 999px;
+  font-size: .82rem; font-weight: 600; box-shadow: var(--hoch);
+  opacity: 0; transition: opacity .22s, transform .22s; pointer-events: none;
+  max-width: calc(100vw - 2rem); text-align: center;
+}
+.meldung.an { opacity: 1; transform: translate(-50%, 0); }
+.meldung.fehler { background: var(--stop); color: #fff; }
+
+.tabelle { width: 100%; overflow-x: auto; }
+</style>
+
+<div class="kopf">
+  <div class="kopfinnen">
+    <div class="wortmarke"><b>Sūq</b><span class="ar">السوق</span></div>
+    <nav class="reiter" id="reiter"></nav>
+    <button class="knopf klein" id="themaknopf" title="Erscheinungsbild wechseln">◐</button>
+  </div>
+</div>
+
+<main class="bahn" id="app"></main>
+<div class="meldung" id="meldung" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+
+/* ══════════════════════════════════════════════════════════════
+   SPEICHER
+
+   Eine Artifact-Seite läuft in einem abgeschotteten Rahmen. Ob
+   localStorage dort erlaubt ist, entscheidet der Browser und nicht
+   diese Seite — also wird es versucht und bei Ablehnung auf einen
+   Speicher im Arbeitsspeicher ausgewichen. Dann sagt die App das
+   auch deutlich, statt Daten stillschweigend zu verlieren.
+   ══════════════════════════════════════════════════════════════ */
+var Speicher = (function () {
+  var SCHLUESSEL = "suq.v1";
+  var fluechtig = false;
+  var puffer = null;
+
+  function lesen() {
+    if (fluechtig) return puffer;
+    try {
+      var roh = window.localStorage.getItem(SCHLUESSEL);
+      return roh ? JSON.parse(roh) : null;
+    } catch (e) {
+      fluechtig = true;
+      return puffer;
+    }
+  }
+
+  function schreiben(daten) {
+    puffer = daten;
+    if (fluechtig) return;
+    try {
+      window.localStorage.setItem(SCHLUESSEL, JSON.stringify(daten));
+    } catch (e) {
+      fluechtig = true;
+    }
+  }
+
+  function istFluechtig() { return fluechtig; }
+
+  /* Einmal zu Beginn prüfen, damit der Hinweis von Anfang an stimmt
+     und nicht erst nach dem ersten Speichern auftaucht. */
+  try {
+    window.localStorage.setItem(SCHLUESSEL + ".probe", "1");
+    window.localStorage.removeItem(SCHLUESSEL + ".probe");
+  } catch (e) { fluechtig = true; }
+
+  return { lesen: lesen, schreiben: schreiben, istFluechtig: istFluechtig };
+})();
+
+/* ══════════════════════════════════════════════════════════════
+   DATEN
+   ══════════════════════════════════════════════════════════════ */
+var KATEGORIEN = ["Gebetsteppich", "Kleidung", "Duft & Attar", "Tasbīḥ & Dhikr",
+                  "Buch & Qurʾān", "Zuhause", "Kinder", "Reise", "Sonstiges"];
+
+var STUFEN = ["idee", "skript", "stimme", "gedreht", "geschnitten", "gepostet"];
+var STUFEN_NAME = { idee: "Idee", skript: "Skript", stimme: "Stimme",
+                    gedreht: "Gedreht", geschnitten: "Geschnitten", gepostet: "Gepostet" };
+
+/* ---------- Formate ----------
+   Zehn Sekunden sind die Vorgabe. Das ist keine gekürzte Fassung des
+   langen Formats, sondern ein anderes: bei 10 Sekunden hat man rund
+   24 Wörter, und darin ist kein Platz für Problem, Beweis und Einwand
+   nacheinander. Also fallen sie zusammen — der Nutzen trägt den Beweis
+   gleich mit. */
+var FORMATE = {
+  kurz: {
+    name: "Kurz", sek: 10, woerter: 24,
+    beschreibung: "Der Normalfall auf TikTok. Drei Teile, kein Wort zu viel.",
+    abschnitte: [
+      { id: "hook",   name: "Hook",         frage: "Warum wischt er nicht weiter?", sek: 2.5 },
+      { id: "nutzen", name: "Nutzen",       frage: "Was ist es, was löst es, warum stimmt das?", sek: 4.5 },
+      { id: "cta",    name: "Aufforderung", frage: "Was soll er jetzt tun?", sek: 3.0 }
+    ]
+  },
+  mittel: {
+    name: "Mittel", sek: 20, woerter: 48,
+    beschreibung: "Wenn das Produkt Erklärung braucht.",
+    abschnitte: [
+      { id: "hook",    name: "Hook",         frage: "Warum wischt er nicht weiter?", sek: 2.5 },
+      { id: "problem", name: "Problem",      frage: "Warum geht ihn das an?", sek: 4.0 },
+      { id: "nutzen",  name: "Nutzen",       frage: "Was ist es und was löst es?", sek: 6.0 },
+      { id: "beweis",  name: "Beweis",       frage: "Warum stimmt das?", sek: 4.5 },
+      { id: "cta",     name: "Aufforderung", frage: "Was soll er jetzt tun?", sek: 3.0 }
+    ]
+  },
+  lang: {
+    name: "Lang", sek: 35, woerter: 84,
+    beschreibung: "Nur für ein Produkt, das wirklich trägt.",
+    abschnitte: [
+      { id: "hook",    name: "Hook",         frage: "Warum wischt er nicht weiter?", sek: 3.0 },
+      { id: "problem", name: "Problem",      frage: "Warum geht ihn das an?", sek: 5.0 },
+      { id: "nutzen",  name: "Produkt",      frage: "Was ist es und was löst es?", sek: 9.0 },
+      { id: "beweis",  name: "Beweis",       frage: "Warum stimmt das?", sek: 8.0 },
+      { id: "einwand", name: "Einwand",      frage: "Was hält ihn noch ab?", sek: 6.0 },
+      { id: "cta",     name: "Aufforderung", frage: "Was soll er jetzt tun?", sek: 4.0 }
+    ]
+  }
+};
+
+/* ---------- Hooks ----------
+   `kennzeichnet` heißt: der Hook trägt das Wort „Werbung“ selbst. Das
+   ist der eleganteste Weg, die Kennzeichnungspflicht zu erfüllen — sie
+   steht ganz vorn, sie ist nicht zu übersehen, und sie kostet keine
+   Sekunde Aufmerksamkeit, weil sie Teil des Satzes ist.
+   Bei zehn Sekunden zählt jedes Wort, darum stehen die kurzen zuerst. */
+var HOOKS = [
+  { t: "Werbung. Aber schau kurz hin.", art: "kennzeichnung", kz: true, kat: ["*"] },
+  { t: "Werbung — und zwar ehrlich.", art: "kennzeichnung", kz: true, kat: ["*"] },
+  { t: "Anzeige. Zehn Sekunden, dann weißt du's.", art: "kennzeichnung", kz: true, kat: ["*"] },
+  { t: "Werbung. Ich sag dir auch, für wen das nichts ist.", art: "kennzeichnung", kz: true, kat: ["*"] },
+  { t: "Werbung — aber für etwas, das seit Monaten bei mir liegt.", art: "kennzeichnung", kz: true, kat: ["*"] },
+
+  { t: "Hör auf, auf Fliesen zu beten.", art: "versäumnis", kat: ["Gebetsteppich"] },
+  { t: "Acht Millimeter. Das ist der Unterschied.", art: "detail", kat: ["Gebetsteppich"] },
+  { t: "Drei Jahre auf dem blanken Boden. Muss man nicht.", art: "versäumnis", kat: ["Gebetsteppich"] },
+
+  { t: "Das sieht teuer aus. Ist es nicht.", art: "widerspruch", kat: ["Kleidung", "Zuhause"] },
+  { t: "Hält man gegen das Licht — nichts.", art: "detail", kat: ["Kleidung"] },
+  { t: "Schau dir die Naht an.", art: "detail", kat: ["Kleidung", "*"] },
+
+  { t: "Ein Tropfen. Den ganzen Tag.", art: "detail", kat: ["Duft & Attar"] },
+  { t: "Alkoholfrei — und hält trotzdem.", art: "widerspruch", kat: ["Duft & Attar"] },
+
+  { t: "33, 33, 34 — ohne dich zu verzählen.", art: "detail", kat: ["Tasbīḥ & Dhikr"] },
+  { t: "Ich hab beim Dhikr das Handy weggelegt.", art: "versäumnis", kat: ["Tasbīḥ & Dhikr"] },
+
+  { t: "Das hätte ich mit achtzehn gebraucht.", art: "versäumnis", kat: ["Buch & Qurʾān"] },
+  { t: "Falls deine Kinder beim Beten nur danebenstehen.", art: "ansprache", kat: ["Kinder"] },
+  { t: "Wenn du unterwegs betest, hör kurz zu.", art: "ansprache", kat: ["Reise", "Gebetsteppich"] },
+
+  { t: "Ich hab vier bestellt. Einer blieb.", art: "test", kat: ["*"] },
+  { t: "Ich wollte das zurückschicken.", art: "widerspruch", kat: ["*"] },
+  { t: "Unter {preis}. Deswegen.", art: "preis", kat: ["*"] },
+  { t: "Was würdest du dafür schätzen?", art: "preis", kat: ["*"] }
+];
+
+/* ---------- Bausteine ----------
+   Rohlinge, keine fertigen Sätze. Du überschreibst sie — aber du
+   fängst nicht bei null an, und das ist der ganze Punkt. */
+var BAUSTEINE = {
+  problem: {
+    "Gebetsteppich": "Auf dünnem Stoff tut der Sujūd weh, auf dickem rutschst du weg.",
+    "Kleidung": "Das meiste in der Preisklasse ist zu dünn oder sitzt nach der ersten Wäsche anders.",
+    "Duft & Attar": "Die meisten alkoholfreien Düfte sind nach einer Stunde weg.",
+    "Tasbīḥ & Dhikr": "Am Handy verzählt man sich und landet in den Nachrichten.",
+    "Buch & Qurʾān": "Die meisten fangen mit einem Buch für Fortgeschrittene an und hören auf.",
+    "Zuhause": "Schön haben, ohne dass es kitschig wird — das ist der schmale Grat.",
+    "Kinder": "Kinder machen mit, wenn sie etwas Eigenes haben.",
+    "Reise": "Unterwegs hast du keinen sauberen Platz und keine Zeit zu suchen.",
+    "Sonstiges": "Das Problem ist selten der Preis, sondern dass es nach vier Wochen kaputt ist."
+  },
+  /* Im Kurzformat trägt der Nutzen den Beweis gleich mit.
+     Diese Sätze sind absichtlich karg: {merkmal} kommt vom Nutzer und
+     kann selbst schon lang sein. Steht im Baustein noch ein zweites
+     Detail, doppelt es sich mit dem Merkmal und das Skript reißt das
+     Zehn-Sekunden-Budget. Der Baustein liefert nur den Beweis. */
+  nutzen: {
+    "Gebetsteppich": "{merkmal}. Seit Monaten bei mir, sieht aus wie neu.",
+    "Kleidung": "{merkmal}. Zweimal gewaschen, sitzt immer noch.",
+    "Duft & Attar": "{merkmal}. Ein Tropfen hält den Tag.",
+    "Tasbīḥ & Dhikr": "{merkmal}. Läuft durch die Hand ohne zu haken.",
+    "Buch & Qurʾān": "{merkmal}. Zum Nachschlagen, nicht zum Durchlesen.",
+    "Zuhause": "{merkmal}. Keine Folie — man sieht es an der Kante.",
+    "Kinder": "{merkmal}. Meine holen es sich selbst.",
+    "Reise": "{merkmal}. Passt in die Seitentasche.",
+    "Sonstiges": "{merkmal}. Seit Monaten bei mir, nichts kaputt."
+  },
+  beweis: {
+    "Gebetsteppich": "Die Stellen unter den Knien sehen aus wie am ersten Tag.",
+    "Kleidung": "Zweimal bei dreißig Grad gewaschen. Keine Falten, die bleiben.",
+    "Duft & Attar": "Morgens aufgetragen, abends noch da. Schau, wie wenig ich nehme.",
+    "Tasbīḥ & Dhikr": "Das hörst du am Ton, wenn die Perlen laufen.",
+    "Buch & Qurʾān": "Ich zeig dir eine Seite, dann weißt du, ob die Sprache passt.",
+    "Zuhause": "Das Material ist keine Folie. Man sieht es an der Kante.",
+    "Kinder": "Meine sind vier und sieben. Sie holen es sich selbst.",
+    "Reise": "Ich zeig dir, wie klein das wirklich wird.",
+    "Sonstiges": "Ich benutze es seit vier Monaten. Bisher nichts kaputt."
+  },
+  einwand: {
+    "Gebetsteppich": "„Bestimmt rutschig.“ — Ist er nicht. Unterseite ist genoppt.",
+    "Kleidung": "„In der Größe passt das nie.“ — Die Tabelle stimmt. Ich hab nachgemessen.",
+    "Duft & Attar": "„Alkoholfrei riecht streng.“ — Dieser nicht. Urteil nach zwei Tagen.",
+    "Tasbīḥ & Dhikr": "„Ich zähl an den Fingern.“ — Bis du nicht mehr weißt, welche Runde.",
+    "Buch & Qurʾān": "„Zu dick.“ — Es ist zum Nachschlagen, nicht zum Durchlesen.",
+    "Zuhause": "„Online sieht das immer anders aus.“ — Deswegen Tageslicht, ungefiltert.",
+    "Kinder": "„Damit spielen sie zwei Tage.“ — Meine seit Monaten. Schätz es selbst ein.",
+    "Reise": "„Zu klein für bequem.“ — Für unterwegs, nicht für zu Hause.",
+    "Sonstiges": "„Klingt zu gut.“ — Für wen es nichts ist, sag ich dir jetzt."
+  },
+  cta: [
+    "Korb unten. Link ist dran.",
+    "Orangener Korb, unten links.",
+    "Tipp auf den Korb, dann siehst du den Preis.",
+    "Unten im Korb. Weg ist weg."
+  ]
+};
+
+/* ---------- Einstellungen (Shots) ---------- */
+var BEWEGUNGEN = { hinein: "langsam hinein", heraus: "langsam heraus",
+                   links: "Schwenk links", rechts: "Schwenk rechts",
+                   hoch: "Schwenk hoch", runter: "Schwenk runter", still: "starr" };
+var QUELLEN = { seller: "Sellerfoto", eigen: "Selbst gedreht", makro: "Makro, selbst" };
+
+var VORLAGEN = {
+  "Gebetsteppich": [
+    { rolle: "hook",   quelle: "makro",  bewegung: "hinein", was: "Makro auf den Flor, Licht von der Seite" },
+    { rolle: "problem",quelle: "eigen",  bewegung: "runter", was: "Blanker Boden, harte Fliese, kaltes Licht" },
+    { rolle: "nutzen", quelle: "seller", bewegung: "heraus", was: "Teppich ausgerollt, Draufsicht, ganze Fläche" },
+    { rolle: "nutzen", quelle: "eigen",  bewegung: "hinein", was: "Kante im Querschnitt — die Dicke wird sichtbar" },
+    { rolle: "beweis", quelle: "makro",  bewegung: "links",  was: "Eigene Hand streicht über die Oberfläche, kein Gesicht im Bild" },
+    { rolle: "einwand",quelle: "makro",  bewegung: "hinein", was: "Unterseite: Noppen gegen das Rutschen" },
+    { rolle: "cta",    quelle: "seller", bewegung: "hinein", was: "Produkt ruhig im Bild, Platz unten für den Korb" }
+  ],
+  "Kleidung": [
+    { rolle: "hook",   quelle: "makro",  bewegung: "hinein", was: "Makro auf die Stickerei am Ärmel" },
+    { rolle: "problem",quelle: "eigen",  bewegung: "still",  was: "Stoff gegen das Licht gehalten — er scheint nicht durch" },
+    { rolle: "nutzen", quelle: "seller", bewegung: "heraus", was: "Auf dem Bügel, frontal, ganze Länge" },
+    { rolle: "nutzen", quelle: "eigen",  bewegung: "runter", was: "Auf der kopflosen Puppe: der Fall des Stoffs" },
+    { rolle: "beweis", quelle: "makro",  bewegung: "links",  was: "Naht innen, sauber versäubert" },
+    { rolle: "einwand",quelle: "eigen",  bewegung: "hinein", was: "Maßband am Saum, Zahl lesbar" },
+    { rolle: "cta",    quelle: "seller", bewegung: "hinein", was: "Ganzes Stück ruhig im Bild, Platz unten frei" }
+  ],
+  "Duft & Attar": [
+    { rolle: "hook",   quelle: "makro",  bewegung: "hinein", was: "Ein Tropfen am Glasstab, Gegenlicht" },
+    { rolle: "problem",quelle: "eigen",  bewegung: "still",  was: "Andere Flakons daneben, halb leer" },
+    { rolle: "nutzen", quelle: "seller", bewegung: "heraus", was: "Flakon auf Stein oder dunklem Holz" },
+    { rolle: "beweis", quelle: "makro",  bewegung: "hinein", was: "Licht durch die Flüssigkeit — Farbe und Klarheit" },
+    { rolle: "einwand",quelle: "eigen",  bewegung: "still",  was: "Etikett lesbar: alkoholfrei, Inhalt in Millilitern" },
+    { rolle: "cta",    quelle: "seller", bewegung: "hinein", was: "Flakon mittig, ruhiger Hintergrund" }
+  ],
+  "Tasbīḥ & Dhikr": [
+    { rolle: "hook",   quelle: "makro",  bewegung: "links",  was: "Perlen laufen durch die eigene Hand, nur Hand im Bild" },
+    { rolle: "problem",quelle: "eigen",  bewegung: "still",  was: "Handy mit Zähler-App auf dem Tisch" },
+    { rolle: "nutzen", quelle: "seller", bewegung: "heraus", was: "Ganze Kette ausgelegt, Draufsicht" },
+    { rolle: "beweis", quelle: "makro",  bewegung: "hinein", was: "Einzelne Perle groß — Maserung und Bohrung" },
+    { rolle: "einwand",quelle: "eigen",  bewegung: "still",  was: "Kette neben einer Handfläche als Größenvergleich" },
+    { rolle: "cta",    quelle: "seller", bewegung: "hinein", was: "Produkt ruhig im Bild" }
+  ],
+  "Buch & Qurʾān": [
+    { rolle: "hook",   quelle: "makro",  bewegung: "hinein", was: "Prägung auf dem Einband, streifendes Licht" },
+    { rolle: "problem",quelle: "eigen",  bewegung: "still",  was: "Anderes Buch, zu dicht gesetzt, kleine Schrift" },
+    { rolle: "nutzen", quelle: "seller", bewegung: "heraus", was: "Buch aufgeschlagen, Doppelseite" },
+    { rolle: "beweis", quelle: "makro",  bewegung: "runter", was: "Seiten blättern durch, Papierstärke sichtbar" },
+    { rolle: "einwand",quelle: "eigen",  bewegung: "still",  was: "Buch neben einem Alltagsgegenstand als Größenvergleich" },
+    { rolle: "cta",    quelle: "seller", bewegung: "hinein", was: "Cover ruhig im Bild" }
+  ],
+  "*": [
+    { rolle: "hook",   quelle: "makro",  bewegung: "hinein", was: "Auffälligstes Detail groß, seitliches Licht" },
+    { rolle: "problem",quelle: "eigen",  bewegung: "still",  was: "Die Situation ohne das Produkt" },
+    { rolle: "nutzen", quelle: "seller", bewegung: "heraus", was: "Produkt ganz im Bild, ruhiger Hintergrund" },
+    { rolle: "nutzen", quelle: "eigen",  bewegung: "hinein", was: "Zweite Ansicht: Rückseite oder Innenseite" },
+    { rolle: "beweis", quelle: "makro",  bewegung: "links",  was: "Material aus der Nähe — Verarbeitung wird sichtbar" },
+    { rolle: "einwand",quelle: "eigen",  bewegung: "still",  was: "Größenvergleich mit etwas Bekanntem" },
+    { rolle: "cta",    quelle: "seller", bewegung: "hinein", was: "Produkt ruhig im Bild, Platz unten für den Korb" }
+  ]
+};
+
+/* ══════════════════════════════════════════════════════════════
+   ZUSTAND
+   ══════════════════════════════════════════════════════════════ */
+var Z = {
+  v: 1,
+  produkte: [],
+  videos: [],
+  offenesVideo: null,
+  ansicht: "werkstatt",
+  teil: "skript",
+  thema: "system",
+  grenzen: { keinePersonen: true, keineFrauen: true, keineMusik: true,
+             puppeErlaubt: true, keineUebertreibung: true, keinRiba: true },
+  recht: { wort: "Werbung", imBild: true, gesprochen: false,
+           kiOffenlegung: true, provisionshinweis: true },
+  klang: "ambient",
+  ziel: { videosProWoche: 5, provisionProMonat: 1000 }
+};
+
+function neuId(p) { return p + "-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 6); }
+
+function leeresProdukt() {
+  return { id: neuId("p"), name: "", kategorie: "Gebetsteppich", seller: "",
+           preis: null, provisionProzent: null, link: "",
+           freigabe: { erteilt: false, am: null, wie: "" },
+           merkmale: [], einwaende: [], notiz: "", status: "aktiv",
+           angelegt: new Date().toISOString() };
+}
+
+function leeresVideo(produktId) {
+  return { id: neuId("v"), produktId: produktId || null, titel: "",
+           format: "kurz", stand: "idee",
+           skript: {}, anweisung: "", shots: [],
+           zahlen: { views: null, klicks: null, bestellungen: null, provision: null },
+           stimmeErzeugt: false, gepostetAm: null,
+           angelegt: new Date().toISOString() };
+}
+
+function laden() {
+  var d = Speicher.lesen();
+  if (!d) return;
+  Object.keys(d).forEach(function (k) {
+    if (k === "grenzen" || k === "recht" || k === "ziel") {
+      Object.keys(d[k] || {}).forEach(function (u) { Z[k][u] = d[k][u]; });
+    } else if (Z.hasOwnProperty(k)) {
+      Z[k] = d[k];
+    }
+  });
+}
+
+function sichern() {
+  Speicher.schreiben({
+    v: 1, produkte: Z.produkte, videos: Z.videos,
+    grenzen: Z.grenzen, recht: Z.recht, klang: Z.klang,
+    ziel: Z.ziel, thema: Z.thema
+  });
+}
+
+function produkt(id) {
+  for (var i = 0; i < Z.produkte.length; i++) if (Z.produkte[i].id === id) return Z.produkte[i];
+  return null;
+}
+function video(id) {
+  for (var i = 0; i < Z.videos.length; i++) if (Z.videos[i].id === id) return Z.videos[i];
+  return null;
+}
+function videosZu(pid) { return Z.videos.filter(function (v) { return v.produktId === pid; }); }
+
+/* ══════════════════════════════════════════════════════════════
+   SKRIPT
+   ══════════════════════════════════════════════════════════════ */
+var Skript = {
+  format: function (v) { return FORMATE[v.format] || FORMATE.kurz; },
+
+  /* Deutsche Werbestimme in ruhigem Tempo liegt bei etwa 2,4 Wörtern
+     pro Sekunde. Kurze Sätze brauchen zusätzlich ihre Pause — die zählt
+     mit, sonst ist die Shotliste zu knapp und der Schnitt hetzt. */
+  sekunden: function (text) {
+    if (!text || !text.trim()) return 0;
+    var w = text.trim().split(/\s+/).length;
+    var s = (text.match(/[.!?…]+/g) || []).length || 1;
+    return Math.round((w / 2.4 + s * 0.35) * 10) / 10;
+  },
+
+  woerter: function (v) {
+    var n = 0;
+    Skript.format(v).abschnitte.forEach(function (a) {
+      var t = (v.skript[a.id] || "").trim();
+      if (t) n += t.split(/\s+/).length;
+    });
+    return n;
+  },
+
+  gesamt: function (v) {
+    var s = 0;
+    Skript.format(v).abschnitte.forEach(function (a) {
+      s += Skript.sekunden(v.skript[a.id] || "");
+    });
+    return Math.round(s * 10) / 10;
+  },
+
+  zeitachse: function (v) {
+    var t = 0;
+    return Skript.format(v).abschnitte.map(function (a) {
+      var sek = Skript.sekunden(v.skript[a.id] || "");
+      var von = t; t += sek;
+      return { id: a.id, name: a.name, text: v.skript[a.id] || "",
+               von: Math.round(von * 10) / 10, bis: Math.round(t * 10) / 10, sek: sek };
+    });
+  },
+
+  hooks: function (p) {
+    var kat = p ? p.kategorie : "Sonstiges";
+    return HOOKS.filter(function (h) {
+      return h.kat.indexOf("*") >= 0 || h.kat.indexOf(kat) >= 0;
+    });
+  },
+
+  fuellen: function (text, p) {
+    if (!p) return text;
+    return text
+      .replace(/\{name\}/g, p.name || "Das hier")
+      .replace(/\{preis\}/g, p.preis ? euro(p.preis) : "zwanzig Euro")
+      .replace(/\{merkmal\}/g, (p.merkmale && p.merkmale[0]) || "…");
+  },
+
+  /* Wählt aus mehreren Möglichkeiten die, die ins Sekundenbudget passt.
+     Passt keine, kommt die kürzeste — dann sieht man an der Leiste, dass
+     es zu lang ist, statt kommentarlos etwas Unbrauchbares zu bekommen. */
+  passend: function (liste, budget, p) {
+    var gefuellt = liste.map(function (t) { return Skript.fuellen(t, p); });
+    var drin = gefuellt.filter(function (t) { return Skript.sekunden(t) <= budget * 1.15; });
+    if (drin.length) return drin;
+    return [gefuellt.slice().sort(function (a, b) {
+      return Skript.sekunden(a) - Skript.sekunden(b);
+    })[0]];
+  },
+
+  baustein: function (feld, p, budget) {
+    var b = BAUSTEINE[feld];
+    if (!b) return "";
+    if (Array.isArray(b)) {
+      var w = budget ? Skript.passend(b, budget, p) : b.map(function (t) { return Skript.fuellen(t, p); });
+      return w[Math.floor(Math.random() * w.length)];
+    }
+    var kat = p ? p.kategorie : "Sonstiges";
+    return Skript.fuellen(b[kat] || b["Sonstiges"], p);
+  },
+
+  vorschlag: function (v, p, hookIndex) {
+    var f = Skript.format(v);
+    var hookBudget = f.abschnitte[0].sek;
+
+    /* Für den Vorschlag nur Hooks, die ins Budget passen. In der Liste
+       stehen weiterhin alle — wer bewusst einen langen nimmt, sieht an
+       der Zeitleiste sofort, was das kostet. */
+    var alle = Skript.hooks(p);
+    var brauchbar = alle.filter(function (h) {
+      return Skript.sekunden(Skript.fuellen(h.t, p)) <= hookBudget * 1.15;
+    });
+    if (!brauchbar.length) {
+      brauchbar = alle.slice().sort(function (a, b) {
+        return Skript.sekunden(Skript.fuellen(a.t, p)) - Skript.sekunden(Skript.fuellen(b.t, p));
+      }).slice(0, 3);
+    }
+    var h = brauchbar[((hookIndex || 0) % brauchbar.length + brauchbar.length) % brauchbar.length];
+
+    var neu = {};
+    f.abschnitte.forEach(function (a) {
+      neu[a.id] = a.id === "hook" ? Skript.fuellen(h.t, p) : Skript.baustein(a.id, p, a.sek);
+    });
+    return neu;
+  },
+
+  fliesstext: function (v) {
+    var teile = [];
+    if (Z.recht.gesprochen) teile.push(Z.recht.wort + ".");
+    Skript.format(v).abschnitte.forEach(function (a) {
+      var t = (v.skript[a.id] || "").trim();
+      if (t) teile.push(t);
+    });
+    return teile.join("\n\n");
+  }
+};
+
+/* ══════════════════════════════════════════════════════════════
+   DER WÄCHTER
+
+   Er prüft beim Tippen, nicht am Ende. Jeder Befund trägt den
+   sauberen Ersatz mit sich — ein Verbot ohne Vorschlag ist nur im Weg.
+   ══════════════════════════════════════════════════════════════ */
+var REGELN = [
+  { id: "personen", grenze: "keinePersonen", stufe: "stop", gilt: ["shot", "skript"],
+    muster: /\b(gesicht(er)?|portr[äa]t|selfie|l[äa]chel\w*|augen|wimpern|lippen|haut(bild|ton)?|haare?|frisur|model(s)?|schauspieler\w*|person(en)?\b|mensch(en)?\b|leute)\b/i,
+    warum: "Keine Menschen und keine Gesichter im Bild.",
+    ersatz: "Zeig das Produkt allein, oder eine Hand am Produkt ohne Arm und ohne Gesicht im Bild." },
+
+  { id: "frauen", grenze: "keineFrauen", stufe: "stop", gilt: ["shot", "skript"],
+    muster: /\b(frau(en)?|dame(n)?|m[äa]dchen|sie tr[äa]gt|weiblich\w*|silhouette|k[öo]rperform|taille|dekollet[ée])\b/i,
+    warum: "Keine weiblichen Darstellungen, auch nicht angedeutet.",
+    ersatz: "Kleidung auf dem Bügel, flach ausgelegt oder auf der kopflosen Puppe zeigen." },
+
+  { id: "amKoerper", grenze: "keineFrauen", stufe: "stop", gilt: ["shot"],
+    muster: /\b(am k[öo]rper|angezogen|anprobier\w*|vorf[üu]hr\w*|tr[äa]gt die|getragen von|beim tragen)\b/i,
+    warum: "Kleidung wird nicht am Menschen gezeigt.",
+    ersatz: "Bügel, Flatlay, Stofffall im Luftzug, Nahaufnahme der Naht und der Stickerei." },
+
+  { id: "musik", grenze: "keineMusik", stufe: "stop", gilt: ["shot", "skript"],
+    muster: /\b(musik|beat(s)?\b|song|lied|melodie|instrumental|gitarre|klavier|piano|geige|trommel|drum(s)?\b|bass|trap|lo-?fi|soundtrack|remix|refrain)\b/i,
+    warum: "Keine Musik.",
+    ersatz: "Nasheed ohne Instrumente, nur die Stimme, oder Ambient: Stoffrascheln, Schritte, Raumton." },
+
+  { id: "heilversprechen", grenze: "keineUebertreibung", stufe: "stop", gilt: ["skript"],
+    muster: /\b(heilt|heilung|heilend|kuriert|therapiert|medizinisch bewiesen|klinisch bewiesen|gegen (schmerzen|krankheit|arthrose|rheuma))\b/i,
+    warum: "Gesundheitsversprechen sind hier nicht belegbar und rechtlich heikel.",
+    ersatz: "Beschreib die Eigenschaft statt der Wirkung: „acht Millimeter Polsterung“ statt „gut für die Knie“." },
+
+  { id: "uebertreibung", grenze: "keineUebertreibung", stufe: "acht", gilt: ["skript"],
+    muster: /\b(beste[rsn]? (der welt|aller zeiten)|garantiert|100 ?%|zu 100|nie wieder\b|f[üu]r immer|wunder\w*|unschlagbar|revolution[äa]r)\b/i,
+    warum: "Superlative ohne Beleg fallen unter irreführende Werbung — und sie wirken auch nicht.",
+    ersatz: "Nenn eine überprüfbare Zahl oder ein Detail. Konkret verkauft besser als groß." },
+
+  { id: "riba", grenze: "keinRiba", stufe: "acht", gilt: ["skript", "shot"],
+    muster: /\b(ratenzahlung|raten|kredit|finanzier\w*|zins\w*|klarna|teilzahlung)\b/i,
+    warum: "Zinsbehaftete Zahlungsarten bewirbst du nicht mit.",
+    ersatz: "Den Preis nennen und dabei bleiben. Zahlungsart ist nicht dein Thema." },
+
+  { id: "druck", grenze: null, stufe: "acht", gilt: ["skript"],
+    muster: /\b(nur noch heute|letzte chance|beeil|schnell zugreifen|bevor es zu sp[äa]t)\b/i,
+    warum: "Künstliche Knappheit ist erfunden, wenn du sie nicht belegen kannst.",
+    ersatz: "Lass es weg. Wenn der Vorrat wirklich knapp ist, sag woher du das weißt." }
+];
+
+/* Verneinungen ausnehmen. „Eigene Hand am Produkt, kein Gesicht im Bild“
+   ist die Beschreibung einer erlaubten Einstellung — und wäre ohne diese
+   Prüfung gesperrt, weil das Wort „Gesicht“ darin vorkommt. Ein Wächter,
+   der die richtige Formulierung bemängelt, wird nach dem dritten Mal
+   weggeklickt, und dann bemerkt er auch das Falsche nicht mehr. */
+var VERNEINUNG = /\b(kein|keine|keinen|keiner|keinem|ohne|nicht|niemals|niemand|statt|anstatt)\b[^.!?;]{0,26}$/i;
+
+var Waechter = {
+  pruefeText: function (text, art, wo) {
+    if (!text || !text.trim()) return [];
+    var g = text;
+    /* Die kopflose Puppe ist freigegeben — also darf sie auch genannt
+       werden, ohne dass die Personen-Regel anschlägt. Ohne diese Ausnahme
+       wäre der einzige erlaubte Weg, Kleidung zu zeigen, gleichzeitig gesperrt. */
+    if (art === "shot" && Z.grenzen.puppeErlaubt) {
+      g = g.replace(/\b(kopflose[rn]? )?(schneider)?puppe\b|\bb[üu]ste\b|\btorso\b/gi, "");
+    }
+    var aus = [];
+    REGELN.forEach(function (r) {
+      if (r.gilt.indexOf(art) < 0) return;
+      if (r.grenze && !Z.grenzen[r.grenze]) return;
+      var m = new RegExp(r.muster.source, "gi"), t;
+      while ((t = m.exec(g)) !== null) {
+        if (VERNEINUNG.test(g.slice(0, t.index))) continue;
+        aus.push({ regel: r.id, stufe: r.stufe, wo: wo, wort: t[0],
+                   warum: r.warum, ersatz: r.ersatz });
+        return;
+      }
+    });
+    return aus;
+  },
+
+  pruefe: function (v, p) {
+    var aus = [];
+    Skript.format(v).abschnitte.forEach(function (a) {
+      aus = aus.concat(Waechter.pruefeText(v.skript[a.id] || "", "skript", a.name));
+    });
+    (v.shots || []).forEach(function (s, i) {
+      aus = aus.concat(Waechter.pruefeText(
+        [s.was, s.einblendung].filter(Boolean).join(" · "), "shot", "Einstellung " + (i + 1)));
+    });
+
+    /* Rechtliche Pflichten — dieselbe Antwort nötig wie bei den Grenzen:
+       darf dieses Video raus, ja oder nein. */
+    var hook = (v.skript.hook || "").toLowerCase();
+    var traegtWort = /\b(werbung|anzeige)\b/.test(hook);
+    if (!Z.recht.imBild && !traegtWort) {
+      aus.push({ regel: "kennzeichnung", stufe: "stop", wo: "Rechtliches", wort: "",
+        warum: "Die Werbekennzeichnung fehlt am Anfang des Videos.",
+        ersatz: "Einblendung ab Sekunde 0 einschalten — oder einen Hook nehmen, der „Werbung“ selbst sagt. Nur „Werbung“ und „Anzeige“ gelten." });
+    }
+    if (!Z.recht.provisionshinweis) {
+      aus.push({ regel: "provision", stufe: "stop", wo: "Rechtliches", wort: "",
+        warum: "Der Provisionshinweis zum Affiliate-Link fehlt.",
+        ersatz: "Einschalten. Er gehört direkt an den Link, nicht ans Ende der Hashtags." });
+    }
+    if (v.stimmeErzeugt && !Z.recht.kiOffenlegung) {
+      aus.push({ regel: "ki", stufe: "stop", wo: "Rechtliches", wort: "",
+        warum: "Die Stimme ist mit KI erzeugt und nicht gekennzeichnet. Artikel 50 der KI-Verordnung verlangt das seit dem 2. August 2026.",
+        ersatz: "KI-Offenlegung einschalten und in TikTok den Schalter für KI-Inhalte setzen." });
+    }
+    if (p && !(p.freigabe && p.freigabe.erteilt)) {
+      aus.push({ regel: "freigabe", stufe: "stop", wo: "Produkt", wort: "",
+        warum: "Für die Bilder dieses Sellers liegt keine Freigabe vor.",
+        ersatz: "Freigabe beim Seller einholen und im Produkt eintragen — mit Datum und Weg." });
+    }
+
+    var stops = aus.filter(function (b) { return b.stufe === "stop"; });
+    return { alle: aus, stops: stops,
+             achtungen: aus.filter(function (b) { return b.stufe === "acht"; }),
+             frei: stops.length === 0 };
+  },
+
+  urteil: function (v, p) {
+    var e = Waechter.pruefe(v, p);
+    if (!e.frei) return { text: e.stops.length + "× gesperrt", klasse: "stop" };
+    if (e.achtungen.length) return { text: e.achtungen.length + "× prüfen", klasse: "acht" };
+    return { text: "frei", klasse: "frei" };
+  }
+};
+
+/* ══════════════════════════════════════════════════════════════
+   RECHT
+
+   Grundlagen: Leitfaden der Medienanstalten zur Werbekennzeichnung
+   (nur „Werbung“ und „Anzeige“, am Anfang, nicht zwischen Hashtags;
+   der plattformeigene Schalter allein genügt nicht) und Verordnung
+   (EU) 2024/1689 Artikel 50, in Kraft seit dem 2. August 2026.
+   ══════════════════════════════════════════════════════════════ */
+var Recht = {
+  beschreibung: function (v, p) {
+    var z = [Z.recht.wort + "."];
+    if (v.titel) z.push(v.titel);
+    if (Z.recht.provisionshinweis) {
+      z.push("Affiliate-Link: Bei einem Kauf über diesen Link erhalte ich eine Provision. Für dich ändert sich der Preis dadurch nicht.");
+    }
+    if (Z.recht.kiOffenlegung && v.stimmeErzeugt) {
+      z.push("Die Stimme in diesem Video wurde mit künstlicher Intelligenz erzeugt.");
+    }
+    if (p && p.preis) {
+      z.push("Preis zum Zeitpunkt der Aufnahme: " + euro(p.preis) + ". Preise können sich ändern.");
+    }
+    return z.join("\n\n");
+  },
+
+  hashtags: function (p) {
+    var nach = {
+      "Gebetsteppich": ["#gebetsteppich", "#salah", "#muslim"],
+      "Kleidung": ["#abaya", "#modestfashion", "#hijabi"],
+      "Duft & Attar": ["#attar", "#alkoholfrei", "#duft"],
+      "Tasbīḥ & Dhikr": ["#tasbih", "#dhikr", "#muslim"],
+      "Buch & Qurʾān": ["#islamischebücher", "#quran", "#lesen"],
+      "Zuhause": ["#islamicart", "#zuhause", "#deko"],
+      "Kinder": ["#muslimkids", "#kinder", "#erziehung"],
+      "Reise": ["#reise", "#umrah", "#unterwegs"],
+      "Sonstiges": ["#muslim", "#deen"]
+    };
+    return ["#werbung"].concat((p && nach[p.kategorie]) || nach["Sonstiges"], ["#tiktokshop"]).join(" ");
+  },
+
+  schalter: function (v) {
+    var l = [
+      { t: "„Branded Content“ bzw. Werbeoffenlegung aktivieren",
+        w: "Pflicht bei Provision. Ersetzt die Einblendung im Video aber nicht." },
+      { t: "Produkt aus dem TikTok Shop im Video verknüpfen",
+        w: "Ohne Verknüpfung gibt es keine nachvollziehbare Provision." }
+    ];
+    if (v.stimmeErzeugt) {
+      l.push({ t: "Schalter für KI-generierte Inhalte setzen",
+               w: "Synthetische Stimme. KI-Verordnung Art. 50, gilt seit 2. August 2026." });
+    }
+    return l;
+  }
+};
+
+/* ══════════════════════════════════════════════════════════════
+   PROMPT
+
+   Das Feld, in dem du sagst, was du willst — und daraus wird ein
+   vollständiger Auftrag. Diese Seite kann selbst nichts erzeugen: sie
+   darf keine Netzverbindung aufbauen. Sie stellt den Auftrag zusammen,
+   du gibst ihn an Claude, und was zurückkommt, trägst du hier ein.
+
+   Der Wert liegt darin, dass nichts vergessen wird: Produktdaten,
+   Sekundenbudget, die Grenzen und die Kennzeichnungspflicht stehen
+   jedes Mal vollständig drin.
+   ══════════════════════════════════════════════════════════════ */
+var Prompt = {
+  bauen: function (v, p) {
+    var f = Skript.format(v);
+    var z = [];
+
+    z.push("Schreib mir ein Verkaufsskript für ein TikTok-Shop-Video.");
+    z.push("");
+    z.push("── FORMAT ──");
+    z.push(f.sek + " Sekunden, etwa " + f.woerter + " Wörter. Nicht mehr.");
+    z.push(f.abschnitte.map(function (a) {
+      return a.name + " (" + nz(a.sek) + " s)";
+    }).join("  →  "));
+    z.push("");
+
+    z.push("── PRODUKT ──");
+    if (p) {
+      z.push("Name: " + (p.name || "—"));
+      z.push("Kategorie: " + p.kategorie);
+      if (p.preis) z.push("Preis: " + euro(p.preis));
+      if (p.seller) z.push("Seller: " + p.seller);
+      if (p.merkmale.length) {
+        z.push("Merkmale (nur diese sind belegt):");
+        p.merkmale.forEach(function (m) { z.push("  · " + m); });
+      }
+      if (p.einwaende.length) {
+        z.push("Einwände, die Käufer haben:");
+        p.einwaende.forEach(function (e) { z.push("  · " + e); });
+      }
+    } else {
+      z.push("(kein Produkt zugeordnet — bitte nachfragen)");
+    }
+    z.push("");
+
+    if ((v.anweisung || "").trim()) {
+      z.push("── MEINE ANWEISUNG ──");
+      z.push(v.anweisung.trim());
+      z.push("");
+    }
+
+    z.push("── GRENZEN, nicht verhandelbar ──");
+    if (Z.grenzen.keinePersonen) z.push("· Keine Menschen im Bild, keine Gesichter. Eigene Hand am Produkt ist erlaubt.");
+    if (Z.grenzen.keineFrauen) z.push("· Keine weiblichen Darstellungen, auch nicht angedeutet.");
+    if (Z.grenzen.keineFrauen) {
+      z.push("· Kleidung nur auf Bügel, flach ausgelegt" +
+             (Z.grenzen.puppeErlaubt ? " oder auf kopfloser Schneiderpuppe" : "") + " — nie am Körper.");
+    }
+    if (Z.grenzen.keineMusik) z.push("· Keine Musik. Erlaubt: " + klangName(Z.klang) + ".");
+    if (Z.grenzen.keineUebertreibung) z.push("· Keine Heilversprechen, keine Superlative ohne Beleg.");
+    if (Z.grenzen.keinRiba) z.push("· Kein Riba: keine Ratenzahlung, kein Kredit, kein „später zahlen“.");
+    z.push("");
+
+    z.push("── RECHTLICHES ──");
+    z.push("· Es ist Werbung, und das soll man sofort sehen.");
+    z.push("· Anerkannt sind nur „Werbung“ und „Anzeige“ — nicht „Ad“, nicht „Sponsored“.");
+    z.push(Z.recht.imBild
+      ? "· „" + Z.recht.wort + "“ wird ab Sekunde 0 eingeblendet."
+      : "· Keine Einblendung — der Hook muss das Wort „" + Z.recht.wort + "“ selbst enthalten.");
+    if (Z.recht.provisionshinweis) z.push("· Provisionshinweis kommt in den Beschreibungstext.");
+    z.push("· Die Stimme wird mit KI erzeugt, also ist eine KI-Offenlegung nötig (AI Act Art. 50).");
+    z.push("");
+
+    z.push("── WAS ICH ZURÜCK HABEN WILL ──");
+    z.push("1. Das Skript, nach Abschnitten getrennt, mit Sekundenangabe.");
+    z.push("2. Eine Shotliste ohne Menschen: Dauer, Kamerabewegung, was zu sehen ist.");
+    z.push("3. Den Beschreibungstext mit Kennzeichnung und Hashtags.");
+    z.push("");
+    z.push("Schreib deutsch, gesprochene Sprache, kurze Sätze. Keine Floskeln.");
+
+    return z.join("\n");
+  }
+};
+
+/* ══════════════════════════════════════════════════════════════
+   EINSTELLUNGEN (SHOTS)
+   ══════════════════════════════════════════════════════════════ */
+var MAX_SHOT = 2.4, MIN_SHOT = 1.0;
+
+var Shots = {
+  vorschlag: function (v, p) {
+    var achse = Skript.zeitachse(v);
+    var pool = VORLAGEN[p ? p.kategorie : "*"] || VORLAGEN["*"];
+    var aus = [], nr = 0;
+
+    achse.forEach(function (a) {
+      if (a.sek <= 0) return;
+      /* Bei zehn Sekunden sind zwei bis drei Sekunden je Einstellung
+         das Maß. Kürzer sieht man das Produkt nicht, länger wischt er weg. */
+      var n = Math.max(1, Math.min(3, Math.ceil(a.sek / MAX_SHOT)));
+      var dauer = Math.round((a.sek / n) * 10) / 10;
+      var passend = pool.filter(function (t) { return t.rolle === a.id; });
+      if (!passend.length) passend = pool.filter(function (t) { return t.rolle === "nutzen"; });
+      if (!passend.length) passend = pool;
+
+      for (var i = 0; i < n; i++) {
+        var t = passend[i % passend.length];
+        nr++;
+        aus.push({ nr: nr, abschnitt: a.id, abschnittName: a.name,
+                   von: Math.round((a.von + i * dauer) * 10) / 10,
+                   dauer: Math.max(MIN_SHOT, dauer),
+                   quelle: t.quelle, bewegung: t.bewegung, was: t.was,
+                   datei: "", einblendung: "" });
+      }
+    });
+    if (Z.recht.imBild && aus.length) aus[0].einblendung = Z.recht.wort;
+    return aus;
+  },
+
+  neuNummerieren: function (shots) {
+    var t = 0;
+    shots.forEach(function (s, i) {
+      s.nr = i + 1; s.von = Math.round(t * 10) / 10; t += s.dauer || 0;
+    });
+    return shots;
+  },
+
+  bauplan: function (v, p) {
+    return {
+      app: "suq", titel: v.titel || (p ? p.name : "Video"),
+      breite: 1080, hoehe: 1920, bilder: 30,
+      kennzeichnung: Z.recht.imBild
+        ? { text: Z.recht.wort, von: 0, bis: Math.min(3, Skript.format(v).sek) } : null,
+      stimme: null, klang: Z.klang,
+      szenen: (v.shots || []).map(function (s) {
+        return { nr: s.nr, von: s.von, dauer: s.dauer, bewegung: s.bewegung,
+                 quelle: s.quelle, was: s.was, bild: s.datei || null,
+                 einblendung: s.einblendung || "" };
+      }),
+      abschnitte: Skript.zeitachse(v).filter(function (a) { return a.text; })
+    };
+  },
+
+  drehplan: function (v, p) {
+    var z = ["DREHPLAN — " + (v.titel || (p ? p.name : "Video"))];
+    z.push("Gesamtlänge etwa " + nz(Skript.gesamt(v)) + " Sekunden");
+    z.push("Keine Menschen im Bild. Keine Musik.");
+    z.push("");
+    (v.shots || []).forEach(function (s) {
+      z.push(pad(String(s.nr), 2) + "  +" + nz(s.von) + "s   " + nz(s.dauer) + "s   " +
+             (QUELLEN[s.quelle] || s.quelle) + "   " + (BEWEGUNGEN[s.bewegung] || s.bewegung));
+      z.push("      " + s.was);
+      if (s.einblendung) z.push("      Einblendung: „" + s.einblendung + "“");
+      z.push("");
+    });
+    return z.join("\n");
+  }
+};
+
+/* ══════════════════════════════════════════════════════════════
+   WERKZEUG
+   ══════════════════════════════════════════════════════════════ */
+function el(spec, attr, kinder) {
+  var text = String(spec);
+  if (text[0] === "." || text[0] === "#") text = "div" + text;
+  var teile = text.split(/(?=[.#])/);
+  var n = document.createElement(teile[0] || "div");
+  teile.slice(1).forEach(function (t) {
+    if (t[0] === ".") n.classList.add(t.slice(1));
+    if (t[0] === "#") n.id = t.slice(1);
+  });
+  if (attr && (typeof attr === "string" || Array.isArray(attr) || attr instanceof Node)) {
+    kinder = attr; attr = null;
+  }
+  Object.keys(attr || {}).forEach(function (k) {
+    var val = attr[k];
+    if (k === "text") n.textContent = val;
+    else if (k.slice(0, 2) === "on" && typeof val === "function") n.addEventListener(k.slice(2), val);
+    else if (val === true) n.setAttribute(k, "");
+    else if (val !== false && val != null) n.setAttribute(k, val);
+  });
+  (Array.isArray(kinder) ? kinder : kinder == null ? [] : [kinder]).forEach(function (k) {
+    if (k == null || k === false) return;
+    n.appendChild(typeof k === "object" ? k : document.createTextNode(String(k)));
+  });
+  return n;
+}
+function leeren(n) { while (n.firstChild) n.removeChild(n.firstChild); return n; }
+
+function euro(n) {
+  if (n == null || n === "") return "—";
+  return Number(n).toLocaleString("de-DE", { style: "currency", currency: "EUR", minimumFractionDigits: 2 });
+}
+function zahl(n) { return n == null || n === "" ? "—" : Number(n).toLocaleString("de-DE"); }
+function nz(n) { return (Math.round((n || 0) * 10) / 10).toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 }); }
+function pad(s, n) { while (s.length < n) s = "0" + s; return s; }
+function plural(n, e, m) { return n + " " + (n === 1 ? e : m); }
+function datumKurz(iso) {
+  if (!iso) return "—";
+  var d = new Date(iso);
+  return d.getDate() + ". " + ["Jan","Feb","März","Apr","Mai","Juni","Juli","Aug","Sept","Okt","Nov","Dez"][d.getMonth()] + " " + d.getFullYear();
+}
+function klangName(k) {
+  return { nasheed: "Nasheed ohne Instrumente", stimme: "nur die Stimme",
+           ambient: "Ambient (Stoffrascheln, Papier, Raumton)", still: "gar kein Ton außer der Stimme" }[k] || k;
+}
+
+var meldungTimer = null;
+function meldung(text, fehler) {
+  var m = document.getElementById("meldung");
+  m.textContent = text;
+  m.className = "meldung an" + (fehler ? " fehler" : "");
+  clearTimeout(meldungTimer);
+  meldungTimer = setTimeout(function () { m.className = "meldung"; }, 2600);
+}
+
+/* Die Zwischenablage ist im abgeschotteten Rahmen nicht sicher da.
+   Deswegen gibt es den alten Weg über ein Textfeld — und wenn auch der
+   scheitert, sagt die App das, statt so zu tun, als hätte es geklappt. */
+function kopieren(text, was) {
+  function gut() { meldung((was || "Text") + " kopiert."); }
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(gut).catch(altweg);
+  } else { altweg(); }
+  function altweg() {
+    var t = document.createElement("textarea");
+    t.value = text;
+    t.style.position = "fixed"; t.style.opacity = "0";
+    document.body.appendChild(t); t.select();
+    try {
+      if (document.execCommand("copy")) gut();
+      else meldung("Kopieren ging nicht — bitte von Hand markieren.", true);
+    } catch (e) {
+      meldung("Kopieren ging nicht — bitte von Hand markieren.", true);
+    }
+    t.remove();
+  }
+}
+
+/* Herunterladen läuft über die Artifact-Schnittstelle. Ein <a download>
+   ist im Betrachter wirkungslos — das würde stumm scheitern. */
+function sichernAls(dateiname, inhalt, was) {
+  if (!window.claude || !window.claude.downloads) {
+    kopieren(inhalt, was);
+    meldung("Kein Speichern möglich — stattdessen kopiert.");
+    return;
+  }
+  window.claude.downloads.save({ filename: dateiname, data: inhalt })
+    .then(function () { meldung(dateiname + " gespeichert."); })
+    .catch(function (f) {
+      if (f && f.code === "declined") return;
+      kopieren(inhalt, was);
+      meldung("Speichern ging nicht — stattdessen kopiert.");
+    });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   BAUSTEINE DER OBERFLÄCHE
+   ══════════════════════════════════════════════════════════════ */
+function karte(titel, kinder, kopfrechts, klasse) {
+  return el("div.karte" + (klasse ? "." + klasse : ""), [
+    titel ? el("div.kkopf", [el("h2", { text: titel })].concat(kopfrechts || [])) : null,
+    el("div.kleib" + (klasse === "satt" ? ".satt" : ""), kinder)
+  ].filter(Boolean));
+}
+function kartesatt(titel, kinder, kopfrechts, klasse) {
+  return el("div.karte" + (klasse ? "." + klasse : ""), [
+    titel ? el("div.kkopf", [el("h2", { text: titel })].concat(kopfrechts || [])) : null,
+    el("div", kinder)
+  ].filter(Boolean));
+}
+function knopf(text, opt) {
+  opt = opt || {};
+  return el("button.knopf" + (opt.klasse ? "." + opt.klasse : ""),
+    { type: "button", onclick: opt.onclick, disabled: opt.aus || false, title: opt.titel || false }, text);
+}
+function feld(label, node, hinweis) {
+  return el("label.feld", [
+    el("span.fl", { text: label }), node,
+    hinweis ? el("span.fh", { text: hinweis }) : null
+  ].filter(Boolean));
+}
+function eingabe(opt) {
+  return el("input", {
+    type: opt.typ || "text", value: opt.wert == null ? "" : opt.wert,
+    placeholder: opt.platzhalter || "", inputmode: opt.inputmode || false,
+    onchange: opt.onchange || false, oninput: opt.oninput || false
+  });
+}
+function textfeld(opt) {
+  var t = el("textarea", {
+    placeholder: opt.platzhalter || "", rows: opt.zeilen || 2,
+    oninput: opt.oninput || false, onblur: opt.onblur || false
+  });
+  t.value = opt.wert == null ? "" : opt.wert;
+  return t;
+}
+function auswahl(werte, wert, beiWechsel) {
+  var s = el("select", { onchange: function (e) { beiWechsel(e.target.value); } });
+  werte.forEach(function (w) {
+    var v = typeof w === "string" ? w : w.wert;
+    var n = typeof w === "string" ? w : w.name;
+    s.appendChild(el("option", { value: v, selected: v === wert }, n));
+  });
+  return s;
+}
+function chips(werte, aktiv, beiWahl) {
+  return el("div.chips", werte.map(function (w) {
+    var v = typeof w === "string" ? w : w.wert;
+    var n = typeof w === "string" ? w : w.name;
+    return el("button.chip" + (v === aktiv ? ".an" : ""),
+      { type: "button", onclick: function () { beiWahl(v); } }, n);
+  }));
+}
+function schalter(text, an, beiWechsel, hinweis) {
+  return el("label.feld", [
+    el("div", { style: "display:flex;align-items:center;gap:.6rem" }, [
+      (function () {
+        var i = el("input", { type: "checkbox", style: "width:auto;flex:none;margin:0" });
+        i.checked = !!an;
+        i.addEventListener("change", function () { beiWechsel(i.checked); });
+        return i;
+      })(),
+      el("span", { text: text, style: "font-size:.88rem" })
+    ]),
+    hinweis ? el("span.fh", { text: hinweis }) : null
+  ].filter(Boolean));
+}
+
+/* ---------- Die Zeitleiste ----------
+   Das Leitinstrument dieser App. Bei zehn Sekunden entscheidet sich
+   alles am Budget, und ein Balken sagt schneller als eine Zahl, ob
+   der Hook zu lang geworden ist. */
+function zeitleiste(v) {
+  var f = Skript.format(v);
+  var achse = Skript.zeitachse(v);
+  var ist = Skript.gesamt(v);
+  var soll = f.sek;
+  var woerter = Skript.woerter(v);
+
+  var zustand = ist > soll * 1.12 ? "drueber" : (ist > soll ? "knapp" : "");
+  var restsatz;
+  if (!ist) restsatz = "Noch nichts geschrieben. Budget: etwa " + f.woerter + " Wörter.";
+  else if (ist > soll) restsatz = nz(ist - soll) + " s zu lang — etwa " +
+      plural(Math.max(1, Math.round((ist - soll) * 2.4)), "Wort", "Wörter") + " streichen.";
+  else restsatz = nz(soll - ist) + " s frei · " + woerter + " von etwa " + f.woerter + " Wörtern.";
+
+  /* Der Balken zeigt immer die volle Solldauer. Läuft das Skript
+     darüber, wächst ein schraffiertes Stück hinten heraus — dann sieht
+     man sofort, wie viel zu viel es ist. */
+  var breite = Math.max(soll, ist);
+  var segmente = achse.filter(function (a) { return a.sek > 0; }).map(function (a, i) {
+    return el("div.seg.s" + Math.min(i, 5), {
+      style: "flex:" + (a.sek / breite) + " 1 0",
+      title: a.name + " — " + nz(a.sek) + " s"
+    }, [el("span", { text: a.name })]);
+  });
+  if (ist > soll) {
+    segmente.push(el("div.seg.ueber", {
+      style: "flex:0 0 0", title: "über dem Budget"
+    }));
+  }
+  if (!segmente.length) {
+    segmente.push(el("div.seg.s5", { style: "flex:1" }, [el("span", { text: "leer" })]));
+  }
+
+  /* Sekundenstriche */
+  var striche = [];
+  for (var s = 0; s <= Math.ceil(breite); s++) {
+    var pos = (s / breite) * 100;
+    if (pos > 100) break;
+    striche.push(el("div.tick" + (s % 5 === 0 ? ".voll" : ""), { style: "left:" + pos + "%" }));
+    if (s % 5 === 0 || breite <= 12) {
+      striche.push(el("div.tickz", { style: "left:" + pos + "%", text: s + "s" }));
+    }
+  }
+
+  return el("div.karte", [
+    el("div.leiste", [
+      el("div.lkopf", [
+        el("div", [
+          el("div.lziel", { text: f.name + " · Ziel " + f.sek + " Sekunden" }),
+          el("div.lwert" + (zustand ? "." + zustand : ""), { text: nz(ist) + " s" })
+        ]),
+        el("div.lbudget", { text: restsatz })
+      ]),
+      el("div.balken", segmente),
+      el("div.lineal", striche)
+    ])
+  ]);
+}
+
+/* Tauscht nur die Leiste aus, nicht die Seite. Ein Neuzeichnen der
+   ganzen Ansicht würde den Cursor aus dem Schreibfeld werfen. */
+function zeitleisteAuffrischen(v) {
+  var alt = document.querySelector(".leiste");
+  if (!alt || !alt.parentNode) return;
+  alt.parentNode.replaceChild(zeitleiste(v).firstChild, alt);
+}
+
+/* ---------- Der 9:16-Rahmen ----------
+   Zeigt, wo TikToks eigene Bedienelemente sitzen. Wer die Kennzeichnung
+   dorthin legt, hat sie faktisch versteckt — und genau darum geht der
+   Streit vor Gericht. */
+function rahmenkarte(v) {
+  var hook = (v.skript.hook || "").trim();
+  var kurz = hook ? (hook.length > 46 ? hook.slice(0, 46) + " …" : hook) : "Untertitel";
+  return karte("Bildaufteilung", [
+    el("div.rahmenkarte", [
+      el("div.rahmen", [
+        el("div.zone.oben", [el("b", { text: "TikTok" })]),
+        Z.recht.imBild ? el("div.marke-werbung", { text: Z.recht.wort }) : null,
+        el("div.marke-ut", { text: kurz }),
+        el("div.zone.unten", [el("b", { text: "Bedienfeld · Korb" })])
+      ].filter(Boolean)),
+      el("div.rahmentext", [
+        el("div", { text: Z.recht.imBild
+          ? "Die Kennzeichnung sitzt oben, unterhalb der TikTok-Leiste — dort ist sie sichtbar und nicht wegzuwischen."
+          : "Keine Einblendung. Dann muss der Hook das Wort selbst sagen, sonst fehlt die Kennzeichnung." }),
+        el("div", { style: "margin-top:.5rem", text:
+          "Die schraffierten Flächen deckt TikTok mit eigenen Bedienelementen ab. Untertitel und Kennzeichnung bleiben dazwischen." })
+      ])
+    ])
+  ]);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ANSICHT: WERKSTATT
+   ══════════════════════════════════════════════════════════════ */
+var hookIndex = 0;
+
+function ansichtWerkstatt(wurzel) {
+  var v = Z.offenesVideo ? video(Z.offenesVideo) : null;
+  if (!v) v = Z.videos[0] || null;
+
+  if (!v) {
+    wurzel.appendChild(el("h1", { text: "Werkstatt" }));
+    wurzel.appendChild(el("p.unterzeile", { text: "Hier entsteht ein Video: Skript, Einstellungen, Prompt, Rechtliches." }));
+    wurzel.appendChild(karte(null, [
+      el("div.hinweis", [
+        el("div", [el("b", { text: "Noch kein Video." })]),
+        el("div", { style: "margin-top:.35rem", text:
+          "Leg zuerst ein Produkt an — Merkmale und Einwände sind die Grundlage für jedes Skript. Danach entsteht das Video fast von allein." })
+      ]),
+      el("div.knopfreihe", { style: "margin-top:.7rem" }, [
+        knopf("Produkt anlegen", { klasse: "stark", onclick: function () {
+          var p = leeresProdukt(); Z.produkte.unshift(p); sichern();
+          Z.ansicht = "produkte"; Z.offenesProdukt = p.id; zeichne();
+        } }),
+        knopf("Video ohne Produkt", { onclick: function () {
+          var nv = leeresVideo(null); Z.videos.unshift(nv);
+          Z.offenesVideo = nv.id; sichern(); zeichne();
+        } })
+      ])
+    ]));
+    return;
+  }
+
+  Z.offenesVideo = v.id;
+  var p = v.produktId ? produkt(v.produktId) : null;
+  var e = Waechter.pruefe(v, p);
+
+  /* --- Kopfzeile --- */
+  wurzel.appendChild(el("h1", { text: v.titel || "Neues Video" }));
+  wurzel.appendChild(el("p.unterzeile", {
+    text: (p ? p.name + " · " + p.kategorie : "Kein Produkt zugeordnet") +
+          " · " + STUFEN_NAME[v.stand]
+  }));
+
+  if (Speicher.istFluechtig()) {
+    wurzel.appendChild(el("div.hinweis.warn", { style: "margin-bottom:1rem" }, [
+      el("b", { text: "Dieser Browser speichert hier nichts dauerhaft. " }),
+      "Deine Eingaben sind weg, sobald die Seite neu lädt. Sichere über „Mehr → Sicherung“, bevor du schließt."
+    ]));
+  }
+
+  wurzel.appendChild(el("div.spalten", [
+    /* ── linke Spalte ── */
+    el("div.stapel", [
+      zeitleiste(v),
+      teilLeiste(v),
+      v.teil === "einstellungen" ? bereichShots(v, p)
+        : v.teil === "prompt" ? bereichPrompt(v, p)
+        : v.teil === "recht" ? bereichRecht(v, p)
+        : bereichSkript(v, p)
+    ]),
+    /* ── rechte Spalte ── */
+    el("div.stapel.haftend", [
+      waechterKarte(e),
+      rahmenkarte(v),
+      videoWechsler(v)
+    ])
+  ]));
+}
+
+function teilLeiste(v) {
+  var teile = [
+    { id: "skript", n: "Skript" },
+    { id: "einstellungen", n: "Einstellungen" },
+    { id: "prompt", n: "Prompt" },
+    { id: "recht", n: "Rechtliches" }
+  ];
+  if (!v.teil) v.teil = "skript";
+  return el("div.chips", teile.map(function (t) {
+    return el("button.chip" + (v.teil === t.id ? ".an" : ""), {
+      type: "button", onclick: function () { v.teil = t.id; zeichne(); }
+    }, t.n);
+  }));
+}
+
+/* ---------- Abteilung: Skript ---------- */
+function bereichSkript(v, p) {
+  var f = Skript.format(v);
+  var hooks = Skript.hooks(p);
+
+  var stufen = el("div.stufen", STUFEN.map(function (s, i) {
+    var jetzt = STUFEN.indexOf(v.stand);
+    return el("button.stufe" + (i <= jetzt ? ".erreicht" : "") + (i === jetzt ? ".jetzt" : ""),
+      { type: "button", onclick: function () { v.stand = s; sichern(); zeichne(); } },
+      STUFEN_NAME[s]);
+  }));
+
+  return el("div.stapel.eng", [
+    kartesatt("Grundlage", [
+      el("div.kleib", [
+        el("div.reihe", [
+          feld("Produkt", auswahl(
+            [{ wert: "", name: "— keins —" }].concat(Z.produkte.map(function (x) {
+              return { wert: x.id, name: x.name || "Ohne Namen" };
+            })), v.produktId || "", function (w) {
+              v.produktId = w || null; sichern(); zeichne();
+            })),
+          feld("Titel", eingabe({
+            wert: v.titel, platzhalter: "Wofür du es wiederfindest",
+            oninput: function (ev) { v.titel = ev.target.value; sichern(); }
+          }))
+        ]),
+        el("div", { style: "margin-top:.7rem" }, [
+          el("span.fl", { text: "Format" }),
+          chips(Object.keys(FORMATE).map(function (k) {
+            return { wert: k, name: FORMATE[k].name + " · " + FORMATE[k].sek + " s" };
+          }), v.format, function (w) {
+            v.format = w;
+            /* Abschnitte, die es im neuen Format nicht gibt, bleiben im
+               Datensatz stehen. Sie tun nicht weh und sind wieder da,
+               wenn man zurückwechselt. */
+            sichern(); zeichne();
+          }),
+          el("span.fh", { text: f.beschreibung })
+        ])
+      ]),
+      stufen
+    ]),
+
+    kartesatt("Hook wählen", [
+      el("div.hooks", hooks.map(function (h) {
+        var t = Skript.fuellen(h.t, p);
+        var sek = Skript.sekunden(t);
+        var zulang = sek > f.abschnitte[0].sek * 1.25;
+        return el("button.hook" + (v.skript.hook === t ? ".an" : ""), {
+          type: "button", onclick: function () {
+            v.skript.hook = t; sichern(); zeichne();
+          }
+        }, [
+          el("span.hookt", { text: t }),
+          h.kz ? el("span.marke.frei", { text: "kennzeichnet" }) : null,
+          el("span.hooksek" + (zulang ? "" : ""), {
+            text: nz(sek) + "s", style: zulang ? "color:var(--stop)" : ""
+          })
+        ].filter(Boolean));
+      }))
+    ], [el("span.marke", { text: hooks.length + " für " + (p ? p.kategorie : "alle") })]),
+
+    kartesatt("Skript", f.abschnitte.map(function (a, i) {
+      var text = v.skript[a.id] || "";
+      var sek = Skript.sekunden(text);
+      var befunde = Waechter.pruefeText(text, "skript", a.name);
+      var sekEl = el("span.asek" + (sek > a.sek * 1.3 ? ".drueber" : ""),
+        { text: nz(sek) + " / " + nz(a.sek) + " s" });
+
+      /* Beim Tippen läuft die Zeitleiste mit. Bei zehn Sekunden ist das
+         der ganze Sinn der Anzeige — man muss beim Schreiben sehen, dass
+         der Hook zu lang wird, nicht hinterher. Nur die Leiste und diese
+         Sekundenzahl werden ersetzt; die ganze Seite neu zu zeichnen
+         würde den Cursor aus dem Feld werfen. */
+      var tf = textfeld({
+        wert: text, zeilen: a.id === "hook" ? 2 : 3, platzhalter: a.frage,
+        oninput: function (ev) {
+          v.skript[a.id] = ev.target.value;
+          sichern();
+          var jetzt = Skript.sekunden(ev.target.value);
+          sekEl.textContent = nz(jetzt) + " / " + nz(a.sek) + " s";
+          sekEl.classList.toggle("drueber", jetzt > a.sek * 1.3);
+          zeitleisteAuffrischen(v);
+        },
+        onblur: function () { sichern(); zeichne(); }
+      });
+      if (befunde.some(function (b) { return b.stufe === "stop"; })) tf.classList.add("gesperrt");
+
+      return el("div.abschnitt", [
+        el("div.akopf", [
+          el("span.anr", { text: String(i + 1) }),
+          el("span.aname", { text: a.name }),
+          el("span.afrage", { text: a.frage }),
+          sekEl
+        ]),
+        tf
+      ]);
+    }), [
+      knopf("Vorschlag", { klasse: "klein", onclick: function () {
+        if (!p) { meldung("Erst ein Produkt zuordnen.", true); return; }
+        hookIndex++;
+        v.skript = Skript.vorschlag(v, p, hookIndex);
+        if (v.stand === "idee") v.stand = "skript";
+        sichern(); zeichne();
+      } })
+    ]),
+
+    karte(null, [
+      el("div.knopfreihe", [
+        knopf("Einstellungen ableiten", { klasse: "stark", onclick: function () {
+          if (!Skript.gesamt(v)) { meldung("Erst das Skript schreiben.", true); return; }
+          v.shots = Shots.vorschlag(v, p);
+          if (v.stand === "idee") v.stand = "skript";
+          v.teil = "einstellungen"; sichern(); zeichne();
+        } }),
+        knopf("Sprechtext kopieren", { onclick: function () {
+          kopieren(Skript.fliesstext(v), "Sprechtext");
+        } })
+      ])
+    ])
+  ]);
+}
+
+/* ---------- Abteilung: Einstellungen ---------- */
+function bereichShots(v, p) {
+  if (!(v.shots || []).length) {
+    return karte("Einstellungen", [
+      el("div.hinweis", [
+        el("b", { text: "Noch keine Einstellungen." }),
+        el("div", { style: "margin-top:.35rem", text:
+          "Sie werden aus dem Skript abgeleitet — jede bekommt ihren Platz auf der Zeitachse. Bei zehn Sekunden sind das etwa vier bis fünf Schnitte." })
+      ]),
+      el("div.knopfreihe", { style: "margin-top:.7rem" }, [
+        knopf("Aus dem Skript ableiten", { klasse: "stark", onclick: function () {
+          v.shots = Shots.vorschlag(v, p); sichern(); zeichne();
+        } })
+      ])
+    ]);
+  }
+
+  return el("div.stapel.eng", [
+    el("div.hinweis", { text: "Kein Mensch im Bild, keine Musik. Die Vorlagen halten das ein — was du selbst hineinschreibst, prüft der Wächter." }),
+
+    kartesatt("Einstellungen", v.shots.map(function (s, i) {
+      var befunde = Waechter.pruefeText([s.was, s.einblendung].filter(Boolean).join(" · "), "shot", "x");
+      var gesperrt = befunde.some(function (b) { return b.stufe === "stop"; });
+      return el("div.shot" + (gesperrt ? ".gesperrt" : ""), [
+        el("div.skopf", [
+          el("span.snr", { text: pad(String(s.nr), 2) }),
+          el("span.szeit", { text: "+" + nz(s.von) + "s" }),
+          el("span.sabs", { text: s.abschnittName || "" }),
+          el("span.szeit", { text: nz(s.dauer) + "s" }),
+          knopf("−", { klasse: "klein", titel: "Einstellung entfernen", onclick: function () {
+            v.shots.splice(i, 1); Shots.neuNummerieren(v.shots); sichern(); zeichne();
+          } })
+        ]),
+        textfeld({ wert: s.was, zeilen: 2, platzhalter: "Was ist zu sehen?",
+          onblur: function (ev) { s.was = ev.target.value; sichern(); zeichne(); } }),
+        el("div.sreihe", [
+          auswahl(Object.keys(QUELLEN).map(function (k) { return { wert: k, name: QUELLEN[k] }; }),
+            s.quelle, function (w) { s.quelle = w; sichern(); }),
+          auswahl(Object.keys(BEWEGUNGEN).map(function (k) { return { wert: k, name: BEWEGUNGEN[k] }; }),
+            s.bewegung, function (w) { s.bewegung = w; sichern(); })
+        ]),
+        el("div.sreihe", [
+          eingabe({ wert: s.datei, platzhalter: "Dateiname des Fotos",
+            onchange: function (ev) { s.datei = ev.target.value; sichern(); } }),
+          eingabe({ wert: s.einblendung, platzhalter: "Einblendung",
+            onchange: function (ev) { s.einblendung = ev.target.value; sichern(); zeichne(); } })
+        ])
+      ]);
+    }), [
+      el("span.marke", { text: nz(v.shots.reduce(function (a, s) { return a + s.dauer; }, 0)) + " s gesamt" })
+    ]),
+
+    karte(null, [
+      el("div.knopfreihe", [
+        knopf("Einstellung anhängen", { onclick: function () {
+          v.shots.push({ nr: v.shots.length + 1, abschnitt: "nutzen", abschnittName: "Nutzen",
+            von: 0, dauer: 2.0, quelle: "eigen", bewegung: "hinein", was: "", datei: "", einblendung: "" });
+          Shots.neuNummerieren(v.shots); sichern(); zeichne();
+        } }),
+        knopf("Neu ableiten", { onclick: function () {
+          v.shots = Shots.vorschlag(v, p); sichern(); zeichne();
+          meldung("Neu abgeleitet.");
+        } }),
+        knopf("Drehplan kopieren", { onclick: function () {
+          kopieren(Shots.drehplan(v, p), "Drehplan");
+        } }),
+        knopf("Bauplan sichern", { onclick: function () {
+          var name = "bauplan-" + ((v.titel || "video").toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "video") + ".json";
+          sichernAls(name, JSON.stringify(Shots.bauplan(v, p), null, 2), "Bauplan");
+        } })
+      ])
+    ])
+  ]);
+}
+
+/* ---------- Abteilung: Prompt ---------- */
+function bereichPrompt(v, p) {
+  var text = Prompt.bauen(v, p);
+  var anzeige = textfeld({ wert: text, zeilen: 22 });
+  anzeige.className = "promptfeld";
+  anzeige.setAttribute("readonly", "");
+
+  return el("div.stapel.eng", [
+    karte("Deine Anweisung", [
+      textfeld({
+        wert: v.anweisung, zeilen: 4,
+        platzhalter: "Was soll dieses Video machen? z. B. „Fokus auf den Preis, sehr direkt, für jemanden der noch nie einen guten Teppich hatte“",
+        onblur: function (ev) { v.anweisung = ev.target.value; sichern(); zeichne(); }
+      }),
+      el("span.fh", { text:
+        "Frei formuliert. Was hier steht, wandert unverändert in den Auftrag unten." })
+    ]),
+
+    el("div.hinweis", [
+      el("b", { text: "Diese Seite erzeugt selbst nichts. " }),
+      "Sie darf keine Verbindung nach außen aufbauen. Sie stellt den vollständigen Auftrag zusammen — Produktdaten, Sekundenbudget, Grenzen und Kennzeichnungspflicht — und du gibst ihn an Claude. Was zurückkommt, trägst du oben ins Skript ein."
+    ]),
+
+    kartesatt("Auftrag", [
+      el("div", { style: "padding:.6rem" }, [anzeige])
+    ], [
+      el("span.marke", { text: text.split("\n").length + " Zeilen" })
+    ]),
+
+    karte(null, [
+      el("div.knopfreihe", [
+        knopf("Auftrag kopieren", { klasse: "stark", onclick: function () {
+          kopieren(text, "Auftrag");
+        } }),
+        knopf("Als Datei sichern", { onclick: function () {
+          sichernAls("auftrag-" + ((v.titel || "video").toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "video") + ".txt", text, "Auftrag");
+        } })
+      ])
+    ]),
+
+    karte("Für ein Bild-KI-Werkzeug", [
+      el("div", { style: "font-size:.82rem;color:var(--text-2);line-height:1.5" }, [
+        "Falls du doch einmal ein Video-Modell benutzt: das hier gehört in das Feld für unerwünschte Inhalte. Sūq selbst erzeugt keine Bilder — es arbeitet mit echten Fotos, und deswegen kann dort auch nichts entstehen, was nicht entstehen soll."
+      ]),
+      el("div", { style: "margin-top:.6rem" }, [
+        (function () {
+          var t = textfeld({ wert: NEGATIV, zeilen: 3 });
+          t.className = "promptfeld";
+          t.style.minHeight = "5rem";
+          t.setAttribute("readonly", "");
+          return t;
+        })()
+      ]),
+      el("div.knopfreihe", { style: "margin-top:.5rem" }, [
+        knopf("Kopieren", { klasse: "klein", onclick: function () {
+          kopieren(NEGATIV, "Negativliste");
+        } })
+      ])
+    ])
+  ]);
+}
+
+var NEGATIV = "person, people, human, face, portrait, woman, women, girl, man, boy, child, model, mannequin head, skin, hair, eyes, smile, crowd, dancing, text overlay, watermark, logo, fake arabic script, distorted text, music notes, instruments, warping fabric, melting pattern";
+
+/* ---------- Abteilung: Rechtliches ---------- */
+function bereichRecht(v, p) {
+  var besch = Recht.beschreibung(v, p);
+  var tags = Recht.hashtags(p);
+
+  return el("div.stapel.eng", [
+    karte("Im Video", [
+      Z.recht.imBild
+        ? el("div", [
+            el("div", { style: "font-size:1.25rem;font-weight:700;letter-spacing:-.02em", text: "„" + Z.recht.wort + "“" }),
+            el("div", { style: "font-size:.8rem;color:var(--text-2);margin-top:.25rem;line-height:1.5",
+              text: "Sekunde 0 bis " + Math.min(3, Skript.format(v).sek) + ", oben, deutlich lesbar und mit Hintergrund hinterlegt. Nicht unter TikToks Bedienfeld." })
+          ])
+        : el("div", { style: "font-size:.85rem;color:var(--text-2);line-height:1.5",
+            text: "Keine Einblendung — die Kennzeichnung steckt im Hook. Prüf, dass sie dort wirklich steht." }),
+      Z.recht.gesprochen
+        ? el("div", { style: "margin-top:.6rem;font-size:.82rem;color:var(--text-2)",
+            text: "Gesprochen zu Beginn: „" + Z.recht.wort + ".“" })
+        : null
+    ].filter(Boolean)),
+
+    kartesatt("Beschreibungstext", [
+      el("div", { style: "padding:.8rem;white-space:pre-wrap;font-size:.85rem;line-height:1.6", text: besch }),
+      el("div", { style: "padding:0 .8rem .8rem;font-size:.82rem;color:var(--text-2)", text: tags })
+    ], [
+      knopf("Kopieren", { klasse: "klein", onclick: function () {
+        kopieren(besch + "\n\n" + tags, "Beschreibung");
+      } })
+    ]),
+
+    kartesatt("In TikTok setzen", Recht.schalter(v).map(function (s) {
+      return el("div.zeile", [
+        el("div.zwuchs", [
+          el("div.ztitel", { text: s.t, style: "white-space:normal" }),
+          el("div.zunter", { text: s.w })
+        ])
+      ]);
+    })),
+
+    karte("Stimme", [
+      schalter("Die Stimme dieses Videos wird mit KI erzeugt", v.stimmeErzeugt, function (an) {
+        v.stimmeErzeugt = an; sichern(); zeichne();
+      }, "Schaltet die KI-Offenlegung im Beschreibungstext und den Hinweis auf den TikTok-Schalter frei."),
+      el("div", { style: "margin-top:.7rem" }, [
+        el("span.fl", { text: "Sprechtext" }),
+        (function () {
+          var t = textfeld({ wert: Skript.fliesstext(v) || "Noch kein Skript.", zeilen: 5 });
+          t.setAttribute("readonly", "");
+          return t;
+        })(),
+        el("span.fh", { text: Skript.fliesstext(v).length + " Zeichen. Den gibst du Claude für das Voiceover." })
+      ]),
+      el("div.knopfreihe", { style: "margin-top:.6rem" }, [
+        knopf("Sprechtext kopieren", { onclick: function () {
+          kopieren(Skript.fliesstext(v), "Sprechtext");
+        } })
+      ])
+    ])
+  ]);
+}
+
+/* ---------- Wächter-Karte ---------- */
+function waechterKarte(e) {
+  var klasse = e.frei ? (e.achtungen.length ? "acht" : "frei") : "stop";
+  var titel = e.frei ? (e.achtungen.length ? "Frei, mit Anmerkungen" : "Frei") : "Gesperrt";
+  var satz = e.frei
+    ? (e.achtungen.length
+        ? plural(e.achtungen.length, "Sache", "Sachen") + " solltest du dir ansehen."
+        : "Nichts zu beanstanden.")
+    : plural(e.stops.length, "Punkt hält", "Punkte halten") + " dieses Video auf.";
+
+  return el("div.karte.wkarte." + klasse, [
+    el("div.wkopf", [
+      el("div.wzeichen", { text: e.frei ? (e.achtungen.length ? "!" : "✓") : "✕" }),
+      el("div", [
+        el("div.wtitel", { text: titel }),
+        el("div.wsatz", { text: satz })
+      ])
+    ])
+  ].concat(e.alle.map(function (b) {
+    return el("div.befund." + b.stufe, [
+      el("div.bstreifen"),
+      el("div", { style: "min-width:0" }, [
+        el("div", { style: "display:flex;gap:.4rem;align-items:baseline;flex-wrap:wrap" }, [
+          el("span.bort", { text: b.wo }),
+          b.wort ? el("span.bwort", { text: "„" + b.wort + "“" }) : null
+        ].filter(Boolean)),
+        el("div.bwarum", { text: b.warum }),
+        el("div.bersatz", { text: b.ersatz })
+      ])
+    ]);
+  })));
+}
+
+/* ---------- Video-Wechsler ---------- */
+function videoWechsler(aktuell) {
+  return kartesatt("Videos", [
+    el("div", Z.videos.length ? Z.videos.map(function (v) {
+      var p = v.produktId ? produkt(v.produktId) : null;
+      var u = Waechter.urteil(v, p);
+      return el("button.zeile" + (v.id === aktuell.id ? "" : ""), {
+        type: "button",
+        style: v.id === aktuell.id ? "background:var(--messing-weich)" : "",
+        onclick: function () { Z.offenesVideo = v.id; zeichne(); }
+      }, [
+        el("div.zwuchs", [
+          el("div.ztitel", { text: v.titel || "Ohne Titel" }),
+          el("div.zunter", { text: (p ? p.name : "kein Produkt") + " · " +
+            FORMATE[v.format].sek + " s · " + STUFEN_NAME[v.stand] })
+        ]),
+        el("span.marke." + u.klasse, { text: u.text })
+      ]);
+    }) : [el("div.leer", { text: "Noch kein Video." })])
+  ], [
+    knopf("Neu", { klasse: "klein", onclick: function () {
+      var nv = leeresVideo(aktuell.produktId);
+      Z.videos.unshift(nv); Z.offenesVideo = nv.id; sichern(); zeichne();
+    } })
+  ]);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ANSICHT: PRODUKTE
+   ══════════════════════════════════════════════════════════════ */
+function ansichtProdukte(wurzel) {
+  wurzel.appendChild(el("h1", { text: "Produkte" }));
+  wurzel.appendChild(el("p.unterzeile", {
+    text: "Was hier fehlt, fehlt in jedem Skript: ohne Merkmale kein Beweis, ohne Einwände keine Entkräftung."
+  }));
+
+  wurzel.appendChild(el("div.knopfreihe", { style: "margin-bottom:1rem" }, [
+    knopf("Produkt anlegen", { klasse: "stark", onclick: function () {
+      var p = leeresProdukt(); Z.produkte.unshift(p);
+      Z.offenesProdukt = p.id; sichern(); zeichne();
+    } })
+  ]));
+
+  if (!Z.produkte.length) {
+    wurzel.appendChild(karte(null, [
+      el("div.hinweis", { text: "Noch kein Produkt. Leg das an, was du als Erstes bewerben willst — alles andere hängt daran." })
+    ]));
+    return;
+  }
+
+  wurzel.appendChild(el("div.stapel", Z.produkte.map(function (p) {
+    var offen = Z.offenesProdukt === p.id;
+    var vids = videosZu(p.id);
+    var provision = vids.reduce(function (a, v) { return a + (v.zahlen.provision || 0); }, 0);
+
+    var kopf = el("button.zeile", {
+      type: "button", onclick: function () {
+        Z.offenesProdukt = offen ? null : p.id; zeichne();
+      }
+    }, [
+      el("div.zwuchs", [
+        el("div.ztitel", { text: p.name || "Ohne Namen" }),
+        el("div.zunter", { text: p.kategorie + " · " + euro(p.preis) +
+          (p.provisionProzent != null ? " · " + p.provisionProzent + " % Provision" : "") })
+      ]),
+      !p.freigabe.erteilt ? el("span.marke.stop", { text: "keine Freigabe" }) : null,
+      el("span.zwert", { text: plural(vids.length, "Video", "Videos") }),
+      provision ? el("span.marke.frei", { text: euro(provision) }) : null,
+      el("span.zwert", { text: offen ? "▾" : "▸" })
+    ].filter(Boolean));
+
+    return kartesatt(null, offen ? [kopf, produktBogen(p)] : [kopf]);
+  })));
+}
+
+function produktBogen(p) {
+  /* Wichtig: einfache Textfelder speichern nur, sie zeichnen die Seite
+     nicht neu. Ein Neuzeichnen bei jedem `change` tauscht das gerade
+     verlassene Feld aus — wer mit der Tabulatortaste weitergeht, tippt
+     dann in ein Element, das gleich ersetzt wird, und die Eingabe ist
+     weg. Neu gezeichnet wird nur, wenn sich die Struktur ändert:
+     Kategorie, Freigabe, eine neue Listenzeile. */
+  /* Gespeichert wird bei jedem Tastendruck, nicht beim Verlassen des
+     Feldes. Grund: `change` kommt erst beim Verlassen — wer einen Einwand
+     tippt und dann sofort den Freigabe-Schalter klickt, löst damit ein
+     Neuzeichnen aus, das die Eingabe wegwirft, bevor sie je gespeichert
+     wurde. Bei einem Datensatz dieser Größe kostet Speichern nichts. */
+  function listenfeld(schluessel, titel, hinweis, platzhalter) {
+    var werte = p[schluessel].slice();
+    werte.push("");
+    return el("div", { style: "margin-top:.7rem" }, [
+      el("span.fl", { text: titel }),
+      el("div", { style: "display:flex;flex-direction:column;gap:.3rem" }, werte.map(function (w, i) {
+        return eingabe({
+          wert: w, platzhalter: i === p[schluessel].length ? platzhalter : "",
+          oninput: function (ev) {
+            var neu = p[schluessel].slice();
+            if (i < neu.length) neu[i] = ev.target.value;
+            else if (ev.target.value.trim()) neu.push(ev.target.value);
+            p[schluessel] = neu;
+            sichern();
+          },
+          /* Erst beim Verlassen aufräumen und neu zeichnen — dann steht
+             die nächste leere Zeile bereit und Leergetipptes ist weg. */
+          onblur: function () {
+            var vorher = p[schluessel].length;
+            p[schluessel] = p[schluessel]
+              .map(function (x) { return (x || "").trim(); })
+              .filter(Boolean);
+            sichern();
+            if (p[schluessel].length !== vorher || vorher !== werte.length - 1) zeichne();
+          }
+        });
+      })),
+      el("span.fh", { text: hinweis })
+    ]);
+  }
+
+  return el("div.kleib", [
+    el("div.reihe", [
+      feld("Name", eingabe({ wert: p.name, platzhalter: "z. B. Gebetsteppich mit Memory-Schaum",
+        oninput: function (e) { p.name = e.target.value; sichern(); } })),
+      feld("Kategorie", auswahl(KATEGORIEN, p.kategorie, function (w) {
+        p.kategorie = w; sichern(); zeichne();
+      }), "Steuert Hooks, Szenen und die Wächterregeln.")
+    ]),
+    el("div.reihe", { style: "margin-top:.7rem" }, [
+      feld("Preis", eingabe({ wert: p.preis, typ: "number", inputmode: "decimal", platzhalter: "24,99",
+        oninput: function (e) { p.preis = e.target.value ? parseFloat(e.target.value) : null; sichern(); } })),
+      feld("Provision in Prozent", eingabe({ wert: p.provisionProzent, typ: "number", inputmode: "decimal", platzhalter: "15",
+        oninput: function (e) { p.provisionProzent = e.target.value ? parseFloat(e.target.value) : null; sichern(); } }),
+        p.preis && p.provisionProzent ? "Etwa " + euro(p.preis * p.provisionProzent / 100) + " je Verkauf." : null)
+    ]),
+    el("div.reihe", { style: "margin-top:.7rem" }, [
+      feld("Seller", eingabe({ wert: p.seller, platzhalter: "Name des Shops",
+        oninput: function (e) { p.seller = e.target.value; sichern(); } })),
+      feld("Affiliate-Link", eingabe({ wert: p.link, platzhalter: "https://…",
+        oninput: function (e) { p.link = e.target.value; sichern(); } }))
+    ]),
+
+    el("div", { style: "margin-top:.9rem;padding-top:.8rem;border-top:1px solid var(--linie)" }, [
+      schalter("Bildnutzung ist vom Seller freigegeben", p.freigabe.erteilt, function (an) {
+        p.freigabe.erteilt = an;
+        p.freigabe.am = an ? new Date().toISOString() : null;
+        sichern(); zeichne();
+      }, p.freigabe.erteilt
+        ? "Erteilt am " + datumKurz(p.freigabe.am)
+        : "Ohne Freigabe sperrt der Wächter jedes Video zu diesem Produkt."),
+      p.freigabe.erteilt ? el("div", { style: "margin-top:.5rem" }, [
+        eingabe({ wert: p.freigabe.wie, platzhalter: "Auf welchem Weg? z. B. Nachricht im TikTok-Backend, 12.08.",
+          onchange: function (e) { p.freigabe.wie = e.target.value; sichern(); } })
+      ]) : null
+    ].filter(Boolean)),
+
+    listenfeld("merkmale", "Merkmale",
+      "Je ein kurzer, überprüfbarer Satz. Daraus wird der Beweis im Skript.",
+      "z. B. 8 mm Polsterung, rutschfeste Unterseite"),
+    listenfeld("einwaende", "Einwände",
+      "Was hält jemanden vom Kauf ab? Genau das nimmt das Skript vorweg.",
+      "z. B. „bestimmt rutschig“"),
+
+    el("div.knopfreihe", { style: "margin-top:1rem" }, [
+      knopf("Video zu diesem Produkt", { klasse: "stark", onclick: function () {
+        var v = leeresVideo(p.id); v.titel = p.name;
+        Z.videos.unshift(v); Z.offenesVideo = v.id;
+        Z.ansicht = "werkstatt"; sichern(); zeichne();
+      } }),
+      knopf(p.status === "aktiv" ? "Pausieren" : "Wieder aufnehmen", { onclick: function () {
+        p.status = p.status === "aktiv" ? "pausiert" : "aktiv"; sichern(); zeichne();
+      } }),
+      knopf("Löschen", { klasse: "warn", onclick: function () {
+        if (!window.confirm("Produkt löschen? Die " + plural(videosZu(p.id).length, "Video", "Videos") +
+            " dazu werden mitgelöscht.")) return;
+        Z.videos = Z.videos.filter(function (v) { return v.produktId !== p.id; });
+        Z.produkte = Z.produkte.filter(function (x) { return x.id !== p.id; });
+        Z.offenesProdukt = null; sichern(); zeichne();
+      } })
+    ])
+  ]);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ANSICHT: PIPELINE
+   ══════════════════════════════════════════════════════════════ */
+var pipelineFilter = "alle";
+
+function ansichtPipeline(wurzel) {
+  var grenze = new Date(Date.now() - 7 * 86400000).toISOString();
+  var woche = Z.videos.filter(function (v) { return v.gepostetAm && v.gepostetAm > grenze; }).length;
+  var ziel = Z.ziel.videosProWoche;
+
+  wurzel.appendChild(el("h1", { text: "Pipeline" }));
+  wurzel.appendChild(el("p.unterzeile", {
+    text: "Nicht die fertigen Videos sind das Problem, sondern die, die auf halbem Weg stehen bleiben."
+  }));
+
+  wurzel.appendChild(el("div.kacheln", { style: "margin-bottom:1rem" }, [
+    el("div.kachel", [el("span.kw", { text: String(Z.videos.length) }), el("span.kn", { text: "Videos" })]),
+    el("div.kachel", [el("span.kw", { text: woche + " / " + ziel }), el("span.kn", { text: "diese Woche" })]),
+    el("div.kachel", [el("span.kw", { text: String(Z.produkte.filter(function (p) { return p.status === "aktiv"; }).length) }), el("span.kn", { text: "Produkte aktiv" })]),
+    el("div.kachel", [el("span.kw", { text: String(Z.videos.filter(function (v) { return v.stand === "gepostet"; }).length) }), el("span.kn", { text: "gepostet" })])
+  ]));
+
+  var stufen = [{ wert: "alle", name: "Alle · " + Z.videos.length }].concat(
+    STUFEN.map(function (s) {
+      return { wert: s, name: STUFEN_NAME[s] + " · " + Z.videos.filter(function (v) { return v.stand === s; }).length };
+    }));
+
+  wurzel.appendChild(el("div", { style: "margin-bottom:.8rem" }, [
+    chips(stufen, pipelineFilter, function (w) { pipelineFilter = w; zeichne(); })
+  ]));
+
+  var liste = pipelineFilter === "alle" ? Z.videos
+    : Z.videos.filter(function (v) { return v.stand === pipelineFilter; });
+
+  wurzel.appendChild(kartesatt(null, liste.length ? liste.map(function (v) {
+    var p = v.produktId ? produkt(v.produktId) : null;
+    var u = Waechter.urteil(v, p);
+    return el("button.zeile", {
+      type: "button",
+      onclick: function () { Z.offenesVideo = v.id; Z.ansicht = "werkstatt"; zeichne(); }
+    }, [
+      el("div.zwuchs", [
+        el("div.ztitel", { text: v.titel || "Ohne Titel" }),
+        el("div.zunter", { text: (p ? p.name : "kein Produkt") + " · " +
+          FORMATE[v.format].sek + " s · " + STUFEN_NAME[v.stand] +
+          (v.zahlen.views ? " · " + zahl(v.zahlen.views) + " Aufrufe" : "") })
+      ]),
+      el("span.marke." + u.klasse, { text: u.text })
+    ]);
+  }) : [el("div.leer", { text: pipelineFilter === "alle"
+      ? "Noch kein Video. Fang mit einem Produkt an." : "In dieser Stufe liegt gerade nichts." })]));
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ANSICHT: ZAHLEN
+
+   Die entscheidende Größe ist nicht die Provision und auch nicht die
+   Reichweite, sondern die Provision je tausend Aufrufe. Ein Video mit
+   4.000 Aufrufen und zwei Verkäufen schlägt eines mit 90.000 und einem
+   — und ohne diese Zahl siehst du genau das nicht.
+   ══════════════════════════════════════════════════════════════ */
+var offeneZahlen = null;
+
+function ansichtZahlen(wurzel) {
+  var gepostet = Z.videos.filter(function (v) { return v.stand === "gepostet"; });
+  var ges = summe(gepostet);
+  var jetzt = new Date();
+  var monatStart = new Date(jetzt.getFullYear(), jetzt.getMonth(), 1).toISOString();
+  var monat = summe(Z.videos.filter(function (v) { return v.gepostetAm && v.gepostetAm >= monatStart; }));
+
+  wurzel.appendChild(el("h1", { text: "Zahlen" }));
+  wurzel.appendChild(el("p.unterzeile", { text: "Der Apparat, mit dem ein Winning Product gefunden wird." }));
+
+  wurzel.appendChild(el("div.kacheln", { style: "margin-bottom:1rem" }, [
+    kachel(zahl(ges.views), "Aufrufe"),
+    kachel(prozent(anteil(ges.klicks, ges.views)), "Klickrate"),
+    kachel(prozent(anteil(ges.bestellungen, ges.klicks)), "Kaufrate"),
+    kachel(rpm(ges) == null ? "—" : euro(rpm(ges)), "je 1.000 Aufrufe")
+  ]));
+
+  wurzel.appendChild(karte("Dieser Monat", [
+    el("div", { style: "display:flex;align-items:baseline;justify-content:space-between;gap:.8rem;flex-wrap:wrap" }, [
+      el("span", { style: "font-family:var(--f-nr);font-size:1.7rem;font-weight:600;letter-spacing:-.03em", text: euro(monat.provision) }),
+      el("span", { style: "font-size:.82rem;color:var(--text-2)", text:
+        monat.provision >= Z.ziel.provisionProMonat
+          ? "Ziel " + euro(Z.ziel.provisionProMonat) + " — erreicht."
+          : "Ziel " + euro(Z.ziel.provisionProMonat) + " — es fehlen " + euro(Z.ziel.provisionProMonat - monat.provision) + "." })
+    ])
+  ]));
+
+  wurzel.appendChild(el("div", { style: "margin-top:1rem" }, [
+    el("div.hinweis", { text: einschaetzung(gepostet.length, ges) })
+  ]));
+
+  var rang = rangliste();
+  if (rang.length) {
+    wurzel.appendChild(el("div", { style: "margin-top:1rem" }, [
+      kartesatt("Produkte nach Ertrag", rang.map(function (r, i) {
+        return el("div.rang", [
+          el("div.rnr" + (i === 0 ? ".eins" : ""), { text: String(i + 1) }),
+          el("div.zwuchs", [
+            el("div.ztitel", { text: r.p.name || "Ohne Namen" }),
+            el("div.zunter", { text: plural(r.n, "Video", "Videos") + " · " +
+              zahl(r.s.views) + " Aufrufe · " + plural(r.s.bestellungen, "Bestellung", "Bestellungen") })
+          ]),
+          el("div", { style: "text-align:right;flex:none" }, [
+            el("div", { style: "font-family:var(--f-nr);font-weight:700;font-variant-numeric:tabular-nums", text: r.rpm == null ? "—" : euro(r.rpm) }),
+            el("div", { style: "font-size:.68rem;color:var(--text-3);font-family:var(--f-nr)", text: euro(r.s.provision) })
+          ])
+        ]);
+      }), [el("span.marke", { text: "je 1.000 Aufrufe" })])
+    ]));
+  }
+
+  wurzel.appendChild(el("div", { style: "margin-top:1rem" }, [
+    kartesatt("Zahlen nachtragen", Z.videos.length ? Z.videos.map(function (v) {
+      var offen = offeneZahlen === v.id;
+      var kopf = el("button.zeile", {
+        type: "button", onclick: function () { offeneZahlen = offen ? null : v.id; zeichne(); }
+      }, [
+        el("div.zwuchs", [
+          el("div.ztitel", { text: v.titel || "Ohne Titel" }),
+          el("div.zunter", { text: v.gepostetAm ? datumKurz(v.gepostetAm) : STUFEN_NAME[v.stand] })
+        ]),
+        el("span.zwert", { text: v.zahlen.views ? zahl(v.zahlen.views) + " · " + euro(v.zahlen.provision) : "—" }),
+        el("span.zwert", { text: offen ? "▾" : "▸" })
+      ]);
+      if (!offen) return kopf;
+      return el("div", [kopf, el("div", { style: "padding:.8rem;background:var(--fuell)" }, [
+        el("div.reihe", [
+          feld("Aufrufe", zahlEingabe(v, "views")),
+          feld("Klicks", zahlEingabe(v, "klicks"))
+        ]),
+        el("div.reihe", { style: "margin-top:.6rem" }, [
+          feld("Bestellungen", zahlEingabe(v, "bestellungen")),
+          feld("Provision in Euro", zahlEingabe(v, "provision"))
+        ]),
+        el("div", { style: "margin-top:.6rem" }, [
+          feld("Gepostet am", eingabe({
+            typ: "date", wert: v.gepostetAm ? v.gepostetAm.slice(0, 10) : "",
+            onchange: function (e) {
+              v.gepostetAm = e.target.value ? new Date(e.target.value).toISOString() : null;
+              if (v.gepostetAm) v.stand = "gepostet";
+              sichern(); zeichne();
+            }
+          }))
+        ])
+      ])]);
+    }) : [el("div.leer", { text: "Noch kein Video." })])
+  ]));
+
+  function zahlEingabe(v, k) {
+    return eingabe({
+      wert: v.zahlen[k], typ: "number", inputmode: "decimal", platzhalter: "0",
+      onchange: function (e) {
+        v.zahlen[k] = e.target.value === "" ? null : parseFloat(e.target.value);
+        sichern();
+      }
+    });
+  }
+}
+
+function kachel(w, n) {
+  return el("div.kachel", [el("span.kw", { text: w }), el("span.kn", { text: n })]);
+}
+function summe(liste) {
+  return liste.reduce(function (s, v) {
+    s.views += v.zahlen.views || 0; s.klicks += v.zahlen.klicks || 0;
+    s.bestellungen += v.zahlen.bestellungen || 0; s.provision += v.zahlen.provision || 0;
+    return s;
+  }, { views: 0, klicks: 0, bestellungen: 0, provision: 0 });
+}
+function rpm(s) { return s.views ? (s.provision / s.views) * 1000 : null; }
+function anteil(a, b) { return b ? a / b : null; }
+function prozent(x) {
+  return x == null ? "—" : (x * 100).toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " %";
+}
+function rangliste() {
+  var r = Z.produkte.map(function (p) {
+    var vids = videosZu(p.id).filter(function (v) { return v.stand === "gepostet"; });
+    var s = summe(vids);
+    return { p: p, n: vids.length, s: s, rpm: rpm(s) };
+  }).filter(function (x) { return x.n > 0; });
+  r.sort(function (a, b) {
+    if (a.rpm == null && b.rpm == null) return b.s.views - a.s.views;
+    if (a.rpm == null) return 1;
+    if (b.rpm == null) return -1;
+    return b.rpm - a.rpm;
+  });
+  return r;
+}
+
+/* Hier steht bewusst kein Zuspruch. Der Wert dieser Zeile liegt darin,
+   dass sie stimmt. */
+function einschaetzung(n, ges) {
+  if (n < 5) return "Zu wenige Videos, um irgendetwas abzulesen. Unter zwanzig geposteten Videos sind alle Zahlen hier Zufall.";
+  if (n < 20) return n + " Videos gepostet. Ein Anfang, aber noch keine Grundlage: welches Produkt trägt, zeigt sich erfahrungsgemäß erst danach.";
+  if (!ges.bestellungen) return n + " Videos, keine Bestellung. Das liegt selten am Schnitt. Meistens am Produkt — oder daran, dass der Hook nicht das Problem trifft.";
+  var r = rpm(ges);
+  if (r != null && r < 1) return "Es läuft, aber dünn: " + euro(r) + " je tausend Aufrufe. Schau, welches Produkt oben steht, und mach davon mehr.";
+  return "Ein Produkt trägt erkennbar. Was jetzt zählt, ist Wiederholung — nicht Abwechslung.";
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ANSICHT: MEHR
+   ══════════════════════════════════════════════════════════════ */
+function ansichtMehr(wurzel) {
+  wurzel.appendChild(el("h1", { text: "Einstellungen" }));
+  wurzel.appendChild(el("p.unterzeile", { text: "Die Grenzen stehen oben. Sie sind nicht Zubehör, sie sind der Rahmen." }));
+
+  wurzel.appendChild(el("div.stapel", [
+    karte("Grenzen", [
+      schalter("Keine Menschen im Bild", Z.grenzen.keinePersonen, function (a) { Z.grenzen.keinePersonen = a; sichern(); zeichne(); },
+        "Keine Gesichter, keine Personen. Die eigene Hand am Produkt ist erlaubt, solange niemand ins Bild kommt."),
+      schalter("Keine weiblichen Darstellungen", Z.grenzen.keineFrauen, function (a) { Z.grenzen.keineFrauen = a; sichern(); zeichne(); },
+        "Kleidung nur auf Bügel, flach ausgelegt oder auf der kopflosen Puppe."),
+      schalter("Kopflose Schneiderpuppe erlaubt", Z.grenzen.puppeErlaubt, function (a) { Z.grenzen.puppeErlaubt = a; sichern(); zeichne(); },
+        "Zeigt den Schnitt, ohne einen Menschen zu zeigen."),
+      schalter("Keine Musik", Z.grenzen.keineMusik, function (a) { Z.grenzen.keineMusik = a; sichern(); zeichne(); },
+        "Nasheed ohne Instrumente, die Stimme allein oder Ambient."),
+      schalter("Keine Übertreibung", Z.grenzen.keineUebertreibung, function (a) { Z.grenzen.keineUebertreibung = a; sichern(); zeichne(); },
+        "Keine Heilversprechen, keine Superlative ohne Beleg."),
+      schalter("Kein Riba", Z.grenzen.keinRiba, function (a) { Z.grenzen.keinRiba = a; sichern(); zeichne(); },
+        "Ratenzahlung, Kredit und „jetzt kaufen, später zahlen“ werden nicht mitbeworben.")
+    ]),
+
+    karte("Unter der Stimme", [
+      chips([{ wert: "nasheed", name: "Nasheed" }, { wert: "stimme", name: "Nur Stimme" },
+             { wert: "ambient", name: "Ambient" }, { wert: "still", name: "Still" }],
+        Z.klang, function (w) { Z.klang = w; sichern(); zeichne(); }),
+      el("div", { style: "margin-top:.5rem;font-size:.8rem;color:var(--text-2)", text: klangName(Z.klang) + "." })
+    ]),
+
+    karte("Rechtliches", [
+      el("span.fl", { text: "Wort" }),
+      chips(["Werbung", "Anzeige"], Z.recht.wort, function (w) { Z.recht.wort = w; sichern(); zeichne(); }),
+      el("span.fh", { text: "Nur diese beiden sind anerkannt. „Ad“, „Sponsored“ und „Kooperation“ genügen den Medienanstalten nicht." }),
+      el("div", { style: "margin-top:.8rem" }, [
+        schalter("Einblendung ab Sekunde 0", Z.recht.imBild, function (a) { Z.recht.imBild = a; sichern(); zeichne(); },
+          "Am Anfang des Videos, deutlich lesbar. Nicht zwischen den Hashtags."),
+        schalter("Zusätzlich gesprochen", Z.recht.gesprochen, function (a) { Z.recht.gesprochen = a; sichern(); zeichne(); },
+          "Wird dem Sprechtext vorangestellt."),
+        schalter("Provisionshinweis", Z.recht.provisionshinweis, function (a) { Z.recht.provisionshinweis = a; sichern(); zeichne(); },
+          "Direkt am Link, nicht am Textende."),
+        schalter("KI-Offenlegung", Z.recht.kiOffenlegung, function (a) { Z.recht.kiOffenlegung = a; sichern(); zeichne(); },
+          "Pflicht bei synthetischer Stimme. KI-Verordnung Art. 50, gilt seit dem 2. August 2026.")
+      ])
+    ]),
+
+    karte("Ziele", [
+      el("div.reihe", [
+        feld("Videos pro Woche", eingabe({ wert: Z.ziel.videosProWoche, typ: "number", inputmode: "numeric",
+          onchange: function (e) { Z.ziel.videosProWoche = parseInt(e.target.value, 10) || 0; sichern(); } }),
+          "Die Zahl, die über die ersten Monate entscheidet."),
+        feld("Provision pro Monat", eingabe({ wert: Z.ziel.provisionProMonat, typ: "number", inputmode: "decimal",
+          onchange: function (e) { Z.ziel.provisionProMonat = parseFloat(e.target.value) || 0; sichern(); } }),
+          "Ein Ziel, kein Versprechen.")
+      ])
+    ]),
+
+    karte("Erscheinungsbild", [
+      chips([{ wert: "system", name: "System" }, { wert: "hell", name: "Hell" }, { wert: "dunkel", name: "Dunkel" }],
+        Z.thema, function (w) { Z.thema = w; themaAnwenden(); sichern(); zeichne(); })
+    ]),
+
+    karte("Sicherung", [
+      Speicher.istFluechtig()
+        ? el("div.hinweis.warn", { text: "Dieser Browser speichert hier nichts dauerhaft. Sichere, bevor du die Seite schließt — sonst ist alles weg." })
+        : el("div", { style: "font-size:.82rem;color:var(--text-2)", text:
+            "Alles liegt im Speicher dieses Browsers. Eine Sicherung schadet trotzdem nie." }),
+      el("div.knopfreihe", { style: "margin-top:.7rem" }, [
+        knopf("Sicherung herunterladen", { klasse: "stark", onclick: function () {
+          sichernAls("suq-" + new Date().toISOString().slice(0, 10) + ".json",
+            JSON.stringify({ app: "suq", v: 1, erstellt: new Date().toISOString(),
+              produkte: Z.produkte, videos: Z.videos, grenzen: Z.grenzen,
+              recht: Z.recht, klang: Z.klang, ziel: Z.ziel }, null, 2), "Sicherung");
+        } }),
+        knopf("Sicherung einlesen", { onclick: function () {
+          var t = window.prompt("Inhalt der Sicherungsdatei hier einfügen:");
+          if (!t) return;
+          try {
+            var d = JSON.parse(t);
+            if (d.app !== "suq") throw new Error("keine Sūq-Sicherung");
+            Z.produkte = d.produkte || [];
+            Z.videos = d.videos || [];
+            ["grenzen", "recht", "ziel"].forEach(function (k) {
+              Object.keys(d[k] || {}).forEach(function (u) { Z[k][u] = d[k][u]; });
+            });
+            if (d.klang) Z.klang = d.klang;
+            sichern(); zeichne(); meldung("Eingelesen.");
+          } catch (f) { meldung("Das ist keine gültige Sicherung.", true); }
+        } }),
+        knopf("Alles löschen", { klasse: "warn", onclick: function () {
+          if (!window.confirm("Wirklich alles löschen? Produkte, Videos und Zahlen sind danach weg.")) return;
+          Z.produkte = []; Z.videos = []; Z.offenesVideo = null;
+          sichern(); zeichne(); meldung("Gelöscht.");
+        } })
+      ])
+    ]),
+
+    el("p.fuss", { text:
+      "Sūq ist ein Werkzeug, keine Rechtsberatung. Die Hinweise folgen dem Leitfaden der Medienanstalten zur Werbekennzeichnung und Artikel 50 der KI-Verordnung. Im Zweifel fragst du jemanden, der dafür haftet." })
+  ]));
+}
+
+/* ══════════════════════════════════════════════════════════════
+   RAHMEN
+   ══════════════════════════════════════════════════════════════ */
+var ANSICHTEN = [
+  { id: "werkstatt", name: "Werkstatt", fn: ansichtWerkstatt },
+  { id: "produkte", name: "Produkte", fn: ansichtProdukte },
+  { id: "pipeline", name: "Pipeline", fn: ansichtPipeline },
+  { id: "zahlen", name: "Zahlen", fn: ansichtZahlen },
+  { id: "mehr", name: "Mehr", fn: ansichtMehr }
+];
+
+function themaAnwenden() {
+  if (Z.thema === "system") document.documentElement.removeAttribute("data-theme");
+  else document.documentElement.setAttribute("data-theme", Z.thema);
+}
+
+function zeichne() {
+  var app = document.getElementById("app");
+  leeren(app);
+
+  var reiter = document.getElementById("reiter");
+  leeren(reiter);
+  ANSICHTEN.forEach(function (a) {
+    reiter.appendChild(el("button.rbtn" + (Z.ansicht === a.id ? ".an" : ""), {
+      type: "button", onclick: function () { Z.ansicht = a.id; zeichne(); }
+    }, a.name));
+  });
+
+  var jetzt = ANSICHTEN.filter(function (a) { return a.id === Z.ansicht; })[0] || ANSICHTEN[0];
+  try {
+    jetzt.fn(app);
+  } catch (f) {
+    app.appendChild(el("div.hinweis.warn", { text: "Da ist etwas schiefgegangen: " + f.message }));
+    if (window.console) console.error(f);
+  }
+}
+
+document.getElementById("themaknopf").addEventListener("click", function () {
+  Z.thema = Z.thema === "system" ? "dunkel" : (Z.thema === "dunkel" ? "hell" : "system");
+  themaAnwenden(); sichern();
+  meldung("Erscheinungsbild: " + { system: "System", hell: "Hell", dunkel: "Dunkel" }[Z.thema]);
+});
+
+laden();
+themaAnwenden();
+zeichne();
+</script>

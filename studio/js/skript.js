@@ -1,5 +1,11 @@
 /* Sūq – Skript-Werkstatt.
 
+   HINWEIS: Die gepflegte Fassung des Studios ist studio/artifact.html —
+   eine einzelne Seite, die als Artifact in Claude läuft. Dort ist das
+   Kurzformat mit zehn Sekunden der Normalfall, dort sitzt das Prompt-Feld,
+   und dort wird weiterentwickelt. Diese modulare Fassung bleibt für den
+   Betrieb als installierte Web-App auf dem Startbildschirm.
+
    Ein Verkaufsvideo hat sechs Teile, und sie stehen in dieser Reihenfolge,
    weil jeder den nächsten trägt:
 

@@ -1,10 +1,38 @@
 # Sūq (السوق)
 
-Werkstatt für TikTok-Shop-Videos. Skript, Einstellungen, Stimme, Kennzeichnung —
+Werkstatt für TikTok-Shop-Videos. Skript, Einstellungen, Prompt, Kennzeichnung —
 und ein Montagewerkzeug, das daraus eine fertige MP4 baut.
 
-Reine Web-App wie Mīzān: kein Server, kein Konto, alles in IndexedDB auf deinem
-Gerät. Läuft offline, installierbar auf dem iPhone.
+## Zwei Fassungen
+
+| Datei | Wofür |
+|---|---|
+| **`artifact.html`** | Die gepflegte Fassung. Eine einzelne Seite, läuft als Artifact in Claude. Zehn Sekunden sind hier der Normalfall, das Prompt-Feld sitzt hier. Hier wird weiterentwickelt. |
+| `index.html` + `js/` | Die modulare Fassung für den Betrieb als installierte Web-App auf dem Startbildschirm. Längere Formate, ElevenLabs direkt angebunden. |
+
+Beide speichern nur auf dem Gerät, beide brauchen keinen Server und kein Konto.
+
+**Was die Artifact-Fassung nicht kann:** Eine Artifact-Seite darf keine
+Verbindung nach außen aufbauen. ElevenLabs lässt sich dort also nicht selbst
+rufen. Stattdessen stellt der Prompt-Baukasten einen vollständigen Auftrag
+zusammen — Produktdaten, Sekundenbudget, Grenzen, Kennzeichnungspflicht —, den
+du an Claude gibst; Stimme und Schnitt entstehen dort.
+
+## Formate
+
+| Format | Länge | Aufbau |
+|---|---|---|
+| **Kurz** | 10 s, ~24 Wörter | Hook → Nutzen → Aufforderung |
+| Mittel | 20 s, ~48 Wörter | Hook → Problem → Nutzen → Beweis → Aufforderung |
+| Lang | 35 s, ~84 Wörter | die sechs Teile vollständig |
+
+Kurz ist die Vorgabe. Das ist keine gekürzte Fassung des langen Formats,
+sondern ein anderes: bei zehn Sekunden hat man rund 24 Wörter, und darin ist
+kein Platz für Problem, Beweis und Einwand nacheinander — der Nutzen trägt den
+Beweis gleich mit.
+
+Die **Zeitleiste** zeigt beim Tippen mit, wie viel Budget übrig ist, und sagt
+bei Überlänge, wie viele Wörter zu streichen sind.
 
 ---
 
