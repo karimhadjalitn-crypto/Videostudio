@@ -1,0 +1,17 @@
+{
+  "name": "Sūq",
+  "short_name": "Sūq",
+  "description": "Werkstatt für TikTok-Shop-Videos: Skript, Einstellungen, Stimme und Kennzeichnung — offline auf deinem Gerät.",
+  "lang": "de",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F4F0E8",
+  "theme_color": "#F4F0E8",
+  "categories": ["business", "productivity"],
+  "icons": [
+    { "src": "assets/icons/icon.svg", "type": "image/svg+xml", "sizes": "any" }
+  ]
+}

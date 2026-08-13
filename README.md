@@ -162,3 +162,19 @@ python3 tools/imperative.py      # nur pruefen: alle Befehlsformen auflisten
   das Ergebnis prüfen und korrigieren (arabische OCR ist nicht perfekt).
 - **Datenschutz:** Es gibt keinen Server – Fortschritt und eigene Wörter bleiben auf deinem Gerät.
   Über *Einstellungen → Fortschritt sichern* kannst du ein Backup als Datei exportieren.
+
+---
+
+## Weitere Apps in diesem Repository
+
+Drei getrennte Web-Apps, die sich nur den Server teilen. Jede hat ihren
+eigenen Speicher, ihr eigenes Icon und ihre eigene Sicherung.
+
+| Ort | App | Wofür |
+|---|---|---|
+| `/` | **Arabisch lernen** | Karteikarten, Quiz, Satzstrukturen |
+| `/leben/` | **Mīzān** (الميزان) | Gebete, Qurʾān, Kalender, Abendabrechnung |
+| `/studio/` | **Sūq** (السوق) | TikTok-Shop-Videos: Skript, Stimme, Kennzeichnung |
+
+Zu Sūq gehört `tools/suq_video.py` — es baut aus Bauplan, Produktfotos und
+Voiceover eine fertige 1080×1920-MP4. Einzelheiten in `studio/README.md`.
