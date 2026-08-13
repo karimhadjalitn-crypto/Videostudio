@@ -1622,6 +1622,7 @@ function ansichtWerkstatt(wurzel) {
       teilLeiste(v),
       v.teil === "einstellungen" ? bereichShots(v, p)
         : v.teil === "prompt" ? bereichPrompt(v, p)
+        : v.teil === "stimme" ? bereichStimme(v, p)
         : v.teil === "recht" ? bereichRecht(v, p)
         : bereichSkript(v, p)
     ]),
@@ -1639,6 +1640,7 @@ function teilLeiste(v) {
     { id: "skript", n: "Skript" },
     { id: "einstellungen", n: "Einstellungen" },
     { id: "prompt", n: "Prompt" },
+    { id: "stimme", n: "Stimme" },
     { id: "recht", n: "Rechtliches" }
   ];
   if (!v.teil) v.teil = "skript";
@@ -1914,6 +1916,98 @@ function bereichPrompt(v, p) {
 
 var NEGATIV = "person, people, human, face, portrait, woman, women, girl, man, boy, child, model, mannequin head, skin, hair, eyes, smile, crowd, dancing, text overlay, watermark, logo, fake arabic script, distorted text, music notes, instruments, warping fabric, melting pattern";
 
+/* ---------- Abteilung: Stimme ----------
+   Die Stimme entsteht nicht in dieser Seite. Sie kann es nicht — eine
+   Artifact-Seite darf keine Verbindung nach außen aufbauen. Sie kann es
+   aber auch gar nicht sinnvoll: die fertige Datei muss am Ende zu ffmpeg,
+   und aus einem Browser-Tab kommt sie da nicht hin.
+
+   Also macht diese Abteilung, was sie gut kann: den Sprechtext sauber
+   zusammenstellen, die Länge ausrechnen und einen Auftrag übergeben. */
+function bereichStimme(v, p) {
+  var text = Skript.fliesstext(v);
+  var zeichen = text.length;
+  var dauer = Skript.gesamt(v);
+
+  function auftrag() {
+    var z = ["Mach mir das Voiceover für dieses Video."];
+    z.push("");
+    z.push("STIMME");
+    z.push(v.stimmwunsch && v.stimmwunsch.trim()
+      ? v.stimmwunsch.trim()
+      : "Männlich, ruhig, deutsch. Werbend, aber nicht aufgedreht.");
+    z.push("Zieldauer etwa " + nz(dauer) + " Sekunden.");
+    z.push("");
+    z.push("TEXT");
+    z.push(text || "(noch kein Skript)");
+    z.push("");
+    z.push("Die Absätze sind Schnittmarken — dort gehört eine Pause hin.");
+    return z.join("\n");
+  }
+
+  var feldText = textfeld({ wert: text || "Noch kein Skript.", zeilen: 8 });
+  feldText.setAttribute("readonly", "");
+  feldText.style.fontSize = ".88rem";
+
+  return el("div.stapel.eng", [
+    el("div.kacheln", [
+      kachel(nz(dauer) + " s", "geschätzte Länge"),
+      kachel(String(zeichen), "Zeichen"),
+      kachel(String(Skript.woerter(v)), "Wörter"),
+      kachel(v.stimmeErzeugt ? "ja" : "nein", "KI-Stimme")
+    ]),
+
+    kartesatt("Sprechtext", [
+      el("div", { style: "padding:.7rem" }, [feldText])
+    ], [
+      knopf("Kopieren", { klasse: "klein", onclick: function () {
+        kopieren(text, "Sprechtext");
+      } })
+    ]),
+
+    karte("Wie die Stimme klingen soll", [
+      textfeld({
+        wert: v.stimmwunsch, zeilen: 2,
+        platzhalter: "Männlich, ruhig, deutsch. Werbend, aber nicht aufgedreht.",
+        oninput: function (ev) { v.stimmwunsch = ev.target.value; sichern(); }
+      }),
+      el("span.fh", { text: "Geht mit in den Auftrag. Leer lassen heißt: männlich, ruhig, deutsch." })
+    ]),
+
+    el("div.hinweis", [
+      el("b", { text: "Drei Wege zur fertigen Stimme:" }),
+      el("div", { style: "margin-top:.4rem" }, [
+        "1. Auftrag kopieren und Claude geben — du bekommst die MP3 und, wenn du willst, gleich das geschnittene Video dazu."
+      ]),
+      el("div", { style: "margin-top:.3rem" }, [
+        "2. Die installierbare Fassung des Studios benutzen. Die ruft ElevenLabs direkt mit deinem eigenen Schlüssel, mit Stimmenauswahl und Kontingentanzeige."
+      ]),
+      el("div", { style: "margin-top:.3rem" }, [
+        "3. Text bei ElevenLabs von Hand einfügen und die MP3 herunterladen."
+      ])
+    ]),
+
+    karte(null, [
+      el("div.knopfreihe", [
+        knopf("Auftrag für die Stimme kopieren", { klasse: "stark", onclick: function () {
+          kopieren(auftrag(), "Stimm-Auftrag");
+        } }),
+        knopf("Als Datei sichern", { onclick: function () {
+          sichernAls("stimme-" + ((v.titel || "video").toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "video") + ".txt",
+            auftrag(), "Auftrag");
+        } })
+      ])
+    ]),
+
+    karte("Kennzeichnung", [
+      schalter("Die Stimme dieses Videos wird mit KI erzeugt", v.stimmeErzeugt, function (an) {
+        v.stimmeErzeugt = an; sichern(); zeichne();
+      }, "Schaltet die KI-Offenlegung im Beschreibungstext frei und erinnert an den TikTok-Schalter. Pflicht nach Artikel 50 der KI-Verordnung, in Kraft seit dem 2. August 2026.")
+    ])
+  ]);
+}
+
 /* ---------- Abteilung: Rechtliches ---------- */
 function bereichRecht(v, p) {
   var besch = Recht.beschreibung(v, p);
@@ -1953,22 +2047,18 @@ function bereichRecht(v, p) {
       ]);
     })),
 
-    karte("Stimme", [
-      schalter("Die Stimme dieses Videos wird mit KI erzeugt", v.stimmeErzeugt, function (an) {
-        v.stimmeErzeugt = an; sichern(); zeichne();
-      }, "Schaltet die KI-Offenlegung im Beschreibungstext und den Hinweis auf den TikTok-Schalter frei."),
-      el("div", { style: "margin-top:.7rem" }, [
-        el("span.fl", { text: "Sprechtext" }),
-        (function () {
-          var t = textfeld({ wert: Skript.fliesstext(v) || "Noch kein Skript.", zeilen: 5 });
-          t.setAttribute("readonly", "");
-          return t;
-        })(),
-        el("span.fh", { text: Skript.fliesstext(v).length + " Zeichen. Den gibst du Claude für das Voiceover." })
-      ]),
-      el("div.knopfreihe", { style: "margin-top:.6rem" }, [
-        knopf("Sprechtext kopieren", { onclick: function () {
-          kopieren(Skript.fliesstext(v), "Sprechtext");
+    karte(null, [
+      el("div.knopfreihe", [
+        knopf("Ganze Mappe kopieren", { klasse: "stark", onclick: function () {
+          var z = ["— BESCHREIBUNG —", besch, "", tags, "", "— IM VIDEO —"];
+          z.push(Z.recht.imBild
+            ? "Einblendung „" + Z.recht.wort + "“, Sekunde 0 bis " +
+              Math.min(3, Skript.format(v).sek) + ", oben."
+            : "Keine Einblendung — die Kennzeichnung steht im Hook.");
+          z.push("");
+          z.push("— IN TIKTOK SETZEN —");
+          Recht.schalter(v).forEach(function (s) { z.push("[ ] " + s.t + "  (" + s.w + ")"); });
+          kopieren(z.join("\n"), "Mappe");
         } })
       ])
     ])
