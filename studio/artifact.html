@@ -2518,23 +2518,41 @@ function ansichtPipeline(wurzel) {
   var liste = pipelineFilter === "alle" ? Z.videos
     : Z.videos.filter(function (v) { return v.stand === pipelineFilter; });
 
+  /* Die Stufe lässt sich hier direkt weiterschieben. Vorher musste man
+     dafür in die Werkstatt — und die Pipeline ist genau der Ort, an dem
+     man „ist gedreht" abhaken will, nicht der Ort, an dem man schreibt. */
   wurzel.appendChild(kartesatt(null, liste.length ? liste.map(function (v) {
     var p = v.produktId ? produkt(v.produktId) : null;
     var u = Waechter.urteil(v, p);
-    return el("button.zeile", {
-      type: "button",
-      onclick: function () { Z.offenesVideo = v.id; Z.ansicht = "werkstatt"; zeichne(); }
-    }, [
-      el("div.zwuchs", [
-        el("div.ztitel", { text: v.titel || "Ohne Titel" }),
-        el("div.zunter", { text: (p ? p.name : "kein Produkt") + " · " +
-          FORMATE[v.format].sek + " s · " + STUFEN_NAME[v.stand] +
-          (v.zahlen.views ? " · " + zahl(v.zahlen.views) + " Aufrufe" : "") })
+    var jetzt = STUFEN.indexOf(v.stand);
+
+    return el("div", { style: "border-bottom:1px solid var(--linie)" }, [
+      el("button.zeile", {
+        type: "button", style: "border-bottom:0",
+        onclick: function () { Z.offenesVideo = v.id; Z.ansicht = "werkstatt"; zeichne(); }
+      }, [
+        el("div.zwuchs", [
+          el("div.ztitel", { text: v.titel || "Ohne Titel" }),
+          el("div.zunter", { text: (p ? p.name : "kein Produkt") + " · " +
+            FORMATE[v.format].sek + " s" +
+            (v.zahlen.views ? " · " + zahl(v.zahlen.views) + " Aufrufe" : "") +
+            (v.zahlen.provision ? " · " + euro(v.zahlen.provision) : "") })
+        ]),
+        el("span.marke." + u.klasse, { text: u.text })
       ]),
-      el("span.marke." + u.klasse, { text: u.text })
+      el("div.stufen", { style: "padding:0 .9rem .6rem" }, STUFEN.map(function (st, i) {
+        return el("button.stufe" + (i <= jetzt ? ".erreicht" : "") + (i === jetzt ? ".jetzt" : ""), {
+          type: "button", title: "Auf „" + STUFEN_NAME[st] + "“ setzen",
+          onclick: function () {
+            v.stand = st;
+            if (st === "gepostet" && !v.gepostetAm) v.gepostetAm = new Date().toISOString();
+            sichern(); zeichne();
+          }
+        }, STUFEN_NAME[st]);
+      }))
     ]);
   }) : [el("div.leer", { text: pipelineFilter === "alle"
-      ? "Noch kein Video. Fang mit einem Produkt an." : "In dieser Stufe liegt gerade nichts." })]));
+      ? "Noch kein Video. Leg ein Produkt an, dann ein Video dazu — es erscheint hier und wandert Stufe für Stufe nach rechts." : "In dieser Stufe liegt gerade nichts." })]));
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -2598,6 +2616,22 @@ function ansichtZahlen(wurzel) {
     ]));
   }
 
+  /* Woher die Zahlen kommen. Das ist die Frage, an der diese Ansicht
+     sonst scheitert: sie holt nichts ab. Es gibt keine Verbindung zu
+     deinem TikTok-Konto — weder hier noch sonstwo. Du trägst ein, was
+     TikTok dir zeigt. */
+  wurzel.appendChild(el("div", { style: "margin-top:1rem" }, [
+    el("div.hinweis", [
+      el("b", { text: "Diese Zahlen holt niemand automatisch. " }),
+      "Es gibt keine Verbindung zu deinem TikTok-Konto — die Affiliate-Daten sind für Außenstehende nicht abrufbar. Du trägst sie von Hand ein, einmal pro Video, wenn es ein paar Tage gelaufen ist.",
+      el("div", { style: "margin-top:.5rem" }, [
+        el("b", { text: "Aufrufe" }), " stehen in den Analysedaten des Videos. ",
+        el("b", { text: "Klicks, Bestellungen und Provision" }),
+        " stehen im Affiliate-Center von TikTok Shop."
+      ])
+    ])
+  ]));
+
   wurzel.appendChild(el("div", { style: "margin-top:1rem" }, [
     kartesatt("Zahlen nachtragen", Z.videos.length ? Z.videos.map(function (v) {
       var offen = offeneZahlen === v.id;
@@ -2632,13 +2666,17 @@ function ansichtZahlen(wurzel) {
           }))
         ])
       ])]);
-    }) : [el("div.leer", { text: "Noch kein Video." })])
+    }) : [el("div.leer", { text: "Noch kein Video — hier steht später jedes einzelne mit seinen Zahlen." })])
   ]));
 
+  /* `oninput`, nicht `onchange`: `change` kommt erst beim Verlassen des
+     Feldes. Wer die Provision als Letztes einträgt und dann den Reiter
+     wechselt oder das Fenster schließt, verliert sie sonst — das Feld
+     wird abgeräumt, bevor es je gespeichert hat. */
   function zahlEingabe(v, k) {
     return eingabe({
       wert: v.zahlen[k], typ: "number", inputmode: "decimal", platzhalter: "0",
-      onchange: function (e) {
+      oninput: function (e) {
         v.zahlen[k] = e.target.value === "" ? null : parseFloat(e.target.value);
         sichern();
       }
