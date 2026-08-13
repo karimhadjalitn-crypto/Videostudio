@@ -267,7 +267,7 @@ var UI = (function () {
        window.matchMedia("(prefers-color-scheme: dark)").matches);
     document.documentElement.style.colorScheme = dunkel ? "dark" : "light";
     var meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", dunkel ? "#000000" : "#F2F2F5");
+    if (meta) meta.setAttribute("content", dunkel ? "#14100B" : "#F2EDE3");
   }
 
   function themaBeobachten() {

@@ -1,63 +1,69 @@
 /* Mīzān – ruhig und wertig.
-   Genau zwei Akzente: Jade für Fortschritt, Messing für arabische Schrift.
+   Cream, Sand und Espresso. Genau zwei Akzente: Espresso für Fortschritt,
+   Messing für arabische Schrift. Erfolg ist hier keine Signalfarbe.
    HELL ist der Standard und der Zustand, auf den alles hin entworfen ist.
-   Dunkel gibt es zusätzlich (Mehr → Erscheinungsbild).
+   Dunkel gibt es zusätzlich als warmes Nachtbraun (Mehr → Erscheinungsbild).
+   Die Variablen heißen historisch noch --jade; gemeint ist Espresso.
    Jede Farbe läuft über eine Variable, sonst bricht eine der Varianten. */
 
-/* ---------- HELL (Standard) ---------- */
+/* ---------- HELL (Standard) ----------
+   Cream und Sand als Grund, Espresso für alles, was zählt, Messing für
+   die arabische Schrift. Keine Signalfarbe für Erfolg — Erfolg ist ruhig. */
 :root {
-  --grund:      #F2F2F5;
-  --flaeche-1:  #EAEAEF;
-  --flaeche-2:  #FFFFFF;
-  --flaeche-3:  #F5F5F8;
-  --linie:      rgba(18,20,26,.075);
-  --linie-2:    rgba(18,20,26,.15);
+  --grund:      #F2EDE3;
+  --flaeche-1:  #EAE3D6;
+  --flaeche-2:  #FDFBF7;
+  --flaeche-3:  #F3EEE4;
+  --linie:      rgba(58,45,32,.10);
+  --linie-2:    rgba(58,45,32,.20);
 
-  --text-1: #15171C;
-  --text-2: rgba(21,23,28,.60);
-  --text-3: rgba(21,23,28,.38);
+  --text-1: #2A231C;
+  --text-2: rgba(42,35,28,.64);
+  --text-3: rgba(42,35,28,.42);
 
-  --jade:         #17805C;
-  --jade-dim:     #46A182;
-  --jade-verlauf: #9EDCC2;
-  --auf-jade:     #FFFFFF;
-  --brass:        #866426;
-  --rose:         #BE3A2C;
-  --amber:        #9E6E17;
+  /* „jade" heißt aus der Historie so — es ist jetzt Espresso.
+     Umbenennen hieße jede Datei anfassen; die Bedeutung steht hier. */
+  --jade:         #4A3A29;      /* Fortschritt, Haken, Erledigtes */
+  --jade-dim:     #8A7358;      /* halber Fortschritt */
+  --jade-verlauf: #C9B69A;      /* heller Anlauf im Balken */
+  --auf-jade:     #FBF7F0;
+  --brass:        #9A7434;      /* nur arabische Schrift */
+  --rose:         #A4482C;      /* nur „verpasst" */
+  --amber:        #B0782B;      /* nur „verspätet" */
 
-  --fuell-1: rgba(18,20,26,.045);
-  --fuell-2: rgba(18,20,26,.13);
-  --spur:    rgba(18,20,26,.085);
+  --fuell-1: rgba(58,45,32,.055);
+  --fuell-2: rgba(58,45,32,.14);
+  --spur:    rgba(58,45,32,.10);
 
-  --akzent-schleier: rgba(23,128,92,.085);
-  --akzent-kante:    rgba(23,128,92,.24);
+  --akzent-schleier: rgba(154,116,52,.10);
+  --akzent-kante:    rgba(122,95,58,.26);
 
-  --an-jade-bg:    rgba(23,128,92,.12);
-  --an-jade-rand:  rgba(23,128,92,.38);
-  --an-dim-bg:     rgba(70,161,130,.15);
-  --an-dim-rand:   rgba(70,161,130,.44);
-  --an-amber-bg:   rgba(158,110,23,.12);
-  --an-amber-rand: rgba(158,110,23,.38);
-  --an-rose-bg:    rgba(190,58,44,.10);
-  --an-rose-rand:  rgba(190,58,44,.34);
+  --an-jade-bg:    rgba(74,58,41,.10);
+  --an-jade-rand:  rgba(74,58,41,.34);
+  --an-dim-bg:     rgba(138,115,88,.14);
+  --an-dim-rand:   rgba(138,115,88,.42);
+  --an-amber-bg:   rgba(176,120,43,.13);
+  --an-amber-rand: rgba(176,120,43,.40);
+  --an-rose-bg:    rgba(164,72,44,.11);
+  --an-rose-rand:  rgba(164,72,44,.36);
 
-  --cta-1: #26A87C;
-  --cta-2: #157A57;
-  --auf-cta: #FFFFFF;
+  --cta-1: #6B543C;
+  --cta-2: #4A3A29;
+  --auf-cta: #FBF7F0;
 
-  --heat-0: rgba(18,20,26,.055);
-  --heat-1: rgba(23,128,92,.18);
-  --heat-2: rgba(23,128,92,.38);
-  --heat-3: rgba(23,128,92,.64);
-  --heat-4: #17805C;
+  --heat-0: rgba(58,45,32,.06);
+  --heat-1: rgba(74,58,41,.18);
+  --heat-2: rgba(74,58,41,.36);
+  --heat-3: rgba(74,58,41,.60);
+  --heat-4: #4A3A29;
 
-  --leiste: rgba(249,249,251,.86);
+  --leiste: rgba(246,241,232,.88);
 
   /* Erhebung statt Rahmen: das ist der Unterschied zwischen
      „Kasten mit Strich" und einer Fläche, die auf dem Grund liegt. */
-  --schatten:      0 10px 30px -14px rgba(16,18,26,.28);
-  --karte-schatten: 0 1px 1px rgba(16,18,26,.035), 0 6px 18px -12px rgba(16,18,26,.22);
-  --hoch-schatten:  0 2px 3px rgba(16,18,26,.05), 0 18px 40px -20px rgba(16,18,26,.30);
+  --schatten:      0 10px 30px -14px rgba(58,45,32,.30);
+  --karte-schatten: 0 1px 1px rgba(58,45,32,.04), 0 6px 18px -12px rgba(58,45,32,.24);
+  --hoch-schatten:  0 2px 3px rgba(58,45,32,.06), 0 18px 40px -20px rgba(58,45,32,.32);
 
   --f-ui: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", system-ui, sans-serif;
   --f-ar: "SF Arabic", "Geeza Pro", "Al Bayan", "Noto Naskh Arabic", "Traditional Arabic", serif;
@@ -73,52 +79,52 @@
 
 /* ---------- DUNKEL ---------- */
 :root[data-theme="dunkel"] {
-  --grund:      #000000;
-  --flaeche-1:  #0C0C0E;
-  --flaeche-2:  #17171A;
-  --flaeche-3:  #212125;
-  --linie:      rgba(255,255,255,.085);
-  --linie-2:    rgba(255,255,255,.15);
+  --grund:      #14100B;
+  --flaeche-1:  #1B1610;
+  --flaeche-2:  #221C15;
+  --flaeche-3:  #2C251B;
+  --linie:      rgba(243,234,220,.09);
+  --linie-2:    rgba(243,234,220,.17);
 
-  --text-1: #F5F5F7;
-  --text-2: rgba(235,235,245,.62);
-  --text-3: rgba(235,235,245,.34);
+  --text-1: #F3EADC;
+  --text-2: rgba(243,234,220,.62);
+  --text-3: rgba(243,234,220,.36);
 
-  --jade:         #4FC79A;
-  --jade-dim:     #2E8666;
-  --jade-verlauf: #1E4C3C;
-  --auf-jade:     #04120C;
-  --brass:        #C9A96A;
-  --rose:         #FF6F61;
-  --amber:        #E5B45F;
+  --jade:         #D9C3A0;
+  --jade-dim:     #937C5B;
+  --jade-verlauf: #57472F;
+  --auf-jade:     #1A140D;
+  --brass:        #CDA765;
+  --rose:         #DF7C58;
+  --amber:        #DFAC5C;
 
-  --fuell-1: rgba(255,255,255,.055);
-  --fuell-2: rgba(255,255,255,.12);
-  --spur:    rgba(255,255,255,.09);
+  --fuell-1: rgba(243,234,220,.06);
+  --fuell-2: rgba(243,234,220,.13);
+  --spur:    rgba(243,234,220,.10);
 
-  --akzent-schleier: rgba(79,199,154,.15);
-  --akzent-kante:    rgba(79,199,154,.22);
+  --akzent-schleier: rgba(205,167,101,.13);
+  --akzent-kante:    rgba(205,167,101,.24);
 
-  --an-jade-bg:    rgba(79,199,154,.18);
-  --an-jade-rand:  rgba(79,199,154,.40);
-  --an-dim-bg:     rgba(46,134,102,.22);
-  --an-dim-rand:   rgba(46,134,102,.46);
-  --an-amber-bg:   rgba(229,180,95,.16);
-  --an-amber-rand: rgba(229,180,95,.38);
-  --an-rose-bg:    rgba(255,111,97,.15);
-  --an-rose-rand:  rgba(255,111,97,.36);
+  --an-jade-bg:    rgba(217,195,160,.17);
+  --an-jade-rand:  rgba(217,195,160,.40);
+  --an-dim-bg:     rgba(147,124,91,.22);
+  --an-dim-rand:   rgba(147,124,91,.46);
+  --an-amber-bg:   rgba(223,172,92,.16);
+  --an-amber-rand: rgba(223,172,92,.38);
+  --an-rose-bg:    rgba(223,124,88,.15);
+  --an-rose-rand:  rgba(223,124,88,.36);
 
-  --cta-1: #5AD3A6;
-  --cta-2: #35A87F;
-  --auf-cta: #03150E;
+  --cta-1: #8A7154;
+  --cta-2: #5E4C36;
+  --auf-cta: #F7F0E3;
 
-  --heat-0: rgba(255,255,255,.05);
-  --heat-1: rgba(79,199,154,.20);
-  --heat-2: rgba(79,199,154,.40);
-  --heat-3: rgba(79,199,154,.68);
-  --heat-4: #4FC79A;
+  --heat-0: rgba(243,234,220,.06);
+  --heat-1: rgba(217,195,160,.20);
+  --heat-2: rgba(217,195,160,.40);
+  --heat-3: rgba(217,195,160,.68);
+  --heat-4: #D9C3A0;
 
-  --leiste: rgba(10,10,12,.88);
+  --leiste: rgba(20,16,11,.88);
   --schatten:       0 12px 30px rgba(0,0,0,.55);
   --karte-schatten: none;
   --hoch-schatten:  0 12px 30px rgba(0,0,0,.55);
@@ -127,44 +133,44 @@
 /* ---------- AUTOMATISCH: folgt dem iPhone ---------- */
 @media (prefers-color-scheme: dark) {
   :root[data-theme="system"] {
-    --grund:      #000000;
-    --flaeche-1:  #0C0C0E;
-    --flaeche-2:  #17171A;
-    --flaeche-3:  #212125;
-    --linie:      rgba(255,255,255,.085);
-    --linie-2:    rgba(255,255,255,.15);
-    --text-1: #F5F5F7;
-    --text-2: rgba(235,235,245,.62);
-    --text-3: rgba(235,235,245,.34);
-    --jade:         #4FC79A;
-    --jade-dim:     #2E8666;
-    --jade-verlauf: #1E4C3C;
-    --auf-jade:     #04120C;
-    --brass:        #C9A96A;
-    --rose:         #FF6F61;
-    --amber:        #E5B45F;
-    --fuell-1: rgba(255,255,255,.055);
-    --fuell-2: rgba(255,255,255,.12);
-    --spur:    rgba(255,255,255,.09);
-    --akzent-schleier: rgba(79,199,154,.15);
-    --akzent-kante:    rgba(79,199,154,.22);
-    --an-jade-bg:    rgba(79,199,154,.18);
-    --an-jade-rand:  rgba(79,199,154,.40);
-    --an-dim-bg:     rgba(46,134,102,.22);
-    --an-dim-rand:   rgba(46,134,102,.46);
-    --an-amber-bg:   rgba(229,180,95,.16);
-    --an-amber-rand: rgba(229,180,95,.38);
-    --an-rose-bg:    rgba(255,111,97,.15);
-    --an-rose-rand:  rgba(255,111,97,.36);
-    --cta-1: #5AD3A6;
-    --cta-2: #35A87F;
-    --auf-cta: #03150E;
-    --heat-0: rgba(255,255,255,.05);
-    --heat-1: rgba(79,199,154,.20);
-    --heat-2: rgba(79,199,154,.40);
-    --heat-3: rgba(79,199,154,.68);
-    --heat-4: #4FC79A;
-    --leiste: rgba(10,10,12,.88);
+    --grund:      #14100B;
+    --flaeche-1:  #1B1610;
+    --flaeche-2:  #221C15;
+    --flaeche-3:  #2C251B;
+    --linie:      rgba(243,234,220,.09);
+    --linie-2:    rgba(243,234,220,.17);
+    --text-1: #F3EADC;
+    --text-2: rgba(243,234,220,.62);
+    --text-3: rgba(243,234,220,.36);
+    --jade:         #D9C3A0;
+    --jade-dim:     #937C5B;
+    --jade-verlauf: #57472F;
+    --auf-jade:     #1A140D;
+    --brass:        #CDA765;
+    --rose:         #DF7C58;
+    --amber:        #DFAC5C;
+    --fuell-1: rgba(243,234,220,.06);
+    --fuell-2: rgba(243,234,220,.13);
+    --spur:    rgba(243,234,220,.10);
+    --akzent-schleier: rgba(205,167,101,.13);
+    --akzent-kante:    rgba(205,167,101,.24);
+    --an-jade-bg:    rgba(217,195,160,.17);
+    --an-jade-rand:  rgba(217,195,160,.40);
+    --an-dim-bg:     rgba(147,124,91,.22);
+    --an-dim-rand:   rgba(147,124,91,.46);
+    --an-amber-bg:   rgba(223,172,92,.16);
+    --an-amber-rand: rgba(223,172,92,.38);
+    --an-rose-bg:    rgba(223,124,88,.15);
+    --an-rose-rand:  rgba(223,124,88,.36);
+    --cta-1: #8A7154;
+    --cta-2: #5E4C36;
+    --auf-cta: #F7F0E3;
+    --heat-0: rgba(243,234,220,.06);
+    --heat-1: rgba(217,195,160,.20);
+    --heat-2: rgba(217,195,160,.40);
+    --heat-3: rgba(217,195,160,.68);
+    --heat-4: #D9C3A0;
+    --leiste: rgba(20,16,11,.88);
     --schatten:       0 12px 30px rgba(0,0,0,.55);
     --karte-schatten: none;
     --hoch-schatten:  0 12px 30px rgba(0,0,0,.55);
