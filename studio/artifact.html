@@ -275,6 +275,12 @@ h1 { margin: 0 0 .2rem; font-size: 1.7rem; font-weight: 700; letter-spacing: -.0
   padding: .12rem .38rem; border-radius: 3px;
   font-size: .48rem; font-weight: 700; white-space: nowrap;
 }
+/* Gestrichelt, wenn du den Text selbst in TikTok setzt: der Platz ist
+   vorgesehen, aber im Schnitt liegt dort nichts. */
+.marke-werbung.selbst {
+  background: none; color: var(--messing);
+  border: 1px dashed var(--messing-kante);
+}
 .marke-ut {
   position: absolute; bottom: 24%; left: 50%; transform: translateX(-50%);
   background: rgba(0,0,0,.55); color: #fff;
@@ -792,7 +798,15 @@ var Z = {
      Achtung, das gilt NICHT für die Werbekennzeichnung: dort genügt der
      plattformeigene Schalter nach Auffassung der Medienanstalten
      ausdrücklich nicht. */
-  recht: { wort: "Werbung", imBild: true, gesprochen: false,
+  /* wo: wo die Werbekennzeichnung sitzt.
+       "tiktok"      – du setzt den Text selbst in TikTok ins Video
+       "hook"        – der gesprochene Hook sagt es
+       "eingebrannt" – Sūq brennt es beim Schnitt ins Bild
+     Vorgabe ist "tiktok". Ein eingebrannter Kasten in Sekunde 0 kostet
+     Hook-Aufmerksamkeit, und TikToks eigenes Textwerkzeug erfüllt
+     dasselbe: entscheidend ist, dass es im Video sichtbar ist, nicht
+     womit das Pixel gesetzt wurde. */
+  recht: { wort: "Werbung", wo: "tiktok", gesprochen: false,
            kiOffenlegung: true, kiWo: "tiktok", provisionshinweis: true },
 
   /* Was unter der Stimme liegt. „tiktok" heißt: im Schnitt kommt nichts
@@ -1165,12 +1179,16 @@ var Waechter = {
 
     /* Rechtliche Pflichten — dieselbe Antwort nötig wie bei den Grenzen:
        darf dieses Video raus, ja oder nein. */
+    /* Nur der Weg „Hook“ lässt sich hier überhaupt prüfen — dann muss das
+       Wort auch wirklich drinstehen. Setzt du den Text selbst in TikTok,
+       kann diese Seite das nicht sehen; es steht dafür als Punkt in der
+       Checkliste. */
     var hook = (v.skript.hook || "").toLowerCase();
     var traegtWort = /\b(werbung|anzeige)\b/.test(hook);
-    if (!Z.recht.imBild && !traegtWort) {
+    if (Z.recht.wo === "hook" && !traegtWort) {
       aus.push({ regel: "kennzeichnung", stufe: "stop", wo: "Rechtliches", wort: "",
-        warum: "Die Werbekennzeichnung fehlt am Anfang des Videos.",
-        ersatz: "Einblendung ab Sekunde 0 einschalten — oder einen Hook nehmen, der „Werbung“ selbst sagt. Nur „Werbung“ und „Anzeige“ gelten." });
+        warum: "Der Hook soll die Kennzeichnung tragen, sagt aber weder „Werbung“ noch „Anzeige“.",
+        ersatz: "Nimm einen Hook mit dem Wort — in der Liste sind sie als „kennzeichnet“ markiert. Oder stell unter Rechtliches um." });
     }
     if (!Z.recht.provisionshinweis) {
       aus.push({ regel: "provision", stufe: "stop", wo: "Rechtliches", wort: "",
@@ -1251,12 +1269,19 @@ var Recht = {
      Dinge, die du ohnehin selbst machst — eine Checkliste, auf der das
      Selbstverständliche fehlt, vergisst man irgendwann doch. */
   schalter: function (v) {
-    var l = [
-      { t: "„Branded Content“ bzw. Werbeoffenlegung aktivieren",
-        w: "Pflicht bei Provision. Ersetzt die Einblendung im Video aber nicht — die Medienanstalten lassen den Schalter allein nicht gelten." },
-      { t: "Produkt aus dem TikTok Shop im Video verknüpfen",
-        w: "Ohne Verknüpfung gibt es keine nachvollziehbare Provision." }
-    ];
+    var l = [];
+
+    /* Steht bewusst an erster Stelle: es ist der einzige Punkt, den
+       diese Seite nicht selbst erledigen kann und der rechtlich zählt. */
+    if (Z.recht.wo === "tiktok") {
+      l.push({ t: "Text „" + Z.recht.wort + "“ ins Video setzen",
+        w: "Mit TikToks Textwerkzeug, in den ersten Sekunden, gut lesbar und nicht unter dem Bedienfeld. Der Branded-Content-Schalter allein genügt dafür nicht." });
+    }
+
+    l.push({ t: "„Branded Content“ bzw. Werbeoffenlegung aktivieren",
+      w: "Pflicht bei Provision. Ersetzt die sichtbare Kennzeichnung im Video aber nicht." });
+    l.push({ t: "Produkt aus dem TikTok Shop im Video verknüpfen",
+      w: "Ohne Verknüpfung gibt es keine nachvollziehbare Provision." });
     if (v.stimmeErzeugt && Z.recht.kiOffenlegung && Z.recht.kiWo !== "text") {
       l.push({ t: "Schalter für KI-generierte Inhalte setzen",
                w: "Synthetische Stimme. KI-Verordnung Art. 50, gilt seit 2. August 2026. Hier genügt der TikTok-Schalter." });
@@ -1335,9 +1360,11 @@ var Prompt = {
     z.push("── RECHTLICHES ──");
     z.push("· Es ist Werbung, und das soll man sofort sehen.");
     z.push("· Anerkannt sind nur „Werbung“ und „Anzeige“ — nicht „Ad“, nicht „Sponsored“.");
-    z.push(Z.recht.imBild
-      ? "· „" + Z.recht.wort + "“ wird ab Sekunde 0 eingeblendet."
-      : "· Keine Einblendung — der Hook muss das Wort „" + Z.recht.wort + "“ selbst enthalten.");
+    z.push("· " + {
+      tiktok: "Die Kennzeichnung „" + Z.recht.wort + "“ setze ich selbst in TikTok ins Video. Sie muss NICHT ins Skript und NICHT ins Bild.",
+      hook: "Der Hook muss das Wort „" + Z.recht.wort + "“ selbst enthalten.",
+      eingebrannt: "„" + Z.recht.wort + "“ wird beim Schnitt ab Sekunde 0 eingeblendet."
+    }[Z.recht.wo]);
     if (Z.recht.provisionshinweis) z.push("· Provisionshinweis kommt in den Beschreibungstext.");
     z.push("· Die Stimme wird mit KI erzeugt. Gekennzeichnet wird " +
       ({ tiktok: "über den KI-Schalter in TikTok", text: "im Beschreibungstext",
@@ -1392,7 +1419,7 @@ var Shots = {
                    datei: "", einblendung: "" });
       }
     });
-    if (Z.recht.imBild && aus.length) aus[0].einblendung = Z.recht.wort;
+    if (Z.recht.wo === "eingebrannt" && aus.length) aus[0].einblendung = Z.recht.wort;
     return aus;
   },
 
@@ -1408,7 +1435,7 @@ var Shots = {
     return {
       app: "suq", titel: v.titel || (p ? p.name : "Video"),
       breite: 1080, hoehe: 1920, bilder: 30,
-      kennzeichnung: Z.recht.imBild
+      kennzeichnung: Z.recht.wo === "eingebrannt"
         ? { text: Z.recht.wort, von: 0, bis: Math.min(3, Skript.format(v).sek) } : null,
       stimme: null, klang: Z.klang,
       szenen: (v.shots || []).map(function (s) {
@@ -1693,14 +1720,17 @@ function rahmenkarte(v) {
     el("div.rahmenkarte", [
       el("div.rahmen", [
         el("div.zone.oben", [el("b", { text: "TikTok" })]),
-        Z.recht.imBild ? el("div.marke-werbung", { text: Z.recht.wort }) : null,
+        Z.recht.wo !== "hook" ? el("div.marke-werbung" + (Z.recht.wo === "tiktok" ? ".selbst" : ""),
+          { text: Z.recht.wort + (Z.recht.wo === "tiktok" ? " — setzt du" : "") }) : null,
         el("div.marke-ut", { text: kurz }),
         el("div.zone.unten", [el("b", { text: "Bedienfeld · Korb" })])
       ].filter(Boolean)),
       el("div.rahmentext", [
-        el("div", { text: Z.recht.imBild
-          ? "Die Kennzeichnung sitzt oben, unterhalb der TikTok-Leiste — dort ist sie sichtbar und nicht wegzuwischen."
-          : "Keine Einblendung. Dann muss der Hook das Wort selbst sagen, sonst fehlt die Kennzeichnung." }),
+        el("div", { text: {
+          tiktok: "Hier setzt du in TikTok den Text „" + Z.recht.wort + "“ hin, in den ersten Sekunden. Im Schnitt wird nichts eingebrannt.",
+          hook: "Keine Einblendung — der Hook sagt das Wort selbst.",
+          eingebrannt: "Die Kennzeichnung wird beim Schnitt eingebrannt, oben unterhalb der TikTok-Leiste."
+        }[Z.recht.wo] }),
         el("div", { style: "margin-top:.5rem", text:
           "Die schraffierten Flächen deckt TikTok mit eigenen Bedienelementen ab. Untertitel und Kennzeichnung bleiben dazwischen." })
       ])
@@ -2219,15 +2249,24 @@ function bereichRecht(v, p) {
   var tags = Recht.hashtags(p);
 
   return el("div.stapel.eng", [
-    karte("Im Video", [
-      Z.recht.imBild
-        ? el("div", [
-            el("div", { style: "font-size:1.25rem;font-weight:700;letter-spacing:-.02em", text: "„" + Z.recht.wort + "“" }),
-            el("div", { style: "font-size:.8rem;color:var(--text-2);margin-top:.25rem;line-height:1.5",
-              text: "Sekunde 0 bis " + Math.min(3, Skript.format(v).sek) + ", oben, deutlich lesbar und mit Hintergrund hinterlegt. Nicht unter TikToks Bedienfeld." })
-          ])
-        : el("div", { style: "font-size:.85rem;color:var(--text-2);line-height:1.5",
-            text: "Keine Einblendung — die Kennzeichnung steckt im Hook. Prüf, dass sie dort wirklich steht." }),
+    karte("Kennzeichnung", [
+      el("div", { style: "font-size:1.25rem;font-weight:700;letter-spacing:-.02em", text: "„" + Z.recht.wort + "“" }),
+      el("div", { style: "font-size:.82rem;color:var(--text-2);margin-top:.3rem;line-height:1.55",
+        text: {
+          tiktok: "Setzt du selbst in TikTok ins Video, in den ersten Sekunden. Im Schnitt wird nichts eingebrannt — der Hook bleibt frei.",
+          hook: "Steckt im gesprochenen Hook. Der Wächter prüft, dass das Wort dort wirklich steht.",
+          eingebrannt: "Wird beim Schnitt eingebrannt, Sekunde 0 bis " +
+            Math.min(3, Skript.format(v).sek) + ", oben und mit Hintergrund hinterlegt."
+        }[Z.recht.wo] }),
+      el("div", { style: "margin-top:.7rem" }, [
+        chips([
+          { wert: "tiktok", name: "Ich in TikTok" },
+          { wert: "hook", name: "Im Hook" },
+          { wert: "eingebrannt", name: "Beim Schnitt" }
+        ], Z.recht.wo, function (w) { Z.recht.wo = w; sichern(); zeichne(); })
+      ]),
+      el("div", { style: "margin-top:.5rem;font-size:.76rem;color:var(--text-3);line-height:1.5",
+        text: "Der Beschreibungstext beginnt in jedem Fall mit „" + Z.recht.wort + ".“" }),
       Z.recht.gesprochen
         ? el("div", { style: "margin-top:.6rem;font-size:.82rem;color:var(--text-2)",
             text: "Gesprochen zu Beginn: „" + Z.recht.wort + ".“" })
@@ -2256,10 +2295,12 @@ function bereichRecht(v, p) {
       el("div.knopfreihe", [
         knopf("Ganze Mappe kopieren", { klasse: "stark", onclick: function () {
           var z = ["— BESCHREIBUNG —", besch, "", tags, "", "— IM VIDEO —"];
-          z.push(Z.recht.imBild
-            ? "Einblendung „" + Z.recht.wort + "“, Sekunde 0 bis " +
+          z.push({
+            tiktok: "Kennzeichnung „" + Z.recht.wort + "“ selbst in TikTok ins Video setzen, erste Sekunden.",
+            hook: "Kennzeichnung steckt im gesprochenen Hook.",
+            eingebrannt: "Einblendung „" + Z.recht.wort + "“, Sekunde 0 bis " +
               Math.min(3, Skript.format(v).sek) + ", oben."
-            : "Keine Einblendung — die Kennzeichnung steht im Hook.");
+          }[Z.recht.wo]);
           z.push("");
           z.push("— IN TIKTOK SETZEN —");
           Recht.schalter(v).forEach(function (s) { z.push("[ ] " + s.t + "  (" + s.w + ")"); });
@@ -2771,9 +2812,20 @@ function ansichtMehr(wurzel) {
       el("span.fl", { text: "Wort" }),
       chips(["Werbung", "Anzeige"], Z.recht.wort, function (w) { Z.recht.wort = w; sichern(); zeichne(); }),
       el("span.fh", { text: "Nur diese beiden sind anerkannt. „Ad“, „Sponsored“ und „Kooperation“ genügen den Medienanstalten nicht." }),
+      el("div", { style: "margin-top:.9rem" }, [
+        el("span.fl", { text: "Kennzeichnung sitzt" }),
+        chips([
+          { wert: "tiktok", name: "Ich in TikTok" },
+          { wert: "hook", name: "Im Hook" },
+          { wert: "eingebrannt", name: "Beim Schnitt" }
+        ], Z.recht.wo, function (w) { Z.recht.wo = w; sichern(); zeichne(); }),
+        el("span.fh", { text: {
+          tiktok: "Du setzt den Text selbst in TikTok ins Video. Sūq brennt nichts ein und erinnert dich in der Checkliste.",
+          hook: "Der gesprochene Hook trägt das Wort. Der Wächter prüft das.",
+          eingebrannt: "Sūq brennt es beim Schnitt ins Bild, Sekunde 0 bis 3."
+        }[Z.recht.wo] })
+      ]),
       el("div", { style: "margin-top:.8rem" }, [
-        schalter("Einblendung ab Sekunde 0", Z.recht.imBild, function (a) { Z.recht.imBild = a; sichern(); zeichne(); },
-          "Am Anfang des Videos, deutlich lesbar. Nicht zwischen den Hashtags."),
         schalter("Zusätzlich gesprochen", Z.recht.gesprochen, function (a) { Z.recht.gesprochen = a; sichern(); zeichne(); },
           "Wird dem Sprechtext vorangestellt."),
         schalter("Provisionshinweis", Z.recht.provisionshinweis, function (a) { Z.recht.provisionshinweis = a; sichern(); zeichne(); },
