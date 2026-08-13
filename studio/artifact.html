@@ -783,10 +783,34 @@ var Z = {
   teil: "skript",
   thema: "system",
   grenzen: { keinePersonen: true, keineFrauen: true, keineMusik: true,
-             puppeErlaubt: true, keineUebertreibung: true, keinRiba: true },
+             puppeErlaubt: true, keineUebertreibung: true, keinRiba: true,
+             nurMaennlicheStimme: true },
+
+  /* kiWo: wo die KI-Kennzeichnung sitzt. TikTok hat dafür einen eigenen
+     Schalter — der ist der vorgesehene Weg und reicht. Der Satz im
+     Beschreibungstext ist zusätzlich möglich, aber nicht nötig.
+     Achtung, das gilt NICHT für die Werbekennzeichnung: dort genügt der
+     plattformeigene Schalter nach Auffassung der Medienanstalten
+     ausdrücklich nicht. */
   recht: { wort: "Werbung", imBild: true, gesprochen: false,
-           kiOffenlegung: true, provisionshinweis: true },
-  klang: "ambient",
+           kiOffenlegung: true, kiWo: "tiktok", provisionshinweis: true },
+
+  /* Was unter der Stimme liegt. „tiktok" heißt: im Schnitt kommt nichts
+     darunter, du legst den Nasheed in TikTok selbst drauf. */
+  klang: "tiktok",
+
+  /* Wie die Stimme klingen soll. Steht hier und nicht am Video, weil ein
+     Kanal eine Stimme hat — nicht je Video eine andere. */
+  stimmprofil: {
+    geschlecht: "maennlich",
+    alter: "mittel",
+    tempo: "normal",
+    tonfall: "ruhig",
+    energie: "normal",
+    sprache: "hochdeutsch",
+    frei: ""
+  },
+
   ziel: { videosProWoche: 5, provisionProMonat: 1000 }
 };
 
@@ -957,6 +981,99 @@ var Skript = {
 };
 
 /* ══════════════════════════════════════════════════════════════
+   STIMMPROFIL
+
+   „Sag mir, wie die Stimme sein soll" ist die Frage, bei der ein leeres
+   Textfeld am wenigsten hilft — man weiß nicht, welche Wörter etwas
+   bewirken. Also gibt es Stellschrauben, die etwas bewirken, und ein
+   Freitextfeld für das, was dazwischen fehlt.
+
+   Aus den Stellschrauben fallen gleich die ElevenLabs-Werte mit heraus.
+   Die Zuordnung ist Erfahrung, keine Formel: stability hält die Stimme
+   ruhig und gleichmäßig, style gibt ihr Ausdruck. Wer beides hochdreht,
+   bekommt eine Stimme, die schauspielert.
+   ══════════════════════════════════════════════════════════════ */
+var STIMM_FELDER = {
+  geschlecht: { name: "Geschlecht", werte: [
+    { w: "maennlich", n: "Männlich" },
+    { w: "weiblich", n: "Weiblich" }
+  ]},
+  alter: { name: "Alter", werte: [
+    { w: "jung", n: "Jung" }, { w: "mittel", n: "Mittel" }, { w: "reif", n: "Reif" }
+  ]},
+  tonfall: { name: "Tonfall", werte: [
+    { w: "ruhig", n: "Ruhig" }, { w: "warm", n: "Warm" },
+    { w: "sachlich", n: "Sachlich" }, { w: "direkt", n: "Direkt" }
+  ]},
+  tempo: { name: "Tempo", werte: [
+    { w: "langsam", n: "Langsam" }, { w: "normal", n: "Normal" }, { w: "zuegig", n: "Zügig" }
+  ]},
+  energie: { name: "Energie", werte: [
+    { w: "zurueckhaltend", n: "Zurückhaltend" }, { w: "normal", n: "Normal" },
+    { w: "kraeftig", n: "Kräftig" }
+  ]},
+  sprache: { name: "Sprache", werte: [
+    { w: "hochdeutsch", n: "Hochdeutsch" }, { w: "leicht-dialekt", n: "Leicht gefärbt" }
+  ]}
+};
+
+var Stimmprofil = {
+  /* Weibliche Stimmen nur, wenn die Grenze dafür geöffnet ist — dieselbe
+     Bauart wie bei der Schneiderpuppe: die Entscheidung liegt bei dir,
+     aber sie ist eine bewusste. */
+  werte: function (feld) {
+    var alle = STIMM_FELDER[feld].werte;
+    if (feld === "geschlecht" && Z.grenzen.nurMaennlicheStimme) {
+      return alle.filter(function (x) { return x.w === "maennlich"; });
+    }
+    return alle;
+  },
+
+  satz: function () {
+    var s = Z.stimmprofil;
+    var t = [];
+    t.push({ maennlich: "Männliche", weiblich: "Weibliche" }[s.geschlecht] + " Stimme");
+    t.push({ jung: "jung", mittel: "mittleres Alter", reif: "reif" }[s.alter]);
+    t.push({ ruhig: "ruhig", warm: "warm", sachlich: "sachlich", direkt: "direkt" }[s.tonfall]);
+    t.push({ zurueckhaltend: "zurückhaltend", normal: "normale Energie", kraeftig: "kräftig" }[s.energie]);
+    t.push({ langsam: "langsames Tempo", normal: "normales Tempo", zuegig: "zügiges Tempo" }[s.tempo]);
+    t.push({ hochdeutsch: "Hochdeutsch, ohne Färbung", "leicht-dialekt": "leicht regional gefärbt" }[s.sprache]);
+    var aus = t.join(", ") + ".";
+    if ((s.frei || "").trim()) aus += " " + s.frei.trim();
+    return aus;
+  },
+
+  /* Werte für ElevenLabs. Sie liegen bewusst im mittleren Bereich —
+     Extremwerte klingen entweder tot oder überdreht. */
+  parameter: function () {
+    var s = Z.stimmprofil;
+    var stability = { ruhig: 0.62, warm: 0.5, sachlich: 0.7, direkt: 0.4 }[s.tonfall];
+    var style = { ruhig: 0.15, warm: 0.3, sachlich: 0.1, direkt: 0.45 }[s.tonfall];
+    style += { zurueckhaltend: -0.08, normal: 0, kraeftig: 0.12 }[s.energie];
+    var speed = { langsam: 0.9, normal: 1.0, zuegig: 1.08 }[s.tempo];
+    /* Als Text, nicht als Zahl: 1 statt 1,00 sieht aus, als hätte man
+       den Wert vergessen einzutragen. */
+    return {
+      stability: Math.max(0, Math.min(1, stability)).toFixed(2),
+      style: Math.max(0, Math.min(1, style)).toFixed(2),
+      similarity_boost: "0.75",
+      speed: speed.toFixed(2)
+    };
+  },
+
+  /* Was du bei ElevenLabs in die Stimmensuche tippst. */
+  suche: function () {
+    var s = Z.stimmprofil;
+    return [
+      "german",
+      s.geschlecht === "maennlich" ? "male" : "female",
+      { jung: "young", mittel: "middle aged", reif: "old" }[s.alter],
+      { ruhig: "calm", warm: "warm", sachlich: "neutral", direkt: "confident" }[s.tonfall]
+    ].join(", ");
+  }
+};
+
+/* ══════════════════════════════════════════════════════════════
    DER WÄCHTER
 
    Er prüft beim Tippen, nicht am Ende. Jeder Befund trägt den
@@ -1060,10 +1177,13 @@ var Waechter = {
         warum: "Der Provisionshinweis zum Affiliate-Link fehlt.",
         ersatz: "Einschalten. Er gehört direkt an den Link, nicht ans Ende der Hashtags." });
     }
+    /* Gekennzeichnet werden muss die KI-Stimme — wo, ist deine Wahl.
+       TikToks eigener Schalter ist dafür der vorgesehene Weg und genügt.
+       Nur gar keine Kennzeichnung geht nicht. */
     if (v.stimmeErzeugt && !Z.recht.kiOffenlegung) {
       aus.push({ regel: "ki", stufe: "stop", wo: "Rechtliches", wort: "",
-        warum: "Die Stimme ist mit KI erzeugt und nicht gekennzeichnet. Artikel 50 der KI-Verordnung verlangt das seit dem 2. August 2026.",
-        ersatz: "KI-Offenlegung einschalten und in TikTok den Schalter für KI-Inhalte setzen." });
+        warum: "Die Stimme ist mit KI erzeugt und nirgends gekennzeichnet. Artikel 50 der KI-Verordnung verlangt das seit dem 2. August 2026.",
+        ersatz: "Kennzeichnung einschalten. Der Schalter für KI-Inhalte in TikTok reicht dafür aus." });
     }
     if (p && !(p.freigabe && p.freigabe.erteilt)) {
       aus.push({ regel: "freigabe", stufe: "stop", wo: "Produkt", wort: "",
@@ -1100,7 +1220,10 @@ var Recht = {
     if (Z.recht.provisionshinweis) {
       z.push("Affiliate-Link: Bei einem Kauf über diesen Link erhalte ich eine Provision. Für dich ändert sich der Preis dadurch nicht.");
     }
-    if (Z.recht.kiOffenlegung && v.stimmeErzeugt) {
+    /* Nur wenn du die Kennzeichnung im Text willst. Setzt du sie in
+       TikTok, steht sie dort — doppelt braucht es sie nicht. */
+    if (Z.recht.kiOffenlegung && v.stimmeErzeugt &&
+        (Z.recht.kiWo === "text" || Z.recht.kiWo === "beides")) {
       z.push("Die Stimme in diesem Video wurde mit künstlicher Intelligenz erzeugt.");
     }
     if (p && p.preis) {
@@ -1124,16 +1247,23 @@ var Recht = {
     return ["#werbung"].concat((p && nach[p.kategorie]) || nach["Sonstiges"], ["#tiktokshop"]).join(" ");
   },
 
+  /* Die Liste, die du beim Hochladen abarbeitest. Bewusst inklusive der
+     Dinge, die du ohnehin selbst machst — eine Checkliste, auf der das
+     Selbstverständliche fehlt, vergisst man irgendwann doch. */
   schalter: function (v) {
     var l = [
       { t: "„Branded Content“ bzw. Werbeoffenlegung aktivieren",
-        w: "Pflicht bei Provision. Ersetzt die Einblendung im Video aber nicht." },
+        w: "Pflicht bei Provision. Ersetzt die Einblendung im Video aber nicht — die Medienanstalten lassen den Schalter allein nicht gelten." },
       { t: "Produkt aus dem TikTok Shop im Video verknüpfen",
         w: "Ohne Verknüpfung gibt es keine nachvollziehbare Provision." }
     ];
-    if (v.stimmeErzeugt) {
+    if (v.stimmeErzeugt && Z.recht.kiOffenlegung && Z.recht.kiWo !== "text") {
       l.push({ t: "Schalter für KI-generierte Inhalte setzen",
-               w: "Synthetische Stimme. KI-Verordnung Art. 50, gilt seit 2. August 2026." });
+               w: "Synthetische Stimme. KI-Verordnung Art. 50, gilt seit 2. August 2026. Hier genügt der TikTok-Schalter." });
+    }
+    if (Z.klang === "tiktok") {
+      l.push({ t: "Nasheed als Ton hinzufügen",
+               w: "Machst du in TikTok. Im Schnitt liegt nichts unter der Stimme — ohne Instrumente wählen." });
     }
     return l;
   }
@@ -1197,7 +1327,7 @@ var Prompt = {
       z.push("· Kleidung nur auf Bügel, flach ausgelegt" +
              (Z.grenzen.puppeErlaubt ? " oder auf kopfloser Schneiderpuppe" : "") + " — nie am Körper.");
     }
-    if (Z.grenzen.keineMusik) z.push("· Keine Musik. Erlaubt: " + klangName(Z.klang) + ".");
+    if (Z.grenzen.keineMusik) z.push("· Keine Musik. Ton: " + klangName(Z.klang) + ".");
     if (Z.grenzen.keineUebertreibung) z.push("· Keine Heilversprechen, keine Superlative ohne Beleg.");
     if (Z.grenzen.keinRiba) z.push("· Kein Riba: keine Ratenzahlung, kein Kredit, kein „später zahlen“.");
     z.push("");
@@ -1209,7 +1339,15 @@ var Prompt = {
       ? "· „" + Z.recht.wort + "“ wird ab Sekunde 0 eingeblendet."
       : "· Keine Einblendung — der Hook muss das Wort „" + Z.recht.wort + "“ selbst enthalten.");
     if (Z.recht.provisionshinweis) z.push("· Provisionshinweis kommt in den Beschreibungstext.");
-    z.push("· Die Stimme wird mit KI erzeugt, also ist eine KI-Offenlegung nötig (AI Act Art. 50).");
+    z.push("· Die Stimme wird mit KI erzeugt. Gekennzeichnet wird " +
+      ({ tiktok: "über den KI-Schalter in TikTok", text: "im Beschreibungstext",
+         beides: "in TikTok und im Beschreibungstext" }[Z.recht.kiWo] || "in TikTok") +
+      " (AI Act Art. 50).");
+    z.push("");
+
+    z.push("── STIMME ──");
+    z.push(Stimmprofil.satz());
+    if ((v.stimmwunsch || "").trim()) z.push("Für dieses Video zusätzlich: " + v.stimmwunsch.trim());
     z.push("");
 
     z.push("── WAS ICH ZURÜCK HABEN WILL ──");
@@ -1342,8 +1480,13 @@ function datumKurz(iso) {
   return d.getDate() + ". " + ["Jan","Feb","März","Apr","Mai","Juni","Juli","Aug","Sept","Okt","Nov","Dez"][d.getMonth()] + " " + d.getFullYear();
 }
 function klangName(k) {
-  return { nasheed: "Nasheed ohne Instrumente", stimme: "nur die Stimme",
-           ambient: "Ambient (Stoffrascheln, Papier, Raumton)", still: "gar kein Ton außer der Stimme" }[k] || k;
+  return {
+    tiktok: "nichts im Schnitt — Nasheed kommt in TikTok dazu",
+    nasheed: "Nasheed ohne Instrumente, schon im Schnitt",
+    ambient: "Ambient (Stoffrascheln, Papier, Raumton)",
+    stimme: "nur die Stimme",
+    still: "gar kein Ton außer der Stimme"
+  }[k] || k;
 }
 
 var meldungTimer = null;
@@ -1929,14 +2072,20 @@ function bereichStimme(v, p) {
   var zeichen = text.length;
   var dauer = Skript.gesamt(v);
 
+  var par = Stimmprofil.parameter();
+
   function auftrag() {
     var z = ["Mach mir das Voiceover für dieses Video."];
     z.push("");
     z.push("STIMME");
-    z.push(v.stimmwunsch && v.stimmwunsch.trim()
-      ? v.stimmwunsch.trim()
-      : "Männlich, ruhig, deutsch. Werbend, aber nicht aufgedreht.");
+    z.push(Stimmprofil.satz());
+    if ((v.stimmwunsch || "").trim()) z.push("Für dieses Video zusätzlich: " + v.stimmwunsch.trim());
     z.push("Zieldauer etwa " + nz(dauer) + " Sekunden.");
+    z.push("");
+    z.push("ELEVENLABS-WERTE");
+    z.push("stability " + par.stability + " · style " + par.style +
+           " · similarity_boost " + par.similarity_boost + " · speed " + par.speed);
+    z.push("Stimmensuche: " + Stimmprofil.suche());
     z.push("");
     z.push("TEXT");
     z.push(text || "(noch kein Skript)");
@@ -1945,9 +2094,23 @@ function bereichStimme(v, p) {
     return z.join("\n");
   }
 
-  var feldText = textfeld({ wert: text || "Noch kein Skript.", zeilen: 8 });
+  var feldText = textfeld({ wert: text || "Noch kein Skript.", zeilen: 7 });
   feldText.setAttribute("readonly", "");
   feldText.style.fontSize = ".88rem";
+
+  /* Die Stellschrauben. Sie sitzen hier und nicht in den Einstellungen,
+     weil man sie beim Hören ändern will, nicht vorher. Gespeichert werden
+     sie aber global — ein Kanal hat eine Stimme. */
+  function regler(feld) {
+    var f = STIMM_FELDER[feld];
+    return el("div", { style: "margin-bottom:.7rem" }, [
+      el("span.fl", { text: f.name }),
+      chips(Stimmprofil.werte(feld).map(function (x) { return { wert: x.w, name: x.n }; }),
+        Z.stimmprofil[feld], function (w) {
+          Z.stimmprofil[feld] = w; sichern(); zeichne();
+        })
+    ]);
+  }
 
   return el("div.stapel.eng", [
     el("div.kacheln", [
@@ -1957,34 +2120,53 @@ function bereichStimme(v, p) {
       kachel(v.stimmeErzeugt ? "ja" : "nein", "KI-Stimme")
     ]),
 
+    karte("Wie die Stimme sein soll", [
+      regler("geschlecht"),
+      regler("alter"),
+      regler("tonfall"),
+      regler("tempo"),
+      regler("energie"),
+      regler("sprache"),
+      el("div", { style: "margin-top:.2rem" }, [
+        el("span.fl", { text: "Sonst noch" }),
+        textfeld({
+          wert: Z.stimmprofil.frei, zeilen: 2,
+          platzhalter: "z. B. „nicht zu nah am Mikrofon“, „am Satzende leicht abfallend“",
+          oninput: function (ev) { Z.stimmprofil.frei = ev.target.value; sichern(); }
+        })
+      ]),
+      el("div", { style: "margin-top:.8rem;padding-top:.7rem;border-top:1px solid var(--linie)" }, [
+        el("span.fl", { text: "Nur für dieses Video" }),
+        textfeld({
+          wert: v.stimmwunsch, zeilen: 2,
+          platzhalter: "Wenn dieses eine Video anders klingen soll als sonst.",
+          oninput: function (ev) { v.stimmwunsch = ev.target.value; sichern(); }
+        })
+      ])
+    ]),
+
+    karte("Daraus wird", [
+      el("div", { style: "font-size:.88rem;line-height:1.55" }, [Stimmprofil.satz()]),
+      (v.stimmwunsch || "").trim()
+        ? el("div", { style: "font-size:.85rem;color:var(--text-2);margin-top:.4rem",
+            text: "Für dieses Video zusätzlich: " + v.stimmwunsch.trim() })
+        : null,
+      el("div", { style: "margin-top:.7rem;padding-top:.6rem;border-top:1px solid var(--linie)" }, [
+        el("span.fl", { text: "Werte für ElevenLabs" }),
+        el("div", { style: "font-family:var(--f-nr);font-size:.76rem;color:var(--text-2);line-height:1.6",
+          text: "stability " + par.stability + " · style " + par.style +
+                " · similarity_boost " + par.similarity_boost + " · speed " + par.speed }),
+        el("div", { style: "font-family:var(--f-nr);font-size:.76rem;color:var(--text-3);margin-top:.2rem",
+          text: "Stimmensuche: " + Stimmprofil.suche() })
+      ])
+    ].filter(Boolean)),
+
     kartesatt("Sprechtext", [
       el("div", { style: "padding:.7rem" }, [feldText])
     ], [
       knopf("Kopieren", { klasse: "klein", onclick: function () {
         kopieren(text, "Sprechtext");
       } })
-    ]),
-
-    karte("Wie die Stimme klingen soll", [
-      textfeld({
-        wert: v.stimmwunsch, zeilen: 2,
-        platzhalter: "Männlich, ruhig, deutsch. Werbend, aber nicht aufgedreht.",
-        oninput: function (ev) { v.stimmwunsch = ev.target.value; sichern(); }
-      }),
-      el("span.fh", { text: "Geht mit in den Auftrag. Leer lassen heißt: männlich, ruhig, deutsch." })
-    ]),
-
-    el("div.hinweis", [
-      el("b", { text: "Drei Wege zur fertigen Stimme:" }),
-      el("div", { style: "margin-top:.4rem" }, [
-        "1. Auftrag kopieren und Claude geben — du bekommst die MP3 und, wenn du willst, gleich das geschnittene Video dazu."
-      ]),
-      el("div", { style: "margin-top:.3rem" }, [
-        "2. Die installierbare Fassung des Studios benutzen. Die ruft ElevenLabs direkt mit deinem eigenen Schlüssel, mit Stimmenauswahl und Kontingentanzeige."
-      ]),
-      el("div", { style: "margin-top:.3rem" }, [
-        "3. Text bei ElevenLabs von Hand einfügen und die MP3 herunterladen."
-      ])
     ]),
 
     karte(null, [
@@ -2000,11 +2182,34 @@ function bereichStimme(v, p) {
       ])
     ]),
 
+    el("div.hinweis", [
+      el("b", { text: "Drei Wege zur fertigen Stimme:" }),
+      el("div", { style: "margin-top:.4rem" },
+        "1. Auftrag kopieren und Claude geben — du bekommst die MP3 und, wenn du willst, gleich das geschnittene Video dazu."),
+      el("div", { style: "margin-top:.3rem" },
+        "2. Die installierbare Fassung des Studios benutzen. Die ruft ElevenLabs direkt mit deinem eigenen Schlüssel."),
+      el("div", { style: "margin-top:.3rem" },
+        "3. Text bei ElevenLabs von Hand einfügen, Werte von oben eintragen, MP3 herunterladen.")
+    ]),
+
     karte("Kennzeichnung", [
       schalter("Die Stimme dieses Videos wird mit KI erzeugt", v.stimmeErzeugt, function (an) {
         v.stimmeErzeugt = an; sichern(); zeichne();
-      }, "Schaltet die KI-Offenlegung im Beschreibungstext frei und erinnert an den TikTok-Schalter. Pflicht nach Artikel 50 der KI-Verordnung, in Kraft seit dem 2. August 2026.")
-    ])
+      }, "Pflicht nach Artikel 50 der KI-Verordnung, in Kraft seit dem 2. August 2026."),
+      v.stimmeErzeugt ? el("div", { style: "margin-top:.6rem" }, [
+        el("span.fl", { text: "Gekennzeichnet wird" }),
+        chips([
+          { wert: "tiktok", name: "In TikTok" },
+          { wert: "text", name: "Im Beschreibungstext" },
+          { wert: "beides", name: "Beides" }
+        ], Z.recht.kiWo, function (w) { Z.recht.kiWo = w; sichern(); zeichne(); }),
+        el("span.fh", { text: Z.recht.kiWo === "tiktok"
+          ? "TikToks eigener Schalter ist dafür der vorgesehene Weg und genügt. Er steht in deiner Checkliste unter „Rechtliches“."
+          : Z.recht.kiWo === "text"
+            ? "Der Satz steht dann im Beschreibungstext. Der TikTok-Schalter verschwindet aus der Checkliste — setz ihn trotzdem, wenn du magst."
+            : "Beides. Schadet nicht, ist aber nicht nötig." })
+      ]) : null
+    ].filter(Boolean))
   ]);
 }
 
@@ -2502,15 +2707,27 @@ function ansichtMehr(wurzel) {
       schalter("Keine Übertreibung", Z.grenzen.keineUebertreibung, function (a) { Z.grenzen.keineUebertreibung = a; sichern(); zeichne(); },
         "Keine Heilversprechen, keine Superlative ohne Beleg."),
       schalter("Kein Riba", Z.grenzen.keinRiba, function (a) { Z.grenzen.keinRiba = a; sichern(); zeichne(); },
-        "Ratenzahlung, Kredit und „jetzt kaufen, später zahlen“ werden nicht mitbeworben.")
+        "Ratenzahlung, Kredit und „jetzt kaufen, später zahlen“ werden nicht mitbeworben."),
+      schalter("Nur männliche Stimme", Z.grenzen.nurMaennlicheStimme, function (a) {
+        Z.grenzen.nurMaennlicheStimme = a;
+        if (a) Z.stimmprofil.geschlecht = "maennlich";
+        sichern(); zeichne();
+      }, "Abgeschaltet steht auch eine weibliche Stimme zur Wahl. Die Entscheidung liegt bei dir.")
     ]),
 
     karte("Unter der Stimme", [
-      chips([{ wert: "nasheed", name: "Nasheed" }, { wert: "stimme", name: "Nur Stimme" },
-             { wert: "ambient", name: "Ambient" }, { wert: "still", name: "Still" }],
+      chips([{ wert: "tiktok", name: "Nasheed in TikTok" },
+             { wert: "nasheed", name: "Nasheed im Schnitt" },
+             { wert: "ambient", name: "Ambient" },
+             { wert: "stimme", name: "Nur Stimme" }],
         Z.klang, function (w) { Z.klang = w; sichern(); zeichne(); }),
-      el("div", { style: "margin-top:.5rem;font-size:.8rem;color:var(--text-2)", text: klangName(Z.klang) + "." })
-    ]),
+      el("div", { style: "margin-top:.5rem;font-size:.8rem;color:var(--text-2)",
+        text: "Im Schnitt liegt " + klangName(Z.klang) + "." }),
+      Z.klang === "tiktok"
+        ? el("div", { style: "margin-top:.4rem;font-size:.78rem;color:var(--text-3)",
+            text: "Steht als Punkt in deiner Checkliste unter „Rechtliches“, damit du es beim Hochladen nicht vergisst." })
+        : null
+    ].filter(Boolean)),
 
     karte("Rechtliches", [
       el("span.fl", { text: "Wort" }),
