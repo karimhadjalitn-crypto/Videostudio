@@ -1,64 +1,36 @@
-/* Mīzān – Router und Rahmen. */
+/* Mīzān – Router und Rahmen.
+   Fünf Reiter, mehr braucht es nicht. Die Einstellungen sitzen hinter
+   dem Zahnrad auf „Heute" — man geht selten hin. */
 (function () {
   "use strict";
 
   var ANSICHTEN = {
-    heute:    { titel: "Heute",    symbol: "◆",   modul: function () { return AnsichtHeute; } },
-    kalender: { titel: "Kalender", symbol: "▦",   modul: function () { return AnsichtKalender; } },
-    bereiche: { titel: "Bereiche", symbol: "☰",   modul: function () { return AnsichtBereiche; } },
-    spiegel:  { titel: "Spiegel",  symbol: "◐",   modul: function () { return AnsichtSpiegel; } },
-    mehr:     { titel: "Mehr",     symbol: "•••", modul: function () { return AnsichtMehr; } },
+    heute:    { titel: "Heute",    symbol: "◆", modul: function () { return AnsichtHeute; } },
+    kalender: { titel: "Kalender", symbol: "▦", modul: function () { return AnsichtKalender; } },
+    quran:    { titel: "Qur'an",   symbol: "۩", modul: function () { return AnsichtQuran; } },
+    duas:     { titel: "Duʿāʾ",    symbol: "☾", modul: function () { return AnsichtDuas; } },
+    journal:  { titel: "Journal",  symbol: "✎", modul: function () { return AnsichtJournal; } },
 
-    religion:   { titel: "Religion", versteckt: true, reiter: "bereiche",
-                  modul: function () { return AnsichtReligion; } },
-    gebete:     { titel: "Gebete", versteckt: true, reiter: "bereiche",
-                  modul: function () { return AnsichtGebete; } },
-    quran:      { titel: "Qur'an", versteckt: true, reiter: "bereiche",
-                  modul: function () { return AnsichtQuran; } },
-    adhkar:     { titel: "Adhkār", versteckt: true, reiter: "bereiche",
-                  modul: function () { return AnsichtAdhkar; } },
-    fasten:     { titel: "Fasten", versteckt: true, reiter: "bereiche",
-                  modul: function () { return AnsichtFasten; } },
-    duas:       { titel: "Duʿāʾ", versteckt: true, reiter: "bereiche",
-                  modul: function () { return AnsichtDuas; } },
-    koerper:    { titel: "Körper", versteckt: true, reiter: "bereiche",
-                  modul: function () { return AnsichtKoerper; } },
-    ernaehrung: { titel: "Ernährung", versteckt: true, reiter: "bereiche",
-                  modul: function () { return AnsichtErnaehrung; } },
-    schlaf:     { titel: "Schlaf", versteckt: true, reiter: "bereiche",
-                  modul: function () { return AnsichtSchlaf; } },
-    arbeit:     { titel: "Arbeit", versteckt: true, reiter: "bereiche",
-                  modul: function () { return AnsichtArbeit; } },
-    business:   { titel: "Business", versteckt: true, reiter: "bereiche",
-                  modul: function () { return AnsichtBusiness; } },
-    finanzen:   { titel: "Finanzen", versteckt: true, reiter: "bereiche",
-                  modul: function () { return AnsichtFinanzen; } },
-    soziales:   { titel: "Soziales", versteckt: true, reiter: "bereiche",
-                  modul: function () { return AnsichtSoziales; } },
-    innen:      { titel: "Innenleben", versteckt: true, reiter: "bereiche",
-                  modul: function () { return AnsichtInnen; } },
-    privat:     { titel: "Geschützt", versteckt: true, reiter: "bereiche",
-                  modul: function () { return AnsichtPrivat; } },
-    kaempfeVerwalten: { titel: "Kämpfe", versteckt: true, reiter: "bereiche",
-                  modul: function () { return AnsichtKaempfeVerwalten; } },
-    gewichtung: { titel: "Gewichtung", versteckt: true, reiter: "mehr",
-                  modul: function () { return AnsichtGewichtung; } },
-    ziele:      { titel: "Ziele", versteckt: true, reiter: "mehr",
-                  modul: function () { return AnsichtZiele; } },
-    sperre:     { titel: "Sperre", versteckt: true, reiter: "mehr",
-                  modul: function () { return AnsichtSperre; } },
-    reise:      { titel: "Reise", versteckt: true, reiter: "mehr",
-                  modul: function () { return AnsichtReise; } },
-    termine:    { titel: "Termine", versteckt: true, reiter: "mehr",
-                  modul: function () { return AnsichtTermine; } },
-    briefing:   { titel: "Morgenbriefing", versteckt: true, reiter: "heute",
-                  modul: function () { return AnsichtBriefing; } },
-    punkte:     { titel: "Tagespunkte", versteckt: true, reiter: "heute",
-                  modul: function () { return AnsichtPunkte; } },
-    muhasaba:     { titel: "Muḥāsaba", versteckt: true, vollbild: true,
-                    modul: function () { return AnsichtMuhasaba; } },
+    abschluss:    { titel: "Tag abschließen", versteckt: true, reiter: "heute",
+                    modul: function () { return AnsichtAbschluss; } },
+    gebete:       { titel: "Gebete", versteckt: true, reiter: "heute",
+                    modul: function () { return AnsichtGebete; } },
+    punkte:       { titel: "Tagespunkte", versteckt: true, reiter: "heute",
+                    modul: function () { return AnsichtPunkte; } },
+    fasten:       { titel: "Fasten", versteckt: true, reiter: "kalender",
+                    modul: function () { return AnsichtFasten; } },
+    termine:      { titel: "Termine", versteckt: true, reiter: "kalender",
+                    modul: function () { return AnsichtTermine; } },
     erinnerungen: { titel: "Erinnerungen", versteckt: true, reiter: "kalender",
                     modul: function () { return AnsichtErinnerungen; } },
+    mehr:         { titel: "Einstellungen", versteckt: true, reiter: "heute",
+                    modul: function () { return AnsichtMehr; } },
+    listen:       { titel: "Listen", versteckt: true, reiter: "heute",
+                    modul: function () { return AnsichtListen; } },
+    sperre:       { titel: "Sperre", versteckt: true, reiter: "heute",
+                    modul: function () { return AnsichtSperre; } },
+    reise:        { titel: "Reise", versteckt: true, reiter: "heute",
+                    modul: function () { return AnsichtReise; } },
     "import":     { titel: "Übernahme", versteckt: true, reiter: "heute",
                     modul: function () { return AnsichtImport; } }
   };
@@ -92,8 +64,6 @@
     aktuell = { key: k, modul: modul };
     zeichneLeiste(ANSICHTEN[k].reiter || (ANSICHTEN[k].versteckt ? null : k));
     UI.leeren(wurzel);
-    // Die Muḥāsaba läuft im Vollbild; die anderen behalten die Leiste,
-    // damit man nicht in einer Ansicht festsitzt.
     document.body.classList.toggle("ohne-leiste", !!ANSICHTEN[k].vollbild);
     // Rückblick sichtbar machen, auch in Ansichten ohne Datumsband
     document.body.classList.toggle("istrueckblick", !Store.istHeute());
@@ -131,7 +101,7 @@
     var b = Store.einstellungen.letztesBackup;
     if (!b || (Date.now() - new Date(b).getTime()) > 7 * 86400000) {
       setTimeout(function () {
-        UI.meldung("Denk an die Sicherung — unter „Mehr“.");
+        UI.meldung("Denk an die Sicherung — unter dem Zahnrad.");
       }, 4000);
     }
   }

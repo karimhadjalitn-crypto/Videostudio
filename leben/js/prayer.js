@@ -37,6 +37,17 @@ var Gebetszeiten = (function () {
 
   var PFLICHT = ["fajr", "dhuhr", "asr", "maghrib", "isha"];
 
+  /* Fünf Stufen statt eines Hakens. Ein Gebet ist nicht einfach
+     gehalten oder nicht — es macht einen Unterschied, ob in der
+     Gemeinschaft, pünktlich, gerade noch im Fenster oder nachgeholt. */
+  var STUFEN = [
+    { key: "moschee",    kurz: "Moschee",   lang: "In der Moschee (Jamāʿa)", farbe: "jade" },
+    { key: "puenktlich", kurz: "Pünktlich", lang: "Pünktlich zu Hause",      farbe: "jade" },
+    { key: "fenster",    kurz: "Fenster",   lang: "Noch im Zeitfenster",     farbe: "jade-dim" },
+    { key: "spaet",      kurz: "Spät",      lang: "Nach Ablauf nachgeholt",  farbe: "amber" },
+    { key: "verpasst",   kurz: "Verpasst",  lang: "Nicht gebetet",           farbe: "rose" }
+  ];
+
   function julian(y, m, d) {
     if (m <= 2) { y -= 1; m += 12; }
     var A = Math.floor(y / 100), B = 2 - A + Math.floor(A / 4);
@@ -107,7 +118,7 @@ var Gebetszeiten = (function () {
     return t;
   }
 
-  /* Zwischenspeicher: Score, „Heute“ und Kalender fragen dieselben Tage
+  /* Zwischenspeicher: „Heute“ und Kalender fragen dieselben Tage
      mehrfach ab. Der Schlüssel enthält alle Einstellungen, die das
      Ergebnis verändern — ändert sich eine, greift der Speicher nicht mehr. */
   var speicher = {};
@@ -212,6 +223,6 @@ var Gebetszeiten = (function () {
   return {
     fuer: fuer, aktuell: aktuell, faellig: faellig, abgelaufen: abgelaufen, leeren: leeren,
     uhr: uhr, restText: restText,
-    NAMEN: NAMEN, PFLICHT: PFLICHT, METHODEN: METHODEN
+    NAMEN: NAMEN, PFLICHT: PFLICHT, STUFEN: STUFEN, METHODEN: METHODEN
   };
 })();

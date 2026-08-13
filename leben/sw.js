@@ -5,7 +5,7 @@
    kommt aus dem Netz und verweist auf die neuen Adressen, die im alten
    Cache gar nicht stehen. Ohne das käme beim ersten Öffnen noch der alte
    Stand und erst beim zweiten der neue. */
-var VERSION = "7";
+var VERSION = "8";
 var CACHE = "mizan-v" + VERSION;
 
 var VERSIONIERT = [
@@ -13,32 +13,23 @@ var VERSIONIERT = [
   "js/store.js",
   "js/prayer.js",
   "js/hijri.js",
-  "js/score.js",
   "js/ayat.js",
   "js/hifz.js",
   "js/punkte.js",
   "js/ics.js",
-  "js/insights.js",
   "js/modi.js",
   "js/ui.js",
   "js/assistant.js",
   "js/views/today.js",
+  "js/views/abschluss.js",
   "js/views/punkte.js",
   "js/views/calendar.js",
   "js/views/termine.js",
-  "js/views/bereiche.js",
-  "js/views/religion.js",
   "js/views/prayers.js",
   "js/views/quran.js",
-  "js/views/adhkar.js",
   "js/views/fasting.js",
   "js/views/duas.js",
-  "js/views/koerper.js",
-  "js/views/arbeit.js",
-  "js/views/leben.js",
-  "js/views/privat.js",
-  "js/views/muhasaba.js",
-  "js/views/mirror.js",
+  "js/views/journal.js",
   "js/views/reminders.js",
   "js/views/import.js",
   "js/views/settings.js",

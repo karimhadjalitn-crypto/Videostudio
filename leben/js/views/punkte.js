@@ -73,10 +73,7 @@ var AnsichtPunkte = (function () {
       Object.keys(Punkte.BEREICHE).forEach(function (b, i) {
         bereichChips.children[i].classList.toggle("an", b === entwurf.bereich);
       });
-      hinweis.textContent = Punkte.ARTEN[entwurf.art].hinweis +
-        (entwurf.bereich === "sonstiges"
-          ? "  ·  „Sonstiges“ zählt in die Produktivität."
-          : "");
+      hinweis.textContent = Punkte.ARTEN[entwurf.art].hinweis;
       UI.leeren(extra);
       if (entwurf.art === "zaehler") {
         extra.appendChild(UI.el("div.unterkopf", { text: "Tagesziel" }));
@@ -239,7 +236,7 @@ var AnsichtPunkte = (function () {
         text: "Standardpunkte" + (aus ? " · " + aus + " ausgeblendet" : "")
       }),
       UI.el("p.klein", {
-        text: "Was du hier ausschaltest, verschwindet aus der Tagesliste und zählt nicht mehr in den Score. Deine alten Einträge bleiben erhalten."
+        text: "Was du hier ausschaltest, verschwindet aus der Tagesliste. Deine alten Einträge bleiben erhalten."
       })
     ].concat(reihenfolge.map(function (b) {
       return UI.el("div.block", [

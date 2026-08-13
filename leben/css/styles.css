@@ -1012,3 +1012,81 @@ body.istrueckblick #leiste { border-top: 2px solid var(--an-amber-rand); }
 
 /* Uhrzeitfeld und Knopf teilen sich eine Zeile; das Textfeld steht darüber.
    Nebeneinander quetschte das Zeitfeld den Text auf zwei Buchstaben. */
+
+/* ==================================================================
+   Phase 10 — abgespeckt: Journal, Kalender, Tagesabschluss
+   ================================================================== */
+
+/* ---------- Zahnrad im Kopf ---------- */
+.kopf { position: relative; }
+.zahnrad {
+  position: absolute; right: calc(var(--rand) - .4rem); top: 1.55rem;
+  width: 2.5rem; height: 2.5rem; border-radius: 999px;
+  font-size: 1.15rem; line-height: 1; color: var(--text-3);
+  display: grid; place-items: center;
+}
+.zahnrad:active { background: var(--fuell-1); color: var(--text-1); }
+.kopf h1 { padding-right: 2.6rem; }
+
+/* ---------- Journal ---------- */
+.karte.journal { padding-bottom: 1rem; }
+.jkopf { display: flex; align-items: baseline; justify-content: space-between; gap: .6rem; }
+.jzahl {
+  font-size: .7rem; color: var(--text-3); font-weight: 600;
+  font-variant-numeric: tabular-nums; flex: none;
+}
+.journalfeld {
+  width: 100%; min-height: 11rem; margin: .8rem 0 .9rem;
+  background: transparent; border: 0; resize: vertical;
+  font-size: 1rem; line-height: 1.65; color: var(--text-1);
+  font-family: var(--f-ui); -webkit-appearance: none; appearance: none;
+}
+.journalfeld:focus { outline: none; }
+.jzeile { align-items: flex-start; }
+.jz { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: .15rem; }
+.jzdatum {
+  font-size: .68rem; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--text-3);
+}
+.jztext {
+  font-size: .88rem; color: var(--text-2); line-height: 1.45;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.block > .aufgabenfeld { margin-bottom: .55rem; }
+
+/* ---------- Kalender: Woche, Monat, Fastenplan ---------- */
+.monatskopf .mtitel {
+  flex: 1; text-align: center; background: none; border: 0;
+  padding: .3rem; border-radius: var(--r-klein); cursor: pointer;
+}
+.monatskopf .mtitel:active { background: var(--fuell-1); }
+.kalender + .segment, .monatskopf + .segment { margin-top: .7rem; }
+.zelle.fremd { opacity: .34; }
+.kalender.wochensicht .zelle { aspect-ratio: auto; min-height: 4.4rem; }
+.kalender.wochensicht .zelle .zt { font-size: 1.05rem; }
+.aktionen { display: flex; flex-direction: column; gap: .55rem; }
+
+/* ---------- Tagesabschluss ---------- */
+.mzeile .mkopf .zw { margin-left: auto; }
+
+/* ---------- Duʿāʾ: Anlass und Authentizitätsgrad ---------- */
+.dfuss {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: .6rem; margin-top: .55rem;
+}
+.danlass { font-size: .72rem; color: var(--jade); font-weight: 600; margin-top: 0; }
+.dgrad {
+  flex: none; font-size: .62rem; font-weight: 700; letter-spacing: .08em;
+  padding: .16rem .5rem; border-radius: 999px;
+  background: var(--fuell-1); color: var(--text-3);
+}
+.dualiste + .blockkopf { margin-top: .5rem; }
+
+/* Das blaue Browser-× im Suchfeld passt in keine dieser Paletten */
+input[type="search"] { -webkit-appearance: none; appearance: none; }
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; appearance: none; }
+
+/* Vorgemerkter Fastentag: eigene Marke, damit er nicht mit „ausgewählt" verwechselt wird */
+.m-fasten { background: var(--jade-dim); }
+.m-eigen { background: var(--text-2); }

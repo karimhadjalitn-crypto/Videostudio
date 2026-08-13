@@ -1,6 +1,6 @@
 /* Mīzān – Übergabe aus iOS-Kurzbefehlen.
    Beispiel: …/leben/#/import?gebet=fajr&stufe=moschee
-             …/leben/#/import?gewicht=80,4&schritte=8231
+             …/leben/#/import?dhikr=1&gelesen=5
    Nichts geht dabei nach außen: die Werte kommen aus der Adresszeile
    und landen direkt im Speicher dieses Geräts. */
 var AnsichtImport = (function () {
@@ -42,59 +42,44 @@ var AnsichtImport = (function () {
 
     if (p.gebet && Gebetszeiten.PFLICHT.indexOf(p.gebet) >= 0) {
       var stufe = p.stufe || "puenktlich";
-      var gueltig = Score.GEBETSSTUFEN.some(function (s) { return s.key === stufe; });
+      var gueltig = Gebetszeiten.STUFEN.some(function (s) { return s.key === stufe; });
       if (gueltig) {
         tag.gebete[p.gebet] = stufe;
-        var lang = Score.GEBETSSTUFEN.filter(function (s) { return s.key === stufe; })[0].lang;
+        var lang = Gebetszeiten.STUFEN.filter(function (s) { return s.key === stufe; })[0].lang;
         gemacht.push({ was: Gebetszeiten.NAMEN[p.gebet].de, wert: lang });
       }
     }
 
-    var g = zahl(p.gewicht);
-    if (g !== null && g > 20 && g < 400) {
-      tag.gewicht = Math.round(g * 10) / 10;
-      gemacht.push({ was: "Gewicht", wert: UI.zahl(tag.gewicht, 1).replace(".", ",") + " kg" });
+    var seiten = zahl(p.gelesen);
+    if (seiten !== null && seiten > 0) {
+      tag.quran.gelesen = (tag.quran.gelesen || 0) + Math.round(seiten);
+      gemacht.push({ was: "Qur'an gelesen", wert: tag.quran.gelesen + " Seiten" });
     }
 
-    var s = zahl(p.schritte);
-    if (s !== null && s >= 0) {
-      tag.schritte = Math.round(s);
-      gemacht.push({ was: "Schritte", wert: UI.zahl(tag.schritte) });
+    if (p.dhikr === "1" || p.dhikr === "ja") {
+      tag.dhikr.gemacht = true;
+      gemacht.push({ was: "Adhkār", wert: "erledigt" });
     }
 
-    var w = zahl(p.wasser);
-    if (w !== null && w > 0) {
-      tag.wasser = Math.round(((tag.wasser || 0) + w) * 100) / 100;
-      gemacht.push({ was: "Wasser", wert: UI.zahl(tag.wasser, 1).replace(".", ",") + " l" });
+    if (p.murajaa === "1" || p.murajaa === "ja") {
+      tag.quran.murajaa = true;
+      gemacht.push({ was: "Murājaʿa", wert: "erledigt" });
     }
 
-    var bett = uhrzeit(p.bett);
-    if (bett) { tag.schlaf.bett = bett; gemacht.push({ was: "Zu Bett", wert: bett + " Uhr" }); }
-
-    var auf = uhrzeit(p.auf);
-    if (auf) { tag.schlaf.auf = auf; gemacht.push({ was: "Aufgestanden", wert: auf + " Uhr" }); }
-
-    if (p.fajrAuf === "1" || p.fajrAuf === "ja") {
-      tag.schlaf.fajrAuf = true;
-      gemacht.push({ was: "Für Fajr aufgestanden", wert: "ja" });
+    if (p.training === "1" || p.training === "ja") {
+      if (!(tag.training.arten || []).length) tag.training.arten = ["Training"];
+      gemacht.push({ was: "Trainiert", wert: "ja" });
     }
 
-    var ist = zahl(p.istighfar);
-    if (ist !== null && ist > 0) {
-      tag.dhikr.istighfar = (tag.dhikr.istighfar || 0) + Math.round(ist);
-      gemacht.push({ was: "Istighfār", wert: String(tag.dhikr.istighfar) });
-    }
-
-    var sal = zahl(p.salawat);
-    if (sal !== null && sal > 0) {
-      tag.dhikr.salawat = (tag.dhikr.salawat || 0) + Math.round(sal);
-      gemacht.push({ was: "Salawāt", wert: String(tag.dhikr.salawat) });
+    if (p.fasten === "1" || p.fasten === "ja") {
+      tag.fasten = true;
+      gemacht.push({ was: "Gefastet", wert: "ja" });
     }
 
     return gemacht;
   }
 
-  function zeichne(gemacht, score) {
+  function zeichne(gemacht) {
     UI.leeren(wurzel);
     wurzel.appendChild(UI.kopf(gemacht.length ? "Eingetragen" : "Nichts erkannt", "Aus dem Kurzbefehl", ""));
     wurzel.appendChild(UI.el("div.inhalt", [
@@ -105,16 +90,10 @@ var AnsichtImport = (function () {
         }))
       ]) : UI.el("div.karte.hinweis", [
         UI.el("div.hz", {
-          text: "In der Adresse stand nichts, das ich verstehe. Erlaubt sind unter anderem gebet, stufe, gewicht, schritte, wasser, bett, auf, istighfar und salawat."
+          text: "In der Adresse stand nichts, das ich verstehe. Erlaubt sind gebet, stufe, gelesen, dhikr, murajaa, training und fasten."
         })
       ]),
-      gemacht.length ? UI.el("div.karte.scorekarte", [
-        UI.ring(score / 100, score),
-        UI.el("div.smeta", [
-          UI.el("div.st", { text: "Tagesscore" }),
-          UI.el("div.ss", { text: "gerade neu berechnet" })
-        ])
-      ]) : null,
+
       UI.el("button.cta", {
         type: "button", onclick: function () { location.hash = "#/heute"; }
       }, "Weiter zu Heute"),
@@ -127,10 +106,9 @@ var AnsichtImport = (function () {
     var p = parameter();
     return Store.tag().then(function (tag) {
       var gemacht = anwenden(tag, p);
-      if (!gemacht.length) { zeichne(gemacht, 0); return; }
-      tag.score = Score.fuer(tag).wert;
+      if (!gemacht.length) { zeichne(gemacht); return; }
       return Store.tagSpeichern(tag).then(function () {
-        zeichne(gemacht, tag.score);
+        zeichne(gemacht);
         clearTimeout(timer);
         timer = setTimeout(function () {
           if (location.hash.indexOf("import") >= 0) location.hash = "#/heute";

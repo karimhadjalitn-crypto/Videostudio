@@ -5,7 +5,6 @@ var AnsichtQuran = (function () {
   var wurzel = null, tag = null, bestandOffen = false, neuesBuch = false, offenesBuch = null;
 
   function speichern(neu) {
-    tag.score = Score.fuer(tag).wert;
     return Store.tagSpeichern(tag).then(function () { if (neu !== false) zeichne(); });
   }
 

@@ -1,85 +1,124 @@
-/* Mīzān – Kalender. Gregorianisch und Hijri nebeneinander. */
+/* Mīzān – Kalender. Das Zuhause der App.
+   Gregorianisch und Hijri nebeneinander, Woche oder Monat, eigene
+   Einträge, Fastentage zum Vormerken und das islamische Jahr. */
 var AnsichtKalender = (function () {
   "use strict";
 
-  var wurzel = null, tage = {}, monat = null, gewaehlt = null;
+  var wurzel = null, tage = {}, anker = null, gewaehlt = null, sicht = "monat";
 
-  function stufe(s) {
-    if (s == null) return "";
-    if (s >= 80) return ".s4";
-    if (s >= 60) return ".s3";
-    if (s >= 40) return ".s2";
-    return ".s1";
+  function e() { return Store.einstellungen; }
+  function eintraegeAm(k) {
+    return (e().eintraege || []).filter(function (x) { return x.datum === k; });
   }
 
-  function monatsKopf() {
-    var erster = new Date(monat.getFullYear(), monat.getMonth(), 1);
-    var letzter = new Date(monat.getFullYear(), monat.getMonth() + 1, 0);
-    var h1 = Hijri.fuer(erster), h2 = Hijri.fuer(letzter);
-    var spanne = h1.monatName === h2.monatName
-      ? h1.monatName + " " + h1.jahr
-      : h1.monatName + " – " + h2.monatName + " " + h2.jahr;
+  /* ---------- Kopf: blättern und umschalten ---------- */
+  function kopfLeiste() {
+    var titel, unter;
+    if (sicht === "monat") {
+      var erster = new Date(anker.getFullYear(), anker.getMonth(), 1);
+      var letzter = new Date(anker.getFullYear(), anker.getMonth() + 1, 0);
+      var h1 = Hijri.fuer(erster), h2 = Hijri.fuer(letzter);
+      titel = UI.MONATE[anker.getMonth()] + " " + anker.getFullYear();
+      unter = h1.monatName === h2.monatName
+        ? h1.monatName + " " + h1.jahr
+        : h1.monatName + " – " + h2.monatName + " " + h2.jahr;
+    } else {
+      var mo = wochenStart(anker);
+      var so = new Date(mo.getFullYear(), mo.getMonth(), mo.getDate() + 6);
+      var hm = Hijri.fuer(mo);
+      titel = mo.getDate() + ". " + UI.MONATE[mo.getMonth()].slice(0, 3) + " – " +
+              so.getDate() + ". " + UI.MONATE[so.getMonth()].slice(0, 3);
+      unter = hm.monatName + " " + hm.jahr;
+    }
 
-    return UI.el("div.monatskopf", [
-      UI.el("button.pfeil", {
-        type: "button", "aria-label": "Vorheriger Monat",
-        onclick: function () { monat = new Date(monat.getFullYear(), monat.getMonth() - 1, 1); zeichne(); }
-      }, "‹"),
-      UI.el("div.mtitel", [
-        UI.el("div.mt", { text: UI.MONATE[monat.getMonth()] + " " + monat.getFullYear() }),
-        UI.el("div.mh", { text: spanne })
+    function schieben(n) {
+      if (sicht === "monat") anker = new Date(anker.getFullYear(), anker.getMonth() + n, 1);
+      else anker = new Date(anker.getFullYear(), anker.getMonth(), anker.getDate() + n * 7);
+      zeichne();
+    }
+
+    return UI.el("div", [
+      UI.el("div.monatskopf", [
+        UI.el("button.pfeil", {
+          type: "button", "aria-label": "Zurück", onclick: function () { schieben(-1); }
+        }, "‹"),
+        UI.el("button.mtitel", {
+          type: "button",
+          onclick: function () { anker = new Date(); gewaehlt = Store.heute(); zeichne(); }
+        }, [
+          UI.el("div.mt", { text: titel }),
+          UI.el("div.mh", { text: unter })
+        ]),
+        UI.el("button.pfeil", {
+          type: "button", "aria-label": "Vor", onclick: function () { schieben(1); }
+        }, "›")
       ]),
-      UI.el("button.pfeil", {
-        type: "button", "aria-label": "Nächster Monat",
-        onclick: function () { monat = new Date(monat.getFullYear(), monat.getMonth() + 1, 1); zeichne(); }
-      }, "›")
+      UI.el("div.segment", [
+        UI.el("button.segbtn" + (sicht === "woche" ? ".an" : ""), {
+          type: "button", onclick: function () { sicht = "woche"; zeichne(); }
+        }, "Woche"),
+        UI.el("button.segbtn" + (sicht === "monat" ? ".an" : ""), {
+          type: "button", onclick: function () { sicht = "monat"; zeichne(); }
+        }, "Monat")
+      ])
+    ]);
+  }
+
+  function wochenStart(d) {
+    var versatz = (d.getDay() + 6) % 7;   // Woche beginnt montags
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate() - versatz);
+  }
+
+  /* ---------- Eine Zelle im Raster ---------- */
+  function zelle(d, imMonat) {
+    var k = Store.key(d);
+    var h = Hijri.fuer(d);
+    var anlass = Hijri.anlass(d);
+    var klassen = ".zelle";
+    if (!imMonat) klassen += ".fremd";
+    if (k === Store.heute()) klassen += ".heute";
+    if (k === gewaehlt) klassen += ".gewaehlt";
+    if ((e().arbeitstage || []).indexOf(d.getDay()) >= 0) klassen += ".arbeit";
+    var marken = [];
+    if (Fasten.geplant(k)) marken.push(UI.el("i.m-fasten"));
+    if (h.weisserTag) marken.push(UI.el("i.m-bid"));
+    if (anlass && anlass.art === "gross") marken.push(UI.el("i.m-gross"));
+    if (d.getDay() === 5) marken.push(UI.el("i.m-jumua"));
+    if (Termine.fuerTag(d).length) marken.push(UI.el("i.m-termin"));
+    if (eintraegeAm(k).length) marken.push(UI.el("i.m-eigen"));
+
+    return UI.el(klassen, {
+      onclick: function () {
+        gewaehlt = k;
+        if (!imMonat) anker = new Date(d.getFullYear(), d.getMonth(), 1);
+        zeichne();
+      }
+    }, [
+      UI.el("span.zt", { text: String(d.getDate()) }),
+      UI.el("span.zh", { text: String(h.tag) }),
+      UI.el("div.marken", marken)
     ]);
   }
 
   function raster() {
-    var jahr = monat.getFullYear(), m = monat.getMonth();
-    var erster = new Date(jahr, m, 1);
-    var versatz = (erster.getDay() + 6) % 7;          // Woche beginnt montags
-    var anzahl = new Date(jahr, m + 1, 0).getDate();
-    var heuteKey = Store.key();
-    var arbeit = Store.einstellungen.arbeitstage || [];
-
     var zellen = [];
-    for (var v = 0; v < versatz; v++) zellen.push(UI.el("div.zelle.leerzelle"));
-
-    for (var t = 1; t <= anzahl; t++) {
-      (function (t) {
-        var d = new Date(jahr, m, t);
-        var k = Store.key(d);
-        var eintrag = tage[k];
-        var h = Hijri.fuer(d);
-        var anlass = Hijri.anlass(d);
-        var klassen = ".zelle" + stufe(eintrag && eintrag.score);
-        if (k === heuteKey) klassen += ".heute";
-        if (k === gewaehlt) klassen += ".gewaehlt";
-        if (arbeit.indexOf(d.getDay()) >= 0) klassen += ".arbeit";
-
-        var marken = [];
-        if (h.weisserTag) marken.push(UI.el("i.m-bid"));
-        else if (anlass && anlass.art === "fasten") marken.push(UI.el("i.m-fasten"));
-        if (anlass && anlass.art === "gross") marken.push(UI.el("i.m-gross"));
-        if (d.getDay() === 5) marken.push(UI.el("i.m-jumua"));
-        if (Termine.fuerTag(d).length) marken.push(UI.el("i.m-termin"));
-        if ((Store.einstellungen.eintraege || []).some(function (x) { return x.datum === k; })) {
-          marken.push(UI.el("i.m-eigen"));
-        }
-
-        zellen.push(UI.el(klassen, {
-          onclick: function () { gewaehlt = gewaehlt === k ? null : k; zeichne(); }
-        }, [
-          UI.el("span.zt", { text: String(t) }),
-          UI.el("span.zh", { text: String(h.tag) }),
-          UI.el("div.marken", marken)
-        ]));
-      })(t);
+    if (sicht === "woche") {
+      var mo = wochenStart(anker);
+      for (var i = 0; i < 7; i++) {
+        zellen.push(zelle(new Date(mo.getFullYear(), mo.getMonth(), mo.getDate() + i), true));
+      }
+    } else {
+      var jahr = anker.getFullYear(), m = anker.getMonth();
+      var versatz = (new Date(jahr, m, 1).getDay() + 6) % 7;
+      var anzahl = new Date(jahr, m + 1, 0).getDate();
+      for (var v = versatz; v > 0; v--) zellen.push(zelle(new Date(jahr, m, 1 - v), false));
+      for (var t = 1; t <= anzahl; t++) zellen.push(zelle(new Date(jahr, m, t), true));
+      while (zellen.length % 7 !== 0) {
+        zellen.push(zelle(new Date(jahr, m, anzahl + 1 + (zellen.length % 7)), false));
+      }
     }
 
-    return UI.el("div.kalender", [
+    return UI.el("div.kalender" + (sicht === "woche" ? ".wochensicht" : ""), [
       UI.el("div.wochenkopf", ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"].map(function (w) {
         return UI.el("span" + (w === "Fr" ? ".fr" : ""), { text: w });
       })),
@@ -94,60 +133,11 @@ var AnsichtKalender = (function () {
       UI.el("span", [UI.el("i.m-gross"), "Islamischer Termin"]),
       UI.el("span", [UI.el("i.m-termin"), "Termin"]),
       UI.el("span", [UI.el("i.m-eigen"), "Eigener Eintrag"]),
-      UI.el("span", [UI.el("i.feld.s3"), "Tagesscore"])
+      UI.el("span", [UI.el("i.m-fasten"), "Fasten vorgemerkt"])
     ]);
   }
 
-  /* Einmalige Einträge für den gewählten Tag */
-  function eintragKarte() {
-    if (!gewaehlt) return null;
-    var e = Store.einstellungen;
-    var meine = (e.eintraege || []).filter(function (x) { return x.datum === gewaehlt; });
-
-    var nameFeld = UI.el("input.aufgabenfeld.gross", {
-      type: "text", placeholder: "Was steht an?",
-      onkeydown: function (ev) { if (ev.key === "Enter") anlegen(); }
-    });
-    var zeitFeld = UI.el("input.feld.zeit", { type: "time" });
-
-    function anlegen() {
-      var n = nameFeld.value.trim();
-      if (!n) return;
-      if (!e.eintraege) e.eintraege = [];
-      e.eintraege.push({
-        id: "e" + Date.now().toString(36), datum: gewaehlt,
-        name: n, von: zeitFeld.value || null
-      });
-      nameFeld.value = "";
-      Store.einstellungenSpeichern().then(zeichne);
-      UI.meldung("Eingetragen.");
-    }
-
-    return UI.el("div.karte", [
-      UI.el("span.etikett", { text: "Eigene Einträge an diesem Tag" }),
-      meine.length ? UI.el("div.gruppe.blank", meine.map(function (x) {
-        return UI.el("div.zeile", [
-          UI.el("span.zt.dehnbar", { text: x.name }),
-          x.von ? UI.el("span.zw", { text: x.von }) : null,
-          UI.el("button.loeschen", {
-            type: "button",
-            onclick: function () {
-              var i = e.eintraege.indexOf(x);
-              if (i >= 0) e.eintraege.splice(i, 1);
-              Store.einstellungenSpeichern().then(zeichne);
-            }
-          }, "×")
-        ].filter(Boolean));
-      })) : null,
-      nameFeld,
-      UI.el("div.zeitreihe", [
-        zeitFeld,
-        UI.el("button.mini", { type: "button", onclick: anlegen }, "Eintragen")
-      ]),
-      UI.el("p.klein", { text: "Ohne Uhrzeit gilt der Eintrag als ganztägig." })
-    ].filter(Boolean));
-  }
-
+  /* ---------- Der gewählte Tag ---------- */
   function tagesKarte() {
     if (!gewaehlt) return null;
     var d = Store.ausKey(gewaehlt);
@@ -155,25 +145,29 @@ var AnsichtKalender = (function () {
     var z = Gebetszeiten.fuer(d);
     var eintrag = tage[gewaehlt];
     var anlass = Hijri.anlass(d);
-    var e = Store.einstellungen;
 
     var termine = Termine.fuerTag(d);
-    var eigene = (Store.einstellungen.eintraege || []).filter(function (x) { return x.datum === gewaehlt; });
+    var eigene = eintraegeAm(gewaehlt);
     var hinweise = [];
     if (anlass) hinweise.push(anlass.name);
     if (d.getDay() === 5) {
       var sommer = d.getMonth() >= 3 && d.getMonth() <= 9;
-      hinweise.push("Jumuʿa " + (sommer ? e.jumua.sommer : e.jumua.winter));
+      hinweise.push("Jumuʿa " + (sommer ? e().jumua.sommer : e().jumua.winter));
     }
-    if ((e.arbeitstage || []).indexOf(d.getDay()) >= 0) hinweise.push("Arbeitstag");
-    if (d.getDay() === 1 || d.getDay() === 4) hinweise.push("Fastenvorschlag");
+    if ((e().arbeitstage || []).indexOf(d.getDay()) >= 0) hinweise.push("Arbeitstag");
+
+    var gehalten = eintrag && eintrag.gebete
+      ? Gebetszeiten.PFLICHT.filter(function (k) {
+          return eintrag.gebete[k] && eintrag.gebete[k] !== "verpasst";
+        }).length
+      : null;
 
     return UI.el("div.karte.held", [
       UI.el("span.etikett", { text: UI.datumLang(d) }),
       UI.el("div.tkopf", [
         UI.el("span.th", { text: h.text }),
-        eintrag && eintrag.score != null
-          ? UI.el("span.tscore", { text: "Score " + eintrag.score })
+        eintrag && eintrag.muhasaba
+          ? UI.el("span.tscore", { text: gehalten + " von 5 gehalten" })
           : UI.el("span.tscore.leer", { text: "kein Eintrag" })
       ]),
       hinweise.length ? UI.el("div.thinweise", hinweise.map(function (x) {
@@ -195,92 +189,129 @@ var AnsichtKalender = (function () {
     ].filter(Boolean));
   }
 
-  /* Auto-Planung: bleibt aus, bis genug Tage vorliegen.
-     „Wenn sie weiß, wie ich handel, sonst nicht." */
-  function planungKarte() {
-    var liste = Object.keys(tage).map(function (k) { return tage[k]; })
-      .filter(function (t) { return typeof t.score === "number"; });
-    if (liste.length < 30) {
-      return UI.el("div.karte.hinweis", [
-        UI.el("div.hz", {
-          text: "Selbst planen kann Mīzān erst, wenn sie dein Verhalten kennt — ab 30 erfassten Tagen. " +
-                "Du hast " + liste.length + ". Vorher würde sie nach einem Ideal planen statt nach dir."
-        })
-      ]);
-    }
+  /* Zu diesem Tag springen — oder ihn zum Fasten vormerken */
+  function aktionen() {
+    if (!gewaehlt) return null;
+    var kuenftig = gewaehlt > Store.heute();
+    var d = Store.ausKey(gewaehlt);
+    var fastenAnlass = Fasten.anlass(d);
+    var vorgemerkt = Fasten.geplant(gewaehlt);
 
-    /* Was sagen die Daten über deine Woche? */
-    var proTag = [[], [], [], [], [], [], []];
-    var trainingProTag = [0, 0, 0, 0, 0, 0, 0];
-    var gesamtProTag = [0, 0, 0, 0, 0, 0, 0];
-    liste.forEach(function (t) {
-      var d = Store.ausKey(t.datum).getDay();
-      proTag[d].push(t.score);
-      gesamtProTag[d]++;
-      if (t.training && (t.training.arten || []).length) trainingProTag[d]++;
+    var knoepfe = [];
+    if (!kuenftig) {
+      knoepfe.push(UI.el("button.cta", {
+        type: "button",
+        onclick: function () { Store.setzeDatum(gewaehlt); location.hash = "#/abschluss"; }
+      }, gewaehlt === Store.heute() ? "Diesen Tag eintragen" : "Diesen Tag nachtragen"));
+    }
+    if (kuenftig || fastenAnlass) {
+      knoepfe.push(UI.el("button.cta.leise", {
+        type: "button",
+        onclick: function () {
+          Fasten.umschalten(gewaehlt).then(function () {
+            UI.meldung(vorgemerkt ? "Vormerkung entfernt." : "Zum Fasten vorgemerkt.");
+            zeichne();
+          });
+        }
+      }, vorgemerkt ? "✓ Zum Fasten vorgemerkt" : "Zum Fasten vormerken"));
+    }
+    if (kuenftig && !fastenAnlass && knoepfe.length === 1) {
+      knoepfe.push(UI.el("p.klein", {
+        text: "Ein künftiger Tag lässt sich planen, aber nicht abhaken."
+      }));
+    }
+    return knoepfe.length ? UI.el("div.aktionen", knoepfe) : null;
+  }
+
+  /* ---------- Eigene Einträge ---------- */
+  function eintragKarte() {
+    if (!gewaehlt) return null;
+    var meine = eintraegeAm(gewaehlt);
+
+    var nameFeld = UI.el("input.aufgabenfeld.gross", {
+      type: "text", placeholder: "Was steht an?",
+      onkeydown: function (ev) { if (ev.key === "Enter") anlegen(); }
     });
-    function schnitt(l) {
-      return l.length ? l.reduce(function (a, b) { return a + b; }, 0) / l.length : null;
+    var zeitFeld = UI.el("input.feld.zeit", { type: "time" });
+
+    function anlegen() {
+      var n = nameFeld.value.trim();
+      if (!n) return;
+      if (!e().eintraege) e().eintraege = [];
+      e().eintraege.push({
+        id: "e" + Date.now().toString(36), datum: gewaehlt,
+        name: n, von: zeitFeld.value || null
+      });
+      nameFeld.value = "";
+      Store.einstellungenSpeichern().then(zeichne);
+      UI.meldung("Eingetragen.");
     }
-    var werte = proTag.map(function (l, i) { return { tag: i, s: schnitt(l), n: l.length }; })
-      .filter(function (x) { return x.n >= 3; });
-    if (werte.length < 5) return null;
-    werte.sort(function (a, b) { return b.s - a.s; });
-    var stark = werte[0], schwach = werte[werte.length - 1];
 
-    var trainingsTage = trainingProTag.map(function (n, i) {
-      return { tag: i, quote: gesamtProTag[i] ? n / gesamtProTag[i] : 0 };
-    }).filter(function (x) { return x.quote >= 0.5; }).map(function (x) { return UI.WOCHENTAGE[x.tag]; });
+    return UI.el("div.karte", [
+      UI.el("span.etikett", { text: "Eigene Einträge an diesem Tag" }),
+      meine.length ? UI.el("div.gruppe.blank", meine.map(function (x) {
+        return UI.el("div.zeile", [
+          UI.el("span.zt.dehnbar", { text: x.name }),
+          x.von ? UI.el("span.zw", { text: x.von }) : null,
+          UI.el("button.loeschen", {
+            type: "button",
+            onclick: function () {
+              var i = e().eintraege.indexOf(x);
+              if (i >= 0) e().eintraege.splice(i, 1);
+              Store.einstellungenSpeichern().then(zeichne);
+            }
+          }, "×")
+        ].filter(Boolean));
+      })) : null,
+      nameFeld,
+      UI.el("div.zeitreihe", [
+        zeitFeld,
+        UI.el("button.mini", { type: "button", onclick: anlegen }, "Eintragen")
+      ]),
+      UI.el("p.klein", { text: "Ohne Uhrzeit gilt der Eintrag als ganztägig." })
+    ].filter(Boolean));
+  }
 
-    return UI.el("div.karte.held", [
-      UI.el("span.etikett", { text: "Was Mīzān über deine Woche weiß" }),
-      UI.el("p.aurteil", {
-        text: UI.WOCHENTAGE[stark.tag] + " ist dein stärkster Tag (Schnitt " + Math.round(stark.s) +
-              "), " + UI.WOCHENTAGE[schwach.tag] + " dein schwächster (" + Math.round(schwach.s) + "). " +
-              (trainingsTage.length ? "Trainiert wird meist " + trainingsTage.join(" und ") + "." : "")
-      }),
-      UI.el("p.aurteil.ziel", {
-        text: "Vorschlag: Leg Schweres auf " + UI.WOCHENTAGE[stark.tag] +
-              " und plane " + UI.WOCHENTAGE[schwach.tag] + " bewusst leichter."
-      }),
-      UI.el("p.klein", {
-        text: "Mīzān trägt nichts von selbst ein. Sie sagt dir, was sie sieht — entscheiden tust du."
-      })
+  /* ---------- Das islamische Jahr ---------- */
+  function jahrBlock() {
+    var heute = new Date();
+    var zeilen = [];
+    for (var i = 0; i <= 380 && zeilen.length < 8; i++) {
+      var d = new Date(heute.getFullYear(), heute.getMonth(), heute.getDate() + i);
+      var a = Hijri.anlass(d);
+      if (!a || a.art !== "gross") continue;
+      (function (d, a, i) {
+        zeilen.push(UI.zeile({
+          text: a.name,
+          wert: i === 0 ? "heute" : (i === 1 ? "morgen" : "in " + i + " Tagen"),
+          onclick: function () {
+            anker = new Date(d.getFullYear(), d.getMonth(), 1);
+            gewaehlt = Store.key(d);
+            sicht = "monat";
+            zeichne();
+            window.scrollTo(0, 0);
+          }
+        }));
+      })(d, a, i);
+    }
+    if (!zeilen.length) return null;
+    return UI.el("div.block", [
+      UI.el("div.blockkopf", { text: "Im islamischen Jahr" }),
+      UI.el("div.gruppe", zeilen)
     ]);
   }
 
-  /* Direkt zu diesem Tag springen und dort eintragen.
-     Für morgen gibt es nichts einzutragen — Termine ja, Taten nein. */
-  function bearbeitenKnopf() {
-    if (!gewaehlt) return null;
-    if (gewaehlt > Store.heute()) {
-      return UI.el("div.notiz", {
-        text: "Ein künftiger Tag lässt sich planen, aber nicht abhaken. Trag unten ein, was ansteht."
-      });
-    }
-    return UI.el("button.cta", {
-      type: "button",
-      onclick: function () {
-        Store.setzeDatum(gewaehlt);
-        location.hash = "#/heute";
-      }
-    }, gewaehlt === Store.heute() ? "Zum heutigen Tag" : "Diesen Tag nachtragen");
-  }
-
-  /* Lücken der letzten 30 Tage.
-     „Da weiß ich nicht mehr alles" — deshalb zeigt Mīzān, welche Tage
-     leer sind, statt darauf zu warten, dass es dir auffällt. */
+  /* ---------- Lücken der letzten 30 Tage ---------- */
   function hatEintrag(t) {
     if (!t) return false;
-    if (t.muhasaba || typeof t.score === "number") return true;
+    if (t.muhasaba) return true;
     return Gebetszeiten.PFLICHT.some(function (k) { return t.gebete && t.gebete[k]; });
   }
 
   function lueckenKarte() {
-    var heuteKey = Store.heute();
     var leer = [];
     for (var i = 1; i <= 30; i++) {
-      var d = new Date(Store.ausKey(heuteKey).getTime() - i * 86400000);
+      var d = new Date(Store.ausKey(Store.heute()).getTime() - i * 86400000);
       var k = Store.key(d);
       if (!hatEintrag(tage[k])) leer.push(k);
     }
@@ -290,7 +321,7 @@ var AnsichtKalender = (function () {
         UI.el("p.aurteil", { text: "Die letzten 30 Tage sind alle erfasst. Genau so." })
       ]);
     }
-    return UI.el("div.karte" + (leer.length > 6 ? ".schuld" : ""), [
+    return UI.el("div.karte" + (leer.length > 8 ? ".schuld" : ""), [
       UI.el("span.etikett", {
         text: UI.plural(leer.length, "Tag ohne Eintrag", "Tage ohne Eintrag") + " · letzte 30"
       }),
@@ -298,29 +329,41 @@ var AnsichtKalender = (function () {
         var d = Store.ausKey(k);
         return UI.el("button.chip", {
           type: "button",
-          onclick: function () {
-            Store.setzeDatum(k);
-            location.hash = "#/heute";
-          }
+          onclick: function () { Store.setzeDatum(k); location.hash = "#/abschluss"; }
         }, UI.WOCHENTAGE[d.getDay()].slice(0, 2) + ", " + d.getDate() + "." + (d.getMonth() + 1) + ".");
       })),
       UI.el("p.klein", {
         text: leer.length > 10
-          ? "Die zehn jüngsten stehen hier. Tippen springt in die Tagesansicht — dort trägst du alles nach."
-          : "Tippen springt in die Tagesansicht — dort trägst du alles nach."
+          ? "Die zehn jüngsten stehen hier. Tippen öffnet den Tag zum Nachtragen."
+          : "Tippen öffnet den Tag zum Nachtragen."
       })
     ]);
   }
 
-  function exportKarte() {
-    return UI.el("div.karte", [
-      UI.el("span.etikett", { text: "In den iPhone-Kalender" }),
-      UI.el("p.aurteil", {
-        text: "Gebetszeiten, weiße Tage, islamische Termine und die Jumuʿa als Kalenderdatei — mit Alarmen von iOS."
-      }),
-      UI.el("button.cta", {
-        type: "button", onclick: function () { location.hash = "#/erinnerungen"; }
-      }, "Erinnerungen einrichten")
+  /* ---------- Weiterführendes ---------- */
+  function wegeBlock() {
+    return UI.el("div.block", [
+      UI.el("div.blockkopf", { text: "Mehr" }),
+      UI.el("div.gruppe", [
+        UI.zeile({
+          text: "Fasten", wert: (Fasten.liste() || []).length
+            ? UI.plural(Fasten.liste().length, "Tag vorgemerkt", "Tage vorgemerkt")
+            : "vormerken & Qaḍāʾ",
+          onclick: function () { location.hash = "#/fasten"; },
+          rechts: UI.el("span.bpfeil.klein", { text: "›" })
+        }),
+        UI.zeile({
+          text: "Wiederkehrende Termine",
+          wert: UI.plural((e().termine || []).length, "Termin", "Termine"),
+          onclick: function () { location.hash = "#/termine"; },
+          rechts: UI.el("span.bpfeil.klein", { text: "›" })
+        }),
+        UI.zeile({
+          text: "Erinnerungen", wert: "Kalenderdatei & Kurzbefehle",
+          onclick: function () { location.hash = "#/erinnerungen"; },
+          rechts: UI.el("span.bpfeil.klein", { text: "›" })
+        })
+      ])
     ]);
   }
 
@@ -330,24 +373,25 @@ var AnsichtKalender = (function () {
     UI.leeren(wurzel);
     wurzel.appendChild(UI.kopf("Kalender", UI.datumLang(new Date()), h.textAr));
     wurzel.appendChild(UI.el("div.inhalt", [
-      monatsKopf(),
+      kopfLeiste(),
       raster(),
       legende(),
       tagesKarte(),
-      bearbeitenKnopf(),
+      aktionen(),
       eintragKarte(),
+      jahrBlock(),
       lueckenKarte(),
-      planungKarte(),
-      exportKarte()
+      wegeBlock()
     ].filter(Boolean)));
   }
 
   function oeffnen(root) {
     wurzel = root;
+    Fasten.aufraeumen();
     // Der Kalender öffnet dort, wo du gerade stehst — nicht immer im Heute
     gewaehlt = Store.datum();
     var g = Store.ausKey(gewaehlt);
-    monat = new Date(g.getFullYear(), g.getMonth(), 1);
+    anker = sicht === "woche" ? g : new Date(g.getFullYear(), g.getMonth(), 1);
     return Store.alleTage().then(function (liste) {
       tage = {};
       liste.forEach(function (t) { tage[t.datum] = t; });

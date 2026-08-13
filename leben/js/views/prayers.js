@@ -5,12 +5,11 @@ var AnsichtGebete = (function () {
   var tag = null, zeiten = null, wurzel = null, offenesGebet = null;
 
   function speichern() {
-    tag.score = Score.fuer(tag).wert;
     return Store.tagSpeichern(tag).then(zeichne);
   }
 
   function stufenWaehler(k) {
-    return UI.el("div.stufen", Score.GEBETSSTUFEN.map(function (s) {
+    return UI.el("div.stufen", Gebetszeiten.STUFEN.map(function (s) {
       var an = tag.gebete[k] === s.key;
       return UI.el("button.stufe.f-" + s.farbe + (an ? ".an" : ""), {
         type: "button", title: s.lang,
@@ -29,10 +28,10 @@ var AnsichtGebete = (function () {
      Moschee = 5, Verpasst = 1 (rot). */
   function punkte(k) {
     var w = tag.gebete[k];
-    var idx = w ? Score.GEBETSSTUFEN.findIndex(function (s) { return s.key === w; }) : -1;
-    var anzahl = idx >= 0 ? Score.GEBETSSTUFEN.length - idx : 0;
-    var farbe = idx >= 0 ? Score.GEBETSSTUFEN[idx].farbe : "";
-    return UI.el("span.punkte", Score.GEBETSSTUFEN.map(function (_, i) {
+    var idx = w ? Gebetszeiten.STUFEN.findIndex(function (s) { return s.key === w; }) : -1;
+    var anzahl = idx >= 0 ? Gebetszeiten.STUFEN.length - idx : 0;
+    var farbe = idx >= 0 ? Gebetszeiten.STUFEN[idx].farbe : "";
+    return UI.el("span.punkte", Gebetszeiten.STUFEN.map(function (_, i) {
       return UI.el("i" + (i < anzahl ? ".f-" + farbe : ""));
     }));
   }

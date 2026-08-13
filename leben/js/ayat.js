@@ -31,7 +31,6 @@ var Ayat = (function () {
       return tag.gebete[k] === "verpasst";
     }).length;
     if (verpasst >= 1) return ausThema("gebet") || verse[0];
-    if (tag.stimmung && tag.stimmung <= 2) return ausThema("trost") || verse[0];
     if (tag.muhasaba) return ausThema("muhasaba") || verse[0];
 
     var d = Store.ausKey(tag.datum);

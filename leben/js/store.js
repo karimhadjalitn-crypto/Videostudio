@@ -19,38 +19,19 @@ var Store = (function () {
     korrektur: { fajr: 0, sunrise: 0, dhuhr: 0, asr: 0, maghrib: 0, isha: 0 },
     hijriOffset: 0,
     jumua: { sommer: "14:45", winter: "13:30" },
-    arbeitstage: [3, 4, 5], // Mi, Do, Fr
-    schlafZiel: "00:00",
-    wasserZiel: 3.0,
+    arbeitstage: [3, 4, 5], // Mi, Do, Fr — nur als Markierung im Kalender
     moscheeZielWoche: 7,
     /* Rückwärts durch den Mushaf: an-Nās (114) bis al-Muzzammil (73) sitzen,
        al-Jinn (72) wird gerade gelernt. Wird beim ersten Start befüllt. */
     hifz: { status: {}, richtung: "rueckwaerts" },
     fasten: { qada: 0 },
+    /* Tage, die du dir zum Fasten vorgemerkt hast — "YYYY-MM-DD" */
+    fastenGeplant: [],
     thema: "hell",          // hell | dunkel | system
-    gewichte: {
-      religion: 45, produktivitaet: 18, sport: 12,
-      schlaf: 8, ernaehrung: 8, soziales: 5, innen: 4
-    },
-    ton: "fordernd",
+    ton: "fordernd",        // sanft | fordernd | hart
 
-    /* ---------- Körper und Sport ---------- */
-    sport: {
-      wochenziel: 4,
-      arten: ["Calisthenics", "Kraft", "Fußball"],
-      orte: ["McFit", "Draußen", "Zuhause"],
-      gewichtZiel: { von: 75, bis: 78 }
-    },
-
-    /* ---------- Ernährung ---------- */
-    essen: {
-      supplemente: ["D3 + K2", "Ashwagandha", "Magnesium", "Vitamin C + Zink",
-                    "Vitamin-B-Komplex", "Omega-3", "Kreatin"],
-      suessAusnahmen: 2       // erlaubte Ausnahmen pro Woche
-    },
-
-    /* ---------- Arbeit, Uni, Selbstständigkeit ---------- */
-    projekte: ["FOM Wirtschaftspsychologie", "LMU Klinikum", "Bewerbungen", "Selbstständigkeit"],
+    /* Trainingsarten für den Sport-Haken */
+    sport: { arten: ["Calisthenics", "Kraft", "Fußball"] },
 
     /* Wiederkehrende Termine — Wochentage 0=So … 6=Sa */
     termine: [
@@ -64,43 +45,12 @@ var Store = (function () {
     buecher: [
       { titel: "Minhāj al-Muslim", autor: "Abū Bakr al-Jazāʾirī", seiten: 0, stand: 0 }
     ],
-    business: { videoZielWoche: 4 },
 
-    /* ---------- Finanzen: keine Zakāt-Berechnung, nur Sadaqa ---------- */
-    finanzen: {
-      schwelle: 20,           // darunter läuft es als Wochenpauschale
-      kategorien: ["Essen", "Transport", "Uni & Bücher", "Kleidung", "Handy & Abos",
-                   "Sadaqa", "Freizeit", "Sonstiges"],
-      budget: 0,
-      sadaqaZielMonat: 0,
-      sparziel: { name: "", betrag: 0, stand: 0 },
-      vermoegen: 0
-    },
-
-    /* ---------- Soziales ---------- */
-    kontakte: [
-      { name: "Eltern", intervall: 3 },
-      { name: "Neva", intervall: 1 },
-      { name: "Geschwister", intervall: 7 },
-      { name: "Verwandte", intervall: 21 },
-      { name: "Freunde", intervall: 14 }
-    ],
-
-    /* ---------- Ehe und Familienplanung ---------- */
-    ehe: { geschuetzt: true, notiz: "" },
-
-    /* ---------- Geschützter Bereich ---------- */
-    kaempfe: [
-      { id: "scrollen", name: "Scrollen", aktiv: true },
-      { id: "blick", name: "Blick senken", aktiv: true },
-      { id: "zunge", name: "Zunge hüten", aktiv: true },
-      { id: "aufschieben", name: "Aufschieben", aktiv: true },
-      { id: "zorn", name: "Zorn", aktiv: false }
-    ],
+    /* ---------- Journal ---------- */
     sperre: { appCode: "", bereichCode: "" },
 
     /* ---------- Eigene Tagespunkte ----------
-       Frei anlegbar, in jedem Bereich, mit verschiedenen Erfassungsarten. */
+       Frei anlegbar, mit verschiedenen Erfassungsarten. */
     eigenePunkte: [],
 
     /* Ausgeblendete Standardpunkte (Schlüssel wie "sunnah.duha") */
@@ -116,37 +66,23 @@ var Store = (function () {
   };
 
   /* ---------- Tagesdatensatz ---------- */
+  /* Nur noch, was die App auch zeigt. Ältere Datensätze behalten ihre
+     zusätzlichen Felder — tief() übernimmt alles aus dem Gespeicherten,
+     auch was hier nicht mehr steht. Es geht nichts verloren. */
   function leererTag(datum) {
     return {
       datum: datum, v: SCHEMA,
       gebete: { fajr: null, dhuhr: null, asr: null, maghrib: null, isha: null },
       sunnah: { rawatib: false, witr: false, duha: false, tahajjud: false, ishraq: false, tarawih: false },
       quran: { gelesen: 0, murajaa: false, hifz: false },
-      buecher: {},          // Titel -> heute gelesene Seiten
-      dhikr: { morgens: false, abends: false, nachGebet: 0, istighfar: 0, salawat: 0 },
+      buecher: {},          // Titel -> an diesem Tag gelesene Seiten
+      dhikr: { gemacht: false },
       fasten: false,
-      akhlaq: {},
-      notizen: {},        // freie Ergänzung zu einzelnen Fragen
-      wasser: 0,
-      essen: { suess: null, nichtUeberessen: false, protein: false, supplemente: {} },
-      training: { arten: [], ort: null },
-      gewicht: null,
-      schritte: null,
-      bildschirm: { gearbeitet: null, gescrollt: null },
-      arbeit: { erledigt: 0, wichtigste: [] },
-      business: { videos: 0, produkte: 0, skripte: 0, check: {} },
-      ausgaben: [],          // { betrag, kategorie, notiz }
-      sadaqa: 0,
-      kontakte: {},          // name -> true, wenn heute erreicht
-      kaempfe: { rueckfall: [], ausloeser: {} },
-      stimmung: null,
-      dankbar: [],
+      training: { arten: [] },
       eigene: {},           // id -> Wert der eigenen Punkte
-      schlaf: { bett: null, auf: null, fajrAuf: false },
-      notiz: "",
+      notiz: "",            // das Journal dieses Tages
       reise: false,
-      muhasaba: false,
-      score: null
+      muhasaba: false       // Tag abgeschlossen
     };
   }
 
@@ -226,10 +162,8 @@ var Store = (function () {
   }
 
   /* ---------- Tagescache ----------
-     Der Score braucht den Wochenzusammenhang: wie oft wurde diese Woche
-     trainiert, wann war der letzte Kontakt. Früher musste jede Ansicht das
-     selbst mitliefern — je nachdem, von wo aus gespeichert wurde, kam ein
-     anderer Score heraus. Der Cache macht das eindeutig. */
+     Alle Tage im Speicher, damit Ansichten den Zusammenhang über mehrere
+     Tage sehen können, ohne jedes Mal die Datenbank zu lesen. */
   var tageCache = [];
 
   function tageImSpeicher() { return tageCache; }
@@ -305,21 +239,10 @@ var Store = (function () {
     });
   }
 
-  /* ---------- Aufgaben ---------- */
-  function neueAufgabe(text, projekt) {
-    return {
-      id: "a" + Date.now() + Math.random().toString(36).slice(2, 7),
-      text: text, projekt: projekt || null,
-      faellig: null,          // "YYYY-MM-DD"
-      wiederholung: null,     // null | "taeglich" | "woechentlich" | "monatlich"
-      erledigt: false, erledigtAm: null,
-      wichtig: false,         // eine der „drei Wichtigsten“
-      angelegt: new Date().toISOString()
-    };
-  }
+  /* ---------- Aufgaben ----------
+     Die Aufgabenliste gibt es in der App nicht mehr. Der Speicher bleibt,
+     damit ältere Sicherungen weiter einlesbar sind und nichts verlorengeht. */
   function aufgaben() { return anfrage(tx("aufgaben").getAll()); }
-  function aufgabeSpeichern(a) { return anfrage(tx("aufgaben", "readwrite").put(a)); }
-  function aufgabeLoeschen(id) { return anfrage(tx("aufgaben", "readwrite").delete(id)); }
 
   /* ---------- Export / Import ---------- */
   /* Tiefe Kopie, keine lebende Referenz: sonst verändert sich eine schon
@@ -393,9 +316,6 @@ var Store = (function () {
     istHeute: istHeute,
     datumVerschieben: datumVerschieben,
     aufgaben: aufgaben,
-    neueAufgabe: neueAufgabe,
-    aufgabeSpeichern: aufgabeSpeichern,
-    aufgabeLoeschen: aufgabeLoeschen,
     key: key,
     ausKey: ausKey,
     exportieren: exportieren,

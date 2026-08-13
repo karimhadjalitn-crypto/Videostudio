@@ -139,47 +139,35 @@ var AnsichtErinnerungen = (function () {
       ]),
 
       UI.el("div.karte", [
-        UI.el("span.etikett", { text: "Schlafenszeit 23:15" }),
-        UI.el("p.aurteil", { text: "Du wolltest vor 0 Uhr im Bett sein. Das hier erinnert dich rechtzeitig." }),
-        adressZeile("Adresse", "#/import?bett=jetzt"),
+        UI.el("span.etikett", { text: "Der Tagesabschluss nach ʿIshā'" }),
+        UI.el("p.aurteil", {
+          text: "Der wichtigste Kurzbefehl: eine Erinnerung am Abend, die dich gleich in die richtige Ansicht bringt."
+        }),
+        adressZeile("Adresse", "#/abschluss"),
         schritte([
           "In <b>Kurzbefehle</b> auf <b>Automation</b> → <b>Neue Automation</b> → <b>Tageszeit</b>.",
-          "<b>23:15</b>, täglich, <b>sofort ausführen</b> ohne Nachfrage.",
-          "Aktion <b>Mitteilung anzeigen</b>: „Du wolltest vor 0 Uhr im Bett sein.“",
-          "Zweite Aktion <b>URL öffnen</b> mit der Adresse oben — die trägt deine Zubettgehzeit gleich ein."
+          "Zeit wählen, z. B. <b>22:30</b>, täglich, <b>sofort ausführen</b> ohne Nachfrage.",
+          "<b>Mitteilung anzeigen</b>: „Tag abschließen — eine Minute.“",
+          "Zweite Aktion <b>URL öffnen</b> mit der Adresse oben."
         ])
       ]),
 
       UI.el("div.karte", [
-        UI.el("span.etikett", { text: "Abendabrechnung nach Maghrib" }),
-        adressZeile("Adresse", "#/muhasaba"),
-        schritte([
-          "Automation → <b>Tageszeit</b>, z. B. <b>21:30</b>, täglich, sofort ausführen.",
-          "<b>Mitteilung anzeigen</b>: „Muḥāsaba — eine Minute.“",
-          "<b>URL öffnen</b> mit der Adresse oben."
-        ])
-      ]),
-
-      UI.el("div.karte", [
-        UI.el("span.etikett", { text: "Gewicht und Schritte aus Health" }),
+        UI.el("span.etikett", { text: "Weitere Adressen" }),
         UI.el("p.aurteil", {
-          text: "Eine Web-App darf Apple Health nicht auslesen. Ein Kurzbefehl darf es — und übergibt die Werte an Mīzān."
+          text: "Alles, was ein Kurzbefehl direkt eintragen kann. Mehrere Werte lassen sich mit & verbinden."
         }),
-        adressZeile("Muster der Adresse", "#/import?gewicht=80,4&schritte=8231"),
-        schritte([
-          "Automation → <b>Tageszeit</b>, <b>22:00</b>, täglich, sofort ausführen.",
-          "Aktion <b>Health-Sample suchen</b> → Typ <b>Gewicht</b>, Grenze 1, sortiert nach Datum absteigend.",
-          "Aktion <b>Health-Sample suchen</b> → Typ <b>Schritte</b>, heute, <b>Statistik: Summe</b>.",
-          "Aktion <b>URL öffnen</b>: die Adresse oben einsetzen und die beiden Zahlen durch die <b>Variablen</b> aus den Health-Aktionen ersetzen."
-        ]),
-        UI.el("p.klein", { text: "Komma oder Punkt als Dezimaltrennzeichen — beides wird verstanden." })
-      ]),
-
-      UI.el("div.karte.hinweis", [
-        UI.el("div.hz", {
-          text: "Bildschirmzeit lässt sich auf dem iPhone von keiner App auslesen, auch von keiner nativen. Die trägst du abends bei der Muḥāsaba selbst ein."
+        adressZeile("Adhkār erledigt", "#/import?dhikr=1"),
+        adressZeile("Murājaʿa erledigt", "#/import?murajaa=1"),
+        adressZeile("Fünf Seiten gelesen", "#/import?gelesen=5"),
+        adressZeile("Trainiert", "#/import?training=1"),
+        adressZeile("Gefastet", "#/import?fasten=1"),
+        UI.el("p.klein", {
+          text: "Mehrere auf einmal: #/import?dhikr=1&gelesen=5&training=1"
         })
       ]),
+
+
 
       UI.el("button.cta.leise", {
         type: "button", onclick: function () { location.hash = "#/mehr"; }

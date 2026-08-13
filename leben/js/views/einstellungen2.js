@@ -1,111 +1,13 @@
-/* Mīzān – Ergänzende Einstellungen: Gewichtung, Ziele, Kontakte,
-   Sperre und der Reisemodus. */
+/* Mīzān – Listen, Sperre und Reisemodus. */
 
 /* ==================== Gewichtung ==================== */
-var AnsichtGewichtung = (function () {
+var AnsichtListen = (function () {
   "use strict";
   var wurzel = null;
 
-  var NAMEN = {
-    religion: "Religion", produktivitaet: "Arbeit & Uni", sport: "Sport & Körper",
-    schlaf: "Schlaf", ernaehrung: "Ernährung", soziales: "Soziales & Familie",
-    innen: "Innenleben & Finanzen"
-  };
+  function sichern() { return Store.einstellungenSpeichern().then(zeichne); }
 
-  function zeichne() {
-    if (!wurzel) return;
-    var e = Store.einstellungen;
-    var g = e.gewichte;
-    var summe = Object.keys(g).reduce(function (a, k) { return a + g[k]; }, 0);
-
-    function regler(k) {
-      var anzeige = UI.el("span.zw", { text: g[k] + " %" });
-      function setz(n) {
-        g[k] = Math.max(0, Math.min(80, g[k] + n));
-        anzeige.textContent = g[k] + " %";
-        Store.einstellungenSpeichern().then(function () {
-          var s = Object.keys(g).reduce(function (a, x) { return a + g[x]; }, 0);
-          gesamt.textContent = s + " %";
-          gesamt.className = "zw" + (s === 100 ? "" : " warn");
-        });
-      }
-      return UI.el("div.zeile", [
-        UI.el("span.zt.dehnbar", { text: NAMEN[k] }),
-        anzeige,
-        UI.el("div.stepper", [
-          UI.el("button.mini", { type: "button", onclick: function () { setz(-1); } }, "−"),
-          UI.el("button.mini", { type: "button", onclick: function () { setz(1); } }, "+")
-        ])
-      ]);
-    }
-
-    var gesamt = UI.el("span.zw" + (summe === 100 ? "" : ".warn"), { text: summe + " %" });
-
-    UI.leeren(wurzel);
-    wurzel.appendChild(UI.kopf("Gewichtung", "Was wie stark zählt", ""));
-    wurzel.appendChild(UI.el("div.inhalt", [
-      UI.el("div.karte.hinweis", [
-        UI.el("div.hz", {
-          text: "Diese Prozente bestimmen deinen Tagesscore. Sie müssen sich nicht exakt auf 100 summieren — Mīzān rechnet anteilig. Aber es hilft beim Denken."
-        })
-      ]),
-      UI.el("div.block", [
-        UI.el("div.blockkopf", { text: "Anteile" }),
-        UI.el("div.gruppe", Object.keys(NAMEN).map(regler).concat([
-          UI.el("div.zeile.summe", [UI.el("span.zt.dehnbar", { text: "Summe" }), gesamt])
-        ]))
-      ]),
-      UI.el("button.cta.leise", {
-        type: "button",
-        onclick: function () {
-          e.gewichte = { religion: 45, produktivitaet: 18, sport: 12, schlaf: 8,
-                         ernaehrung: 8, soziales: 5, innen: 4 };
-          Store.einstellungenSpeichern().then(zeichne);
-          UI.meldung("Zurückgesetzt.");
-        }
-      }, "Auf Ausgangswerte zurücksetzen"),
-      UI.el("button.cta.leise", {
-        type: "button", onclick: function () { location.hash = "#/mehr"; }
-      }, "Zurück")
-    ]));
-  }
-
-  function oeffnen(root) { wurzel = root; zeichne(); return Promise.resolve(); }
-  return { oeffnen: oeffnen, schliessen: function () { wurzel = null; } };
-})();
-
-
-/* ==================== Ziele & Listen ==================== */
-var AnsichtZiele = (function () {
-  "use strict";
-  var wurzel = null;
-
-  function textZeile(label, wert, beiAenderung, platzhalter) {
-    var inp = UI.el("input.feld", {
-      type: "text", value: wert == null ? "" : String(wert), placeholder: platzhalter || "",
-      onchange: function () { beiAenderung(inp.value); }
-    });
-    return UI.el("div.zeile", [UI.el("span.zt.dehnbar", { text: label }), inp]);
-  }
-
-  function zahlZeile(label, wert, schritt, min, max, beiAenderung, einheit) {
-    var anzeige = UI.el("span.zw", { text: wert + (einheit || "") });
-    var akt = wert;
-    function setz(v) {
-      akt = Math.max(min, Math.min(max, Math.round(v * 100) / 100));
-      anzeige.textContent = akt + (einheit || "");
-      beiAenderung(akt);
-    }
-    return UI.el("div.zeile", [
-      UI.el("span.zt.dehnbar", { text: label }), anzeige,
-      UI.el("div.stepper", [
-        UI.el("button.mini", { type: "button", onclick: function () { setz(akt - schritt); } }, "−"),
-        UI.el("button.mini", { type: "button", onclick: function () { setz(akt + schritt); } }, "+")
-      ])
-    ]);
-  }
-
-  function liste(titel, arr, beiAenderung, platzhalter) {
+  function liste(titel, arr, platzhalter, hinweis) {
     var eingabe = UI.el("input.aufgabenfeld", {
       type: "text", placeholder: platzhalter,
       onkeydown: function (ev) { if (ev.key === "Enter") dazu(); }
@@ -114,7 +16,7 @@ var AnsichtZiele = (function () {
       var t = eingabe.value.trim();
       if (!t) return;
       arr.push(t); eingabe.value = "";
-      beiAenderung();
+      sichern();
     }
     return UI.el("div.block", [
       UI.el("div.blockkopf", { text: titel }),
@@ -122,60 +24,28 @@ var AnsichtZiele = (function () {
         return UI.el("div.zeile", [
           UI.el("span.zt.dehnbar", { text: x }),
           UI.el("button.loeschen", {
-            type: "button", onclick: function () { arr.splice(i, 1); beiAenderung(); }
+            type: "button", onclick: function () { arr.splice(i, 1); sichern(); }
           }, "×")
         ]);
       }).concat([
-        UI.el("div.zeile", [eingabe, UI.el("button.mini", { type: "button", onclick: dazu }, "+")])
-      ]))
-    ]);
+        UI.el("div.zeile", [
+          eingabe,
+          UI.el("button.mini", { type: "button", onclick: dazu }, "+")
+        ])
+      ])),
+      hinweis ? UI.el("p.klein", { text: hinweis }) : null
+    ].filter(Boolean));
   }
 
   function zeichne() {
     if (!wurzel) return;
     var e = Store.einstellungen;
-    function sichern() { Store.einstellungenSpeichern().then(zeichne); }
-    function still() { Store.einstellungenSpeichern(); }
-
     UI.leeren(wurzel);
-    wurzel.appendChild(UI.kopf("Ziele & Listen", "Deine Vorgaben", ""));
+    wurzel.appendChild(UI.kopf("Listen", "Was die App dir anbietet", ""));
     wurzel.appendChild(UI.el("div.inhalt", [
+      liste("Trainingsarten", e.sport.arten, "Art hinzufügen …",
+        "Erscheint beim Tagesabschluss, wenn du „Trainiert“ antippst."),
 
-      UI.el("div.block", [
-        UI.el("div.blockkopf", { text: "Sport" }),
-        UI.el("div.gruppe", [
-          zahlZeile("Trainings pro Woche", e.sport.wochenziel, 1, 0, 14,
-            function (v) { e.sport.wochenziel = v; still(); }, "×"),
-          zahlZeile("Zielgewicht von", e.sport.gewichtZiel.von, 0.5, 40, 150,
-            function (v) { e.sport.gewichtZiel.von = v; still(); }, " kg"),
-          zahlZeile("Zielgewicht bis", e.sport.gewichtZiel.bis, 0.5, 40, 150,
-            function (v) { e.sport.gewichtZiel.bis = v; still(); }, " kg")
-        ])
-      ]),
-      liste("Trainingsarten", e.sport.arten, sichern, "Art hinzufügen …"),
-
-      UI.el("div.block", [
-        UI.el("div.blockkopf", { text: "Ernährung" }),
-        UI.el("div.gruppe", [
-          zahlZeile("Wasser am Tag", e.wasserZiel, 0.25, 0.5, 6,
-            function (v) { e.wasserZiel = v; still(); }, " l"),
-          zahlZeile("Süßigkeiten-Ausnahmen je Woche", e.essen.suessAusnahmen, 1, 0, 14,
-            function (v) { e.essen.suessAusnahmen = v; still(); }, "×")
-        ])
-      ]),
-      liste("Supplemente", e.essen.supplemente, sichern, "Supplement hinzufügen …"),
-
-      UI.el("div.block", [
-        UI.el("div.blockkopf", { text: "Business" }),
-        UI.el("div.gruppe", [
-          zahlZeile("Videos pro Woche", e.business.videoZielWoche, 1, 0, 30,
-            function (v) { e.business.videoZielWoche = v; still(); }, "×")
-        ])
-      ]),
-      liste("Projekte", e.projekte, sichern, "Projekt hinzufügen …"),
-
-      /* Bücher pflegst du dort, wo du sie liest: Qur'an → Bücher.
-         Zwei Stellen für dieselbe Liste haben nur Verwirrung gestiftet. */
       UI.el("div.block", [
         UI.el("div.blockkopf", { text: "Bücher" }),
         UI.el("div.gruppe", [
@@ -194,57 +64,26 @@ var AnsichtZiele = (function () {
       ]),
 
       UI.el("div.block", [
-        UI.el("div.blockkopf", { text: "Finanzen" }),
-        UI.el("div.gruppe", [
-          zahlZeile("Ausgaben einzeln erfassen ab", e.finanzen.schwelle, 5, 0, 200,
-            function (v) { e.finanzen.schwelle = v; still(); }, " €"),
-          zahlZeile("Monatsbudget", e.finanzen.budget, 50, 0, 10000,
-            function (v) { e.finanzen.budget = v; still(); }, " €"),
-          zahlZeile("Sadaqa-Ziel je Monat", e.finanzen.sadaqaZielMonat, 5, 0, 2000,
-            function (v) { e.finanzen.sadaqaZielMonat = v; still(); }, " €"),
-          textZeile("Sparziel", e.finanzen.sparziel.name,
-            function (v) { e.finanzen.sparziel.name = v; still(); }, "z. B. Hochzeit"),
-          zahlZeile("Sparziel-Betrag", e.finanzen.sparziel.betrag, 250, 0, 200000,
-            function (v) { e.finanzen.sparziel.betrag = v; still(); }, " €")
-        ])
-      ]),
-      liste("Ausgaben-Kategorien", e.finanzen.kategorien, sichern, "Kategorie hinzufügen …"),
-
-      UI.el("div.block", [
-        UI.el("div.blockkopf", { text: "Soziales · Abstand in Tagen" }),
-        UI.el("div.gruppe", e.kontakte.map(function (k, i) {
-          return UI.el("div.zeile", [
-            UI.el("span.zt.dehnbar", { text: k.name }),
-            (function () {
-              var a = UI.el("span.zw", { text: k.intervall + " T" });
-              function setz(n) {
-                k.intervall = Math.max(1, Math.min(90, k.intervall + n));
-                a.textContent = k.intervall + " T"; still();
-              }
-              return UI.el("span", [a, UI.el("span.stepper", [
-                UI.el("button.mini", { type: "button", onclick: function () { setz(-1); } }, "−"),
-                UI.el("button.mini", { type: "button", onclick: function () { setz(1); } }, "+")
-              ])]);
-            })(),
-            UI.el("button.loeschen", {
-              type: "button", onclick: function () { e.kontakte.splice(i, 1); sichern(); }
-            }, "×")
-          ]);
-        }).concat([(function () {
-          var eingabe = UI.el("input.aufgabenfeld", {
-            type: "text", placeholder: "Person hinzufügen …",
-            onkeydown: function (ev) {
-              if (ev.key === "Enter" && eingabe.value.trim()) {
-                e.kontakte.push({ name: eingabe.value.trim(), intervall: 7 }); sichern();
-              }
+        UI.el("div.blockkopf", { text: "Arbeitstage" }),
+        UI.el("div.gruppe", [0, 1, 2, 3, 4, 5, 6].map(function (wt) {
+          var an = (e.arbeitstage || []).indexOf(wt) >= 0;
+          return UI.zeile({
+            haken: an, text: UI.WOCHENTAGE[wt],
+            onclick: function () {
+              if (!e.arbeitstage) e.arbeitstage = [];
+              var i = e.arbeitstage.indexOf(wt);
+              if (i >= 0) e.arbeitstage.splice(i, 1); else e.arbeitstage.push(wt);
+              e.arbeitstage.sort();
+              sichern();
             }
           });
-          return UI.el("div.zeile", [eingabe]);
-        })()]))
+        })),
+        UI.el("p.klein", { text: "Nur als Markierung im Kalender — nichts wird dazu erfasst." })
       ]),
 
       UI.el("button.cta.leise", {
-        type: "button", onclick: function () { location.hash = "#/mehr"; }
+        type: "button",
+        onclick: function () { if (history.length > 1) history.back(); else location.hash = "#/mehr"; }
       }, "Zurück")
     ]));
   }
@@ -254,7 +93,6 @@ var AnsichtZiele = (function () {
 })();
 
 
-/* ==================== Sperre ==================== */
 var AnsichtSperre = (function () {
   "use strict";
   var wurzel = null;
@@ -300,18 +138,18 @@ var AnsichtSperre = (function () {
   function zeichne() {
     if (!wurzel) return;
     UI.leeren(wurzel);
-    wurzel.appendChild(UI.kopf("Sperre", "Codes für App und Bereich", ""));
+    wurzel.appendChild(UI.kopf("Sperre", "Codes für App und Journal", ""));
     wurzel.appendChild(UI.el("div.inhalt", [
       UI.el("div.karte.hinweis", [
         UI.el("div.hz", {
           text: "Codes werden nur als Prüfsumme gespeichert, nie im Klartext — auch nicht in der Sicherungsdatei. " +
-                "Vergisst du einen Code, kommst du an den Bereich nicht mehr heran. Es gibt keine Wiederherstellung."
+                "Vergisst du einen Code, kommst du an das Journal nicht mehr heran. Es gibt keine Wiederherstellung."
         })
       ]),
       codeSetzen("appCode", "Code beim Öffnen der App"),
-      codeSetzen("bereichCode", "Code für den geschützten Bereich"),
+      codeSetzen("bereichCode", "Code fürs Journal"),
       UI.el("p.klein", {
-        text: "Empfehlung: nur den Bereichs-Code setzen. Sonst tippst du ihn zwanzigmal am Tag, auch wenn du nur Wasser eintragen willst."
+        text: "Empfehlung: nur den Journal-Code setzen. Sonst tippst du ihn jedes Mal, auch wenn du nur ein Gebet eintragen willst."
       }),
       UI.el("button.cta.leise", {
         type: "button", onclick: function () { location.hash = "#/mehr"; }

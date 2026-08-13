@@ -1,75 +1,111 @@
-/* Mīzān – Fasten. Freiwillig, Ramadan und das Qaḍāʾ-Konto. */
+/* Mīzān – Fasten. Freiwillig, Ramaḍān und das Qaḍāʾ-Konto.
+   Neu: Tage lassen sich vormerken. Ein vorgemerkter Tag erscheint auf
+   „Heute“ und im Kalender — planen statt hinterher feststellen. */
+
+var Fasten = (function () {
+  "use strict";
+
+  function liste() {
+    var e = Store.einstellungen;
+    if (!e.fastenGeplant) e.fastenGeplant = [];
+    return e.fastenGeplant;
+  }
+
+  function geplant(k) { return liste().indexOf(k) >= 0; }
+
+  function umschalten(k) {
+    var l = liste();
+    var i = l.indexOf(k);
+    if (i >= 0) l.splice(i, 1); else l.push(k);
+    l.sort();
+    return Store.einstellungenSpeichern();
+  }
+
+  /* Was länger als eine Woche zurückliegt, ist erledigt oder verfallen —
+     die Liste soll nicht ewig wachsen. */
+  function aufraeumen() {
+    var grenze = Store.key(new Date(Date.now() - 7 * 86400000));
+    var l = liste(), vorher = l.length;
+    for (var i = l.length - 1; i >= 0; i--) if (l[i] < grenze) l.splice(i, 1);
+    if (l.length !== vorher) Store.einstellungenSpeichern();
+  }
+
+  /* Warum wäre dieser Tag ein Fastentag? */
+  function anlass(d) {
+    var h = Hijri.fuer(d);
+    if (h.ramadan) return { text: "Ramaḍān — Pflichtfasten", pflicht: true };
+    if (h.weisserTag) return { text: "Weißer Tag · " + h.tag + ". " + h.monatName };
+    var a = Hijri.anlass(d);
+    if (a && a.art === "fasten") return { text: a.name };
+    if (d.getDay() === 1) return { text: "Montag" };
+    if (d.getDay() === 4) return { text: "Donnerstag" };
+    return null;
+  }
+
+  return { geplant: geplant, umschalten: umschalten, anlass: anlass,
+           aufraeumen: aufraeumen, liste: liste };
+})();
+
+
 var AnsichtFasten = (function () {
   "use strict";
 
   var wurzel = null, tag = null;
 
   function speichern() {
-    tag.score = Score.fuer(tag).wert;
     return Store.tagSpeichern(tag).then(zeichne);
   }
 
-  function anlassHeute() {
-    var d = Store.ausKey(tag.datum);
-    var h = Hijri.fuer(d);
-    if (h.ramadan) return { text: "Ramaḍān — Pflichtfasten", art: "pflicht" };
-    if (h.weisserTag) return { text: "Weißer Tag · " + h.tag + ". " + h.monatName, art: "empfohlen" };
-    var a = Hijri.anlass(d);
-    if (a && a.art === "fasten") return { text: a.name, art: "empfohlen" };
-    if (d.getDay() === 1) return { text: "Montag", art: "empfohlen" };
-    if (d.getDay() === 4) return { text: "Donnerstag", art: "empfohlen" };
-    return null;
-  }
-
   function heuteKarte() {
-    var a = anlassHeute();
-    var z = Gebetszeiten.fuer(Store.ausKey(tag.datum));
-    return UI.el("div.karte" + (a ? ".held" : ""), [
-      UI.el("span.etikett", { text: a ? "Empfohlen" : UI.tagWort() }),
+    var d = Store.ausKey(tag.datum);
+    var a = Fasten.anlass(d);
+    var z = Gebetszeiten.fuer(d);
+    return UI.el("div.karte" + (tag.fasten ? ".held" : ""), [
+      UI.el("span.etikett", { text: a ? (a.pflicht ? "Pflicht" : "Empfohlen") : UI.tagWort() }),
       UI.el("div.gebetzeile", [
         UI.el("span.gname.klein", { text: a ? a.text : "Kein Fastentag" }),
-        UI.el("span.gzeit", { text: "Suḥūr bis " + Gebetszeiten.uhr(z.fajr) + " · Ifṭār " + Gebetszeiten.uhr(z.maghrib) })
+        UI.el("span.gzeit", {
+          text: "Suḥūr bis " + Gebetszeiten.uhr(z.fajr) + " · Ifṭār " + Gebetszeiten.uhr(z.maghrib)
+        })
       ]),
       UI.el("div.chips", [
         UI.el("button.chip" + (tag.fasten ? ".an" : ""), {
-          type: "button",
-          onclick: function () { tag.fasten = !tag.fasten; speichern(); }
-        }, tag.fasten ? "Gefastet" : "Ich faste " + UI.tagWortKlein())
+          type: "button", onclick: function () { tag.fasten = !tag.fasten; speichern(); }
+        }, tag.fasten ? "Gefastet" : "Ich habe gefastet")
       ])
     ]);
   }
 
-  /* Nächste empfohlene Fastentage aus dem Kalender */
-  function vorschauBlock() {
+  /* Die nächsten empfohlenen Tage — antippen merkt sie vor */
+  function planungBlock() {
     var zeilen = [], ab = new Date();
-    for (var i = 1; i <= 45 && zeilen.length < 6; i++) {
-      var d = new Date(ab.getTime() + i * 86400000);
-      var h = Hijri.fuer(d);
-      var grund = null;
-      if (h.ramadan) grund = "Ramaḍān";
-      else if (h.weisserTag) grund = "Weißer Tag · " + h.tag + ".";
-      else {
-        var a = Hijri.anlass(d);
-        if (a && a.art === "fasten") grund = a.name;
-        else if (d.getDay() === 1) grund = "Montag";
-        else if (d.getDay() === 4) grund = "Donnerstag";
-      }
-      if (!grund) continue;
-      (function (d, grund) {
+    for (var i = 0; i <= 45 && zeilen.length < 8; i++) {
+      var d = new Date(ab.getFullYear(), ab.getMonth(), ab.getDate() + i);
+      var a = Fasten.anlass(d);
+      if (!a) continue;
+      (function (d, a, i) {
+        var k = Store.key(d);
         zeilen.push(UI.zeile({
-          text: UI.WOCHENTAGE[d.getDay()].slice(0, 2) + ", " + d.getDate() + ". " + UI.MONATE[d.getMonth()].slice(0, 3),
-          wert: grund
+          haken: Fasten.geplant(k),
+          text: i === 0 ? "Heute" : UI.WOCHENTAGE[d.getDay()].slice(0, 2) + ", " +
+                d.getDate() + ". " + UI.MONATE[d.getMonth()].slice(0, 3),
+          wert: a.text,
+          onclick: function () { Fasten.umschalten(k).then(zeichne); }
         }));
-      })(d, grund);
+      })(d, a, i);
     }
     return UI.el("div.block", [
-      UI.el("div.blockkopf", { text: "Als Nächstes" }),
-      UI.el("div.gruppe", zeilen.length ? zeilen : [UI.el("div.zeile.leer", { text: "Nichts in Sicht." })])
+      UI.el("div.blockkopf", { text: "Vormerken" }),
+      UI.el("div.gruppe", zeilen.length ? zeilen
+        : [UI.el("div.zeile.leer", { text: "Nichts in Sicht." })]),
+      UI.el("p.klein", {
+        text: "Was du vormerkst, steht an dem Tag auf „Heute“ und ist im Kalender markiert."
+      })
     ]);
   }
 
-  /* Qaḍāʾ – offene Nachholtage bleiben sichtbar */
-  /* Zählt ohne Neuaufbau der Ansicht — sonst gehen schnelle Tipps verloren. */
+  /* Qaḍāʾ – offene Nachholtage bleiben sichtbar.
+     Zählt ohne Neuaufbau der Ansicht — sonst gehen schnelle Tipps verloren. */
   function qadaKarte() {
     var e = Store.einstellungen;
     function stand() { return (e.fasten && e.fasten.qada) || 0; }
@@ -82,11 +118,10 @@ var AnsichtFasten = (function () {
 
     function auffrischen() {
       var o = stand();
-      anzeige.textContent = o === 0 ? "keine offen" : o + (o === 1 ? " Tag" : " Tage");
+      anzeige.textContent = o === 0 ? "keine offen" : UI.plural(o, "Tag", "Tage");
       karte.classList.toggle("schuld", o > 0);
       text.style.display = o > 0 ? "" : "none";
     }
-
     function aendern(n) {
       e.fasten.qada = Math.max(0, stand() + n);
       auffrischen();
@@ -109,7 +144,7 @@ var AnsichtFasten = (function () {
     return UI.el("div.karte", [
       UI.el("span.etikett", { text: "Letzte 30 Tage" }),
       UI.el("div.gebetzeile", [
-        UI.el("span.gname.klein", { text: n + (n === 1 ? " Tag" : " Tage") }),
+        UI.el("span.gname.klein", { text: UI.plural(n, "Tag", "Tage") }),
         UI.el("span.gzeit", { text: "gefastet" })
       ]),
       UI.balken(n / 12)
@@ -124,8 +159,8 @@ var AnsichtFasten = (function () {
     wurzel.appendChild(UI.el("div.inhalt", [
       UI.datumsband(laden),
       heuteKarte(),
+      planungBlock(),
       qadaKarte(),
-      vorschauBlock(),
       bilanzKarte()
     ]));
   }
@@ -133,7 +168,7 @@ var AnsichtFasten = (function () {
   function laden() {
     return Store.tag().then(function (t) { tag = t; zeichne(); });
   }
-  function oeffnen(root) { wurzel = root; return laden(); }
+  function oeffnen(root) { wurzel = root; Fasten.aufraeumen(); return laden(); }
   function schliessen() { wurzel = null; }
 
   return { oeffnen: oeffnen, schliessen: schliessen };

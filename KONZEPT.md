@@ -547,6 +547,7 @@ Wochenplanung). Ohne Sync — Daten kommen per Exportdatei rüber.
 | **7** ✔ | Spiegel: Zusammenhänge, Heatmaps, Wochenbericht |
 | **8** ✔ | Reisemodus, Ramadan-Modus, Feinschliff, Design |
 | **9** ✔ | Datumsband für alte Tage, eigene Tagespunkte, Kalendereinträge, helles Premium-Design |
+| **10** ✔ | Abgespeckt auf einen Abendrhythmus: Score und Spiegel raus, sieben Bereiche raus, ein Tagesabschluss, Journal, Kalender ausgebaut, Cream-Design |
 
 Nach jeder Phase kannst du die App benutzen. Kein Warten auf „fertig".
 
@@ -556,6 +557,36 @@ Nach jeder Phase kannst du die App benutzen. Kein Warten auf „fertig".
 
 1. **Umstellungsdatum Jumuʿa** Sommer/Winter, sobald du es weißt.
    Bis dahin an die Sommer-/Winterzeit gekoppelt.
+
+## 12b. Die Kehrtwende in Phase 10
+
+Nach einigen Wochen im echten Gebrauch: **„Ich bin nicht der Typ, der zwanzigmal
+auf eine App geht und Sachen einträgt."** Karim öffnet sie einmal abends.
+
+Die App war aber auf Erfassung im Moment gebaut — Wasser in Vierteln, Dhikr-Zähler,
+Business-Zähler, fünf Gebete einzeln. Das ist ein anderer Rhythmus, als er hat.
+Also wurde nicht nachgebessert, sondern zurückgebaut:
+
+**Weggefallen:** Tagesscore und Gewichtung · Spiegel mit Heatmaps, Serie und den
+acht Zusammenhangs-Regeln · Arbeit & Uni samt Aufgabenliste und den drei
+Wichtigsten · Schlaf · Ernährung mit Wasser, Süßigkeiten und Supplementen ·
+Soziales & Familie · Business · Finanzen · Innenleben · die Adhkār-Zähler ·
+die drei Akhlāq-Fragen · die Kämpfe im geschützten Bereich.
+
+**Geblieben und geschärft:** Gebete mit fünf Stufen · Qur'an mit Hifz und
+Murājaʿa · Fasten mit Vormerkung · Duʿāʾ, deutlich erweitert · Kalender, jetzt
+das Zuhause der App · ein **Tagesabschluss auf einem Bildschirm** · ein freies,
+geschütztes **Journal**.
+
+**Warum kein Score mehr:** Eine Zahl braucht viele Datenpunkte, um etwas zu
+bedeuten. Bei vier erfassten Dingen wird sie zur Karikatur — und sie war der
+Grund, warum sich alles wie Buchhaltung anfühlte.
+
+**Datenerhalt:** Nichts wurde aus dem Speicher gelöscht. Die Tagesdatensätze
+tragen ihre alten Felder weiter; sie werden nur nicht mehr angezeigt und stehen
+vollständig in jeder Sicherung.
+
+---
 
 ## 13. Abgenommen
 
@@ -574,8 +605,12 @@ Nach jeder Phase kannst du die App benutzen. Kein Warten auf „fertig".
   zurücknehmen ✔
 - **Alte Tage sind bearbeitbar** — über ein Datumsband in jeder erfassenden
   Ansicht, statt nur einer Nachtrage-Maske ✔
-- **Punkte überall anpassbar** — 26 Standardpunkte abschaltbar, eigene Punkte in
-  jedem Bereich mit sieben Erfassungsarten ✔
+- **Punkte überall anpassbar** — Standardpunkte abschaltbar, eigene Punkte mit
+  sieben Erfassungsarten ✔
+- **Ein Abendrhythmus statt Erfassung im Moment** (Phase 10) ✔
+- **Kein Tagesscore** — die App zeigt, was war, und bewertet nicht ✔
+- **Journal ohne Vorgaben** statt geführter Fragen ✔
+- **Cream, Sand und Espresso** statt Jade ✔
 
 ---
 
@@ -627,20 +662,28 @@ dieser App **immer** dasselbe und wird nirgends dekorativ eingesetzt.
 
 ### Hell und dunkel
 
+**Seit Phase 10 gilt die Cream-Palette** (unten). Grundsätzlich:
 **Seit Phase 9 ist hell der Standard** — auf deinen Wunsch: „mit hellen Farben sieht
 alles übersichtlicher und cleaner aus." Die helle Fassung ist damit nicht mehr die
 Zweitvariante, sondern der Zustand, auf den hin entworfen wird.
 
-| Rolle | Hell |
+| Rolle | Hell (ab Phase 10) |
 |---|---|
-| Grund | `#F2F2F5` — ruhiges Neutralgrau, kein reines Weiß |
-| Karte | `#FFFFFF`, erhoben über zwei weiche Schatten statt über einen Rahmen |
-| Vertieft | `#F5F5F8` für Eingabefelder |
-| Trennlinie | `rgba(18,20,26,.075)` |
-| Text | `#15171C` / 60 % / 38 % |
-| **Jade** `#17805C` | Fortschritt — dunkler als in der Nachtfassung, damit er auf Weiß trägt |
-| **Messing** `#866426` | arabische Schrift |
-| Bernstein `#9E6E17` · Rot `#BE3A2C` | Gebetsqualität, Rückblick-Band |
+| Grund | `#F2EDE3` — warmes Cream, kein Grau |
+| Karte | `#FDFBF7`, erhoben über zwei weiche Schatten statt über einen Rahmen |
+| Vertieft | `#F3EEE4` für Eingabefelder |
+| Trennlinie | `rgba(58,45,32,.10)` |
+| Text | `#2A231C` Espresso / 64 % / 42 % |
+| **Espresso** `#4A3A29` | Fortschritt, Haken, Erledigtes — bewusst keine Signalfarbe |
+| **Messing** `#9A7434` | ausschließlich arabische Schrift |
+| Ocker `#B0782B` · Rostrot `#A4482C` | Gebetsqualität, Rückblick-Band |
+
+Dunkel ist kein Schwarz mehr, sondern warmes Nachtbraun (`#14100B`) mit
+sandfarbenem Text (`#F3EADC`) und hellem Sand als Akzent.
+
+Die CSS-Variablen heißen aus der Historie noch `--jade` und `--brass`; gemeint
+sind Espresso und Messing. Umbenennen hätte jede Datei angefasst, ohne etwas
+zu verbessern — die Bedeutung steht im Kopfkommentar von `styles.css`.
 
 Drei Einstellungen unter *Mehr → Erscheinungsbild*: **Hell** (Standard) ·
 **Dunkel** (echtes OLED-Schwarz, für die Zeit vor Fajr) · **Automatisch** (folgt

@@ -7,20 +7,48 @@ Das vollständige Konzept steht in [`../KONZEPT.md`](../KONZEPT.md).
 
 ---
 
-## Was die App kann
+## Der Gedanke dahinter
 
-**Heute** — ein Bildschirm. Ganz oben das **Datumsband**: du blätterst zurück und
-trägst für einen vergangenen Tag genauso ein wie für heute. Darunter das nächste
-Gebet mit Restzeit und drei Schnellknöpfen, der Tagesscore als Ring, die
-**Tagespunkte** und ab Maghrib die Abendabrechnung.
+Die App ist darauf gebaut, dass du sie **einmal am Tag** öffnest — abends, in
+einem Durchgang. Nicht zwanzigmal zwischendurch. Deshalb gibt es genau einen
+Weg, der jeden Tag derselbe ist: **„Tag abschließen"**. Ein Bildschirm, alles
+drauf, runterscrollen, antippen, fertig. Wer tagsüber etwas eintragen will,
+kann es trotzdem jederzeit.
 
-Ein erledigter Punkt **verschwindet nicht** — er bekommt einen Haken und bleibt
-stehen. Ein zweiter Tipp nimmt ihn wieder zurück. Das gilt überall in der App.
+Es gibt **keinen Tagesscore**. Keine Zahl, die dich bewertet. Die App zeigt,
+was war — mehr nicht.
 
-**Tagespunkte anpassen** — über *Anpassen* auf „Heute" oder aus jedem Bereich
-heraus. Du kannst 26 Standardpunkte einzeln ausschalten (sie verschwinden aus der
-Liste **und** aus dem Score) und beliebig viele eigene anlegen, in jedem Bereich,
-mit sieben Erfassungsarten:
+---
+
+## Fünf Reiter
+
+| Reiter | Inhalt |
+|---|---|
+| **Heute** | Ein Satz zu deinen Gebeten, das nächste Gebet mit Restzeit, was heute ansteht, ein Vers — und der Knopf „Tag abschließen" |
+| **Kalender** | Woche und Monat, gregorianisch **und** Hijri, eigene Einträge, Fastentage vormerken, das islamische Jahr |
+| **Qur'an** | Hifz-Bestand, Murājaʿa-Plan, Lesen, Bücher |
+| **Duʿāʾ** | 27 Bittgebete aus der Sunnah nach Anlass, dazu 18 aus dem Qur'an |
+| **Journal** | Geschützt, leer, ohne Vorgaben |
+
+Die Einstellungen sitzen hinter dem **Zahnrad** oben auf „Heute" — man geht
+selten hin.
+
+---
+
+## Tag abschließen
+
+Ein einziger Bildschirm:
+
+- **Die fünf Gebete** mit je fünf Qualitätsstufen
+- **Qur'an** — Murājaʿa, neu gelernt, gelesene Seiten
+- **Adhkār** — ein Haken, ohne Vorgabe welche
+- **Freiwillige Gebete** — Rawātib, Witr, Ḍuḥā, Ishrāq, Tahajjud
+- **Trainiert**, **Gefastet**
+- **Deine eigenen Punkte**
+- Ein Weg ins Journal
+
+Jeder Punkt lässt sich einzeln abschalten (*Anpassen*), und du kannst beliebig
+viele eigene anlegen — mit sieben Erfassungsarten, nicht nur Haken:
 
 | Art | Wofür |
 |---|---|
@@ -32,90 +60,95 @@ mit sieben Erfassungsarten:
 | Uhrzeit | wann |
 | Text | ein Satz |
 
-Eigene Punkte zählen im Score ihres Bereichs mit — höchstens 15 von 100 je Punkt
-und zusammen nie mehr als die Hälfte des Bereichs.
+**Erledigtes verschwindet nicht** — es bekommt einen Haken und bleibt stehen.
+Ein zweiter Tipp nimmt es zurück.
 
-**Alte Tage** — jede Ansicht, die einen Tag erfasst, trägt das Datumsband: Gebete,
-Qur'an, Adhkār, Fasten, Körper, Ernährung, Schlaf, Arbeit, Business, Finanzen,
-Soziales, Innenleben und der geschützte Bereich. Beim Rückblick färbt sich das Band
-und die Reiterleiste bekommt einen Streifen — damit nie im falschen Tag landet, wer
-das Zurückblättern vergessen hat. In die Zukunft geht es nicht.
+**Alte Tage**: über das Datumsband blätterst du zurück und trägst genauso ein
+wie für heute. Beim Rückblick färbt sich das Band und die Reiterleiste bekommt
+einen Streifen. In die Zukunft geht es nicht.
 
-**Gebete** — die fünf Pflichtgebete mit **fünf Qualitätsstufen** statt eines Hakens:
+---
 
-| Stufe | Wertung |
+## Gebete
+
+Die fünf Pflichtgebete mit **fünf Qualitätsstufen** statt eines Hakens:
+
+| Stufe | Bedeutung |
 |---|---|
-| In der Moschee (Jamāʿa) | 100 % |
-| Pünktlich zu Hause | 85 % |
-| Noch im Zeitfenster | 65 % |
-| Verspätet nachgeholt | 30 % |
-| Verpasst | 0 % |
+| In der Moschee (Jamāʿa) | in Gemeinschaft |
+| Pünktlich zu Hause | am Anfang der Zeit |
+| Noch im Zeitfenster | vor Ablauf |
+| Verspätet nachgeholt | nach Ablauf |
+| Verpasst | nicht gebetet |
 
-Dazu Sunan Rawātib, Witr, Ḍuḥā, Ishrāq, Tahajjud, das Wochenziel für die Moschee
-und ein Streifen über die letzten sieben Tage.
+Dazu die Sunan, das Wochenziel für die Moschee und ein Streifen über die
+letzten sieben Tage.
 
-**Religion** — Übersicht mit dem Religions-Anteil des Tagesscores und fünf Bereichen:
+---
 
-- **Qur'an** — Hifz-Bestand mit Status je Sure, die Sure, die du gerade lernst
-  (mit **Rückgängig**, falls du einmal zu früh auf „Sitzt" getippt hast),
-  **Bücher**, die du selbst anlegst und löschst — mit genauer Eingabe für die Seiten
-  eines Tages, die aktuelle Seite und den Gesamtumfang,
-  und der **Murājaʿa-Plan**: dein Bestand in sechs Tagesblöcken, aufgeteilt nach
-  **Versanzahl** statt nach Suren-Anzahl. Sonntag ist Prüfungstag. Was du als
-  *wackelig* markierst, kommt bis auf Weiteres täglich dran. Der Fortschrittsbalken
-  läuft auf **Juz' 29 komplett** zu, nicht auf eine abstrakte Prozentzahl.
-- **Adhkār** — Morgen und Abend, dazu Istighfār- und Salawāt-Zähler mit großer
-  Tippfläche. Freitags verdreifacht sich das Salawāt-Ziel.
-- **Fasten** — heutiger Anlass mit Suḥūr- und Ifṭār-Zeit, Vorschau auf die nächsten
-  empfohlenen Tage, **Qaḍāʾ-Konto** für offene Nachholtage, Bilanz über 30 Tage.
-- **Duʿāʾ** — 18 Bittgebete der Propheten aus dem Qur'an und 9 aus der Sunnah,
-  Arabisch mit Ḥarakāt, deutsche Übersetzung und Anlass.
-- **Gebete** — siehe oben.
+## Kalender
 
-**Muḥāsaba** — geführte Abendabrechnung in zehn Schritten, unter einer Minute:
-Gebete nachtragen, drei täglich wechselnde Akhlāq-Fragen, ein Schnellcheck
-(Training, Kontakte, Zubettgehzeit), Bildschirmzeit getrennt nach gearbeitet und
-gescrollt, Stimmung, Dankbarkeit, ein Satz, Abschluss mit Urteil und einer Sache
-für morgen.
+Monatsraster oder Wochenansicht, mit gregorianischem **und** Hijri-Datum in
+jeder Zelle. Markiert werden weiße Tage, Jumuʿa, islamische Termine, deine
+Arbeitstage, eigene Einträge und **vorgemerkte Fastentage**.
 
-Unter jeder Frage sitzt ein **freies Feld** („Etwas dazu schreiben"). Es ist
-eingeklappt, solange du es nicht brauchst. Ist es offen, springt die App nach
-deiner Antwort nicht weiter — sonst könntest du nicht zu Ende schreiben.
-Am Ende stehen alle Ergänzungen des Tages noch einmal zusammen.
+- **Eigene Einträge** pro Tag, mit Uhrzeit oder ganztägig — auch für die Zukunft
+- **Fastentage vormerken**: Montag/Donnerstag und weiße Tage antippen, dann
+  stehen sie an dem Tag auf „Heute"
+- **Das islamische Jahr** — die nächsten Anlässe mit Countdown
+- **Lücken der letzten 30 Tage** — antippen springt in den Tag zum Nachtragen
+- Von hier aus erreichbar: Fasten mit Qaḍāʾ-Konto, wiederkehrende Termine,
+  Erinnerungen
 
-**Kalender** — Monatsraster mit gregorianischem **und** Hijri-Datum in jeder Zelle.
-Der Tagesscore färbt die Zelle ein. Markiert werden weiße Tage, Jumuʿa, islamische
-Termine, Fastenvorschläge, deine Arbeitstage und **eigene Einträge**. Ein Tipp auf
-einen Tag zeigt Gebetszeiten, Anlässe und was an dem Tag erfasst wurde.
+Der Kalender färbt Tage **nicht** ein. Er zeigt, was ist, und bewertet nicht.
 
-**Eigene Einträge** legst du direkt für den gewählten Tag an, mit Uhrzeit oder
-ganztägig — auch für die Zukunft. Und *„Diesen Tag nachtragen"* springt in die
-Tagesansicht dieses Tages, wo du alles nacherfassen kannst.
+---
 
-**Bereiche** — Übersicht über alle Lebensbereiche mit Tagesscore und dem
-Gewicht, mit dem jeder eingeht: Religion · Arbeit & Uni · Körper & Sport ·
-Schlaf · Ernährung · Soziales & Familie · Business · Finanzen · Innenleben ·
-Geschützt.
+## Qur'an
 
-**Spiegel** — Wochen- gegen Monatsschnitt, Serie mit Schonfrist, Heatmap über
-bis zu ein Jahr (umschaltbar auf Score, Gebete, Qur'an, Sport oder Schlaf),
-Bereichsvergleich mit der schwächsten Stelle zuerst, Verteilung der
-Gebetsqualität, Wochenbericht und die **Zusammenhänge**.
+Hifz-Bestand mit Status je Sure, die Sure, die du gerade lernst (mit
+**Rückgängig**, falls du zu früh auf „Sitzt" getippt hast), und der
+**Murājaʿa-Plan**: dein Bestand in sechs Tagesblöcken, aufgeteilt nach
+**Versanzahl** statt nach Suren-Anzahl. Sonntag ist Prüfungstag. Was du als
+*wackelig* markierst, kommt bis auf Weiteres täglich dran. Der Balken läuft auf
+**Juz' 29 komplett** zu.
 
-**Mehr** — Erscheinungsbild, Gebetszeiten mit Feinjustierung, Hijri-Versatz,
-Gewichtung des Tagesscores, Ziele & Listen, Erinnerungen, Sperre, Reisemodus,
-Export und Import.
+Dazu **Bücher**: selbst anlegen und löschen, mit genauer Eingabe für die Seiten
+eines Tages, die aktuelle Seite und den Gesamtumfang.
+
+---
+
+## Duʿāʾ
+
+**27 Bittgebete aus der Sunnah**, nach Anlass sortiert — Morgen & Abend, um das
+Gebet herum, Sorge und Druck, Schutz, Vergebung, Herz & Charakter, Wissen,
+Auskommen, Alltag. Dazu **18 Bittgebete der Propheten aus dem Qur'an**.
+
+Jedes mit Arabisch, deutscher Übersetzung der Bedeutung, Quelle und
+**Authentizitätsgrad** (Ṣaḥīḥ / Ḥasan). Eine Suche über alle.
+
+> Die Hadith-Nummern folgen den gängigen Druckausgaben. Für ein Zitat gegen
+> die eigene Ausgabe prüfen — die Zählung weicht ab.
+
+---
+
+## Journal
+
+Geschützt durch einen eigenen Code, wenn du einen setzt. Eine leere Fläche pro
+Tag, keine Fragen, keine Vorgaben. Darunter alle früheren Einträge mit Suche.
+Was hier steht, taucht nirgends sonst in der App auf.
+
+---
 
 ## Erscheinungsbild
 
-**Hell ist der Standard** und der Zustand, auf den alles hin entworfen ist: weißer
-Kartengrund auf ruhigem Neutralgrau, Erhebung über weiche Schatten statt über
-Rahmen, großzügige Abstände. Zusätzlich gibt es **Dunkel** (echtes OLED-Schwarz für
-die Zeit vor Fajr) und **Automatisch**, das dem iPhone folgt. Umschaltbar unter
-*Mehr → Erscheinungsbild*.
+**Hell ist der Standard**: Cream als Grund, Karten in warmem Off-White, Text in
+Espresso. Fortschritt ist **dunkelbraun** statt einer Signalfarbe — Erfolg soll
+ruhig aussehen. Die arabische Schrift steht in **Messing**. Die Gebetsstufen
+laufen als warme Skala von Espresso über Karamell und Ocker bis Rostrot.
 
-Jede Farbe läuft über eine CSS-Variable — es gibt keine fest verdrahtete Farbe,
-die nur in einer der beiden Varianten funktioniert.
+Zusätzlich **Dunkel** als warmes Nachtbraun und **Automatisch**, das dem iPhone
+folgt. Umschaltbar unter *Zahnrad → Erscheinungsbild*.
 
 ---
 
@@ -126,11 +159,10 @@ Offline berechnet, Standard **MWL** (Fajr 18°, ʿIshā' 17°), **ʿAṣr nach S
 
 > **Die Zeiten sind bewusst nur ungefähr.** Die Autorität bleibt deine Gebetsapp.
 > Mīzān braucht sie nur, um zu wissen, wann welches Zeitfenster offen ist.
-> Weicht etwas ab: **Mehr → Feinjustierung**, pro Gebet in Minuten.
+> Weicht etwas ab: **Zahnrad → Feinjustierung**, pro Gebet in Minuten.
 
 Für München greift im Hochsommer eine Hochbreiten-Regel — auf 48,1° Nord sinkt
-die Sonne im Juni nicht mehr tief genug für eine reguläre Fajr-Berechnung.
-Zum Vergleich, wie die App rechnet:
+die Sonne im Juni nicht mehr tief genug für eine reguläre Fajr-Berechnung:
 
 | Datum | Fajr | Maghrib | ʿIshā' |
 |---|---|---|---|
@@ -142,37 +174,14 @@ Monatsbeginn von der Sichtung abhängt, gibt es einen Versatz von −2 bis +2 Ta
 
 ---
 
-## Der Score
+## Sondermodi
 
-Was noch nicht fällig war, zählt **nicht** gegen dich — der Score fällt also nicht,
-nur weil es erst Vormittag ist. Was du früh erledigst, hebt ihn sofort. Erst wenn
-der Tag abgeschlossen ist, zählt alles Offene als nicht erledigt.
+**Ramaḍān** schaltet sich am 1. Ramaḍān **von selbst** ein — du musst nichts
+tun. Suḥūr- und Ifṭār-Zeit, Tarāwīḥ, täglicher Juz', die letzten zehn Nächte
+hervorgehoben mit Markierung der ungeraden.
 
-Ein Pflichtgebet zählt erst gegen dich, wenn sein **Fenster zu ist** — nicht
-schon, wenn es aufgeht. Um 13:21 gilt Ẓuhr nicht als versäumt, du hast bis ʿAṣr Zeit.
-
-Gewichtung: Religion 45 · Arbeit & Uni 18 · Sport 12 · Schlaf 8 · Ernährung 8 ·
-Soziales 5 · Innenleben und Finanzen 4. Alle Prozente sind unter
-*Mehr → Gewichtung* verschiebbar.
-
-Die **Scrollzeit zählt negativ, gearbeitete Bildschirmzeit nicht** — beides wird
-getrennt erfasst. Auf Reisen und im Ramaḍān werden Sport und Ernährung nicht
-eingefordert.
-
----
-
-## Religiöse Inhalte
-
-**Qur'an-Stellen** sind mit Sure und Vers eindeutig belegt und als Übersetzung der
-Bedeutung gekennzeichnet — das gilt für den Vers des Tages und für die 18
-Bittgebete der Propheten.
-
-**Bei den 9 Bittgebeten aus der Sunnah** stehen Sammlung und Nummer dabei, aber die
-Zählung weicht zwischen Druckausgaben ab. Die App sagt das an der Stelle selbst:
-für ein Zitat gegen die eigene Ausgabe prüfen. Ein **Hadith des Tages** ist bewusst
-noch nicht eingebaut — dafür fehlt die Prüfung des Authentizitätsgrads.
-
-Die Versanzahlen der Suren folgen der kufischen Zählung (Ḥafṣ ʿan ʿĀṣim).
+**Reise** — Hinweis auf Qaṣr und Jamʿ. Die Erfassung der Gebete bleibt gleich:
+ob gekürzt oder zusammengelegt wurde, ist eine Frage des Fiqh, nicht der App.
 
 ---
 
@@ -182,34 +191,29 @@ Eine Web-App auf dem iPhone darf **keine zeitgesteuerten Mitteilungen** schicken
 Safari lässt das nicht zu, bei jeder Web-App. Zwei Wege übernehmen das, beide ohne
 Server; nichts verlässt dein Gerät.
 
-**1. Kalenderdatei.** Unter *Mehr → Erinnerungen* erzeugt Mīzān eine `.ics` mit
-Gebetszeiten, weißen Tagen, islamischen Terminen und der Jumuʿa — inklusive
+**1. Kalenderdatei.** Unter *Kalender → Erinnerungen* erzeugt Mīzān eine `.ics`
+mit Gebetszeiten, weißen Tagen, islamischen Terminen und der Jumuʿa — inklusive
 Alarmen. Einmal in den iPhone-Kalender importieren, danach kommen die
-Benachrichtigungen von iOS, auch bei geschlossener App. Wählbar sind Zeitraum
-(1–12 Monate), Umfang der Gebetszeiten und Vorlaufzeit des Alarms.
+Benachrichtigungen von iOS, auch bei geschlossener App.
 
 **2. iOS-Kurzbefehle.** Fertige `.shortcut`-Dateien kann ich nicht liefern — Apple
 verlangt dafür eine Signatur, die nur auf einem Mac entsteht. Stattdessen enthält
 die App die Adressen und die Schritte; jeder Kurzbefehl ist in zwei Minuten angelegt.
 
-Die Kurzbefehle rufen `#/import` mit Parametern auf. Alles landet direkt im
-Speicher dieses Geräts:
+Der wichtigste: eine Automation um 22:30, die dich in den Tagesabschluss bringt.
 
-| Parameter | Beispiel | Wirkung |
-|---|---|---|
-| `gebet` + `stufe` | `?gebet=fajr&stufe=moschee` | Gebet mit Qualitätsstufe eintragen |
-| `gewicht` | `?gewicht=79,8` | Gewicht (Komma oder Punkt) |
-| `schritte` | `?schritte=8231` | Schritte des Tages |
-| `wasser` | `?wasser=0.5` | Liter dazuzählen |
-| `bett` / `auf` | `?bett=jetzt` | Schlafzeiten, `jetzt` oder `23:15` |
-| `fajrAuf` | `?fajrAuf=1` | für Fajr aufgestanden |
-| `istighfar` / `salawat` | `?istighfar=100` | Zähler erhöhen |
+| Adresse | Wirkung |
+|---|---|
+| `#/abschluss` | öffnet den Tagesabschluss |
+| `#/import?gebet=fajr&stufe=moschee` | Gebet mit Stufe eintragen |
+| `#/import?dhikr=1` | Adhkār erledigt |
+| `#/import?murajaa=1` | Murājaʿa erledigt |
+| `#/import?gelesen=5` | fünf Seiten gelesen |
+| `#/import?training=1` · `#/import?fasten=1` | trainiert · gefastet |
 
-So kommen auch **Gewicht und Schritte aus Apple Health** herein: der Kurzbefehl
-darf Health lesen, die Web-App nicht — er reicht die Werte über die Adresszeile weiter.
+Mehrere lassen sich mit `&` verbinden.
 
-**Bildschirmzeit** lässt sich auf dem iPhone von keiner App auslesen, auch von
-keiner nativen. Die trägst du abends bei der Muḥāsaba selbst ein.
+---
 
 ## Aufs iPhone
 
@@ -218,8 +222,18 @@ keiner nativen. Die trägst du abends bei der Muḥāsaba selbst ein.
 3. Läuft danach im Vollbild und offline, mit eigenem Icon
 
 **Wichtig:** Alles liegt nur auf diesem Gerät. Es gibt keinen Server und kein
-Konto — geht das iPhone verloren, sind die Daten weg. Unter **Mehr → Sicherung
-herunterladen** bekommst du eine JSON-Datei; die App erinnert wöchentlich daran.
+Konto — geht das iPhone verloren, sind die Daten weg. Unter **Zahnrad →
+Sicherung herunterladen** bekommst du eine JSON-Datei; die App erinnert
+wöchentlich daran.
+
+---
+
+## Sperre
+
+Zwei getrennte Codes, beide optional: einer beim Öffnen der App, einer fürs
+Journal. Sie werden **nur als SHA-256-Prüfsumme** gespeichert — nie im Klartext,
+auch nicht in der Sicherungsdatei. Ein vergessener Code lässt sich nicht
+wiederherstellen.
 
 ---
 
@@ -249,16 +263,18 @@ leben/
   css/styles.css
   js/
     store.js             IndexedDB, Einstellungen, Export/Import
-    prayer.js            Gebetszeiten offline
+    prayer.js            Gebetszeiten offline, die fünf Stufen
     hijri.js             Hijri, weiße Tage, islamische Termine
-    score.js             Tagesscore und Gebetsstufen
     ayat.js              Vers des Tages
+    hifz.js              Hifz-Bestand und Murājaʿa-Plan
+    punkte.js            eigene Tagespunkte, Sichtbarkeit
+    ics.js               Kalenderdatei
+    modi.js              Reise und Ramaḍān
     ui.js                Bausteine der Oberfläche
-    assistant.js         Regeln und Texte des Assistenten
-    punkte.js            eigene Tagespunkte, Sichtbarkeit der Standardpunkte
-    views/               today · punkte · prayers · muhasaba · mirror · settings
+    assistant.js         der eine Satz zu deinen Gebeten
+    views/               today · abschluss · kalender · quran · duas · journal · …
     app.js               Router
-  data/ayat.json
+  data/                  ayat.json · suren.json · duas.json
   tools/generate_icons.py
 ```
 
@@ -268,54 +284,18 @@ Kein Build-Werkzeug, keine Abhängigkeiten. Reine Dateien, wie die Arabisch-App.
 
 ## Stand
 
-**Alle neun Phasen sind gebaut.** Die App ist vollständig.
-
 | Phase | Inhalt |
 |---|---|
-| 1 | Gerüst, Speicher, Heute, Gebete mit Qualitätsstufen, Score, Muḥāsaba |
-| 2 | Religion: Qur'an mit Hifz und Murājaʿa, Adhkār, Fasten, Duʿāʾ |
-| 3 | Kalender, `.ics`-Export, Kurzbefehl-Übernahme |
-| 4 | Körper & Sport, Ernährung, Schlaf |
-| 5 | Arbeit & Uni mit Aufgaben, Business |
-| 6 | Finanzen, Soziales, Innenleben, Ehe, geschützter Bereich |
-| 7 | Spiegel: Heatmaps, Serie, Wochenbericht, Zusammenhänge |
-| 8 | Reise- und Ramaḍān-Modus |
-| 9 | Datumsband für alte Tage, eigene Tagespunkte, Kalendereinträge, helles Premium-Design |
+| 1–8 | Aufbau: Gebete, Religion, Kalender, Körper, Arbeit, Finanzen, Spiegel, Sondermodi |
+| 9 | Datumsband für alte Tage, eigene Tagespunkte, helles Design |
+| 10 | **Abgespeckt**: Score, Spiegel und sieben Bereiche raus, ein Tagesabschluss, Journal statt Kämpfe, Kalender ausgebaut, Cream-Design |
 
+**Was in Phase 10 wegfiel** und warum: Die App war auf Erfassung im Moment
+gebaut — zwanzig kleine Interaktionen über den Tag. Karim nutzt sie einmal
+abends. Also fiel alles weg, was diesen Rhythmus nicht trägt: Tagesscore und
+Gewichtung, der Spiegel mit den Zusammenhängen, Arbeit & Uni mit Aufgabenliste,
+Schlaf, Ernährung, Soziales, Business, Finanzen, Innenleben, die Adhkār-Zähler,
+die Akhlāq-Fragen und die Kämpfe. Rund 2.500 Zeilen weniger.
 
----
-
-## Die Zusammenhänge
-
-Der Kern des Spiegels. Mīzān vergleicht deine Bereiche gegeneinander und sagt
-im Klartext, was sie findet — zum Beispiel:
-
-> An den 40 Tagen, an denen du vor 0 Uhr im Bett warst, hast du Fajr 40-mal
-> gehalten. An den 20 späteren Nächten 10-mal. Das ist kein Zufall mehr.
-
-Geprüft werden acht Regeln: Schlafenszeit ↔ Fajr · Scrollzeit ↔ Murājaʿa ·
-Moschee ↔ Tagesscore · Sport ↔ Stimmung am Folgetag · Schlafenszeit ↔ Rückfälle ·
-Arbeitstage ↔ alles andere · Fajr in der Moschee ↔ erledigte Hauptaufgaben ·
-stärkster und schwächster Wochentag.
-
-**Eine Aussage erscheint erst**, wenn beide Verglichsgruppen mindestens vier Tage
-umfassen und der Unterschied deutlich ist. Bei dünner Datenlage sagt die App das
-offen, statt zu raten. Die Regel zu Rückfällen läuft ausschließlich im
-geschützten Bereich und taucht im Spiegel nie auf.
-
-## Sondermodi
-
-**Reise** — Serie pausiert statt zu brechen, Sport und Ernährung werden nicht
-eingefordert, Hinweis auf Qaṣr und Jamʿ. Die Erfassung der Gebete bleibt gleich:
-ob gekürzt oder zusammengelegt wurde, ist eine Frage des Fiqh, nicht der App.
-
-**Ramaḍān** — schaltet sich am 1. Ramaḍān von selbst ein: Suḥūr- und Ifṭār-Zeit,
-Tarāwīḥ, täglicher Juz', die letzten zehn Nächte hervorgehoben mit Markierung der
-ungeraden Nächte.
-
-## Sperre
-
-Zwei getrennte Codes, beide optional: einer beim Öffnen der App, einer für den
-geschützten Bereich. Sie werden **nur als SHA-256-Prüfsumme** gespeichert — nie im
-Klartext, auch nicht in der Sicherungsdatei. Ein vergessener Code lässt sich nicht
-wiederherstellen.
+**Alte Daten bleiben erhalten.** Die Felder wurden nicht gelöscht, sie werden nur
+nicht mehr angezeigt — in der Sicherungsdatei steht alles weiter drin.

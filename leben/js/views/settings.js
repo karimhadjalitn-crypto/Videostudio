@@ -146,16 +146,10 @@ var AnsichtMehr = (function () {
       ]),
 
       UI.el("div.block", [
-        UI.el("div.blockkopf", { text: "Ziele" }),
+        UI.el("div.blockkopf", { text: "Ziel" }),
         UI.el("div.gruppe", [
-          zahlZeile("Wasser am Tag", s.wasserZiel, 0.25, 0.5, 6,
-            function (v) { s.wasserZiel = v; Store.einstellungenSpeichern(); }, " l"),
           zahlZeile("Moschee pro Woche", s.moscheeZielWoche, 1, 0, 35,
-            function (v) { s.moscheeZielWoche = v; Store.einstellungenSpeichern(); }, "×"),
-          UI.zeile({
-            text: "Hifz-Bestand", wert: "unter Religion → Qur'an",
-            onclick: function () { location.hash = "#/quran"; }
-          })
+            function (v) { s.moscheeZielWoche = v; Store.einstellungenSpeichern(); }, "×")
         ])
       ]),
 
@@ -171,17 +165,12 @@ var AnsichtMehr = (function () {
         UI.el("div.blockkopf", { text: "Einrichten" }),
         UI.el("div.gruppe", [
           UI.zeile({
-            text: "Gewichtung des Tagesscores",
-            wert: "Religion " + s.gewichte.religion + " %",
-            onclick: function () { location.hash = "#/gewichtung"; }
+            text: "Tagespunkte", wert: (s.eigenePunkte || []).length + " eigene",
+            onclick: function () { location.hash = "#/punkte"; }
           }),
           UI.zeile({
-            text: "Ziele & Listen", wert: "Sport, Essen, Finanzen, Kontakte",
-            onclick: function () { location.hash = "#/ziele"; }
-          }),
-          UI.zeile({
-            text: "Morgenbriefing", wert: "ansehen",
-            onclick: function () { location.hash = "#/briefing"; }
+            text: "Listen", wert: "Trainingsarten, Bücher",
+            onclick: function () { location.hash = "#/listen"; }
           }),
           UI.zeile({
             text: "Wiederkehrende Termine", wert: (s.termine || []).length + " angelegt",
@@ -194,7 +183,7 @@ var AnsichtMehr = (function () {
           UI.zeile({
             text: "Sperre", wert: (s.sperre.appCode ? "App" : "") +
               (s.sperre.appCode && s.sperre.bereichCode ? " + " : "") +
-              (s.sperre.bereichCode ? "Bereich" : "") || "kein Code",
+              (s.sperre.bereichCode ? "Journal" : "") || "kein Code",
             onclick: function () { location.hash = "#/sperre"; }
           }),
           UI.zeile({
@@ -224,7 +213,7 @@ var AnsichtMehr = (function () {
         UI.el("div.hz", { text: "Aufs iPhone: Seite in Safari öffnen → Teilen → „Zum Home-Bildschirm“. Danach läuft Mīzān im Vollbild und offline." })
       ]),
 
-      UI.el("p.fuss", { text: "Mīzān · Phase 1 · Gebete, Gebetszeiten, Hijri, Score, Abendabrechnung" })
+      UI.el("p.fuss", { text: "Mīzān · alles auf diesem Gerät, nichts im Netz" })
     ]));
   }
 
