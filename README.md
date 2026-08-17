@@ -76,7 +76,7 @@ python3 -m http.server 8000
 | ⭐ **Favoriten** | Wörter mit dem Stern markieren und gezielt als eigenes Deck üben. |
 | 🎯 **Lernziel** | Frei einstellbar (Standard 100 Wörter). Der Balken auf der Startseite zeigt, wie viele Wörter du schon sicher kannst – antippen zum Ändern. |
 | 📊 **Statistik** | Was du kannst, Lernziel, Lernserie, schwierige Wörter, Favoriten, Fortschritt je Deck. |
-| ⚙️ **Einstellungen** | Design (hell/dunkel), Richtung, Sprechform/Harakat/Audio, Sitzungsgröße, Lernziel, Installations­anleitung, Sichern/Laden. |
+| ⚙️ **Einstellungen** | Design (hell/dunkel), Richtung, Sprechform/Harakat/Audio (+ Auswahl der arabischen Stimme, falls mehrere installiert sind), Sitzungsgröße, Lernziel, Installations­anleitung, Sichern/Laden. |
 
 **Wiederholungssystem:** Karten wandern durch Boxen mit wachsenden Abständen
 (6 Std. · 1 · 3 · 7 · 14 · 30 Tage). Die Bewertung steuert das Tempo:

@@ -13,6 +13,7 @@ window.AR = window.AR || {};
     showSpoken: true,      // Sprechform anzeigen
     showHarakat: true,     // Vokalzeichen anzeigen
     audio: true,           // Text-to-Speech
+    voiceURI: "",           // gewählte Stimme für die Aussprache ("" = automatisch)
     sessionSize: 20,
     goal: 100              // Lernziel: so viele Wörter sollen „gekonnt" werden
   };

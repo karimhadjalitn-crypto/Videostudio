@@ -32,6 +32,7 @@ AR.views = AR.views || {};
       ? (AR.audio.hasArabicVoice() ? "" : " (keine arabische Stimme auf diesem Gerät gefunden)")
       : " (nicht verfügbar)";
     card2.appendChild(toggleRow("Audio-Aussprache" + audioNote, "Tippe auf 🔊 zum Anhören", "audio"));
+    if (AR.audio.available()) card2.appendChild(voiceRow());
     // Sitzungsgröße
     var sizeSel = el("select", {}, [10, 15, 20, 30, 50].map(function (n) {
       var o = el("option", { value: n, text: n + " Karten" }); if (store.get("sessionSize") === n) o.selected = true; return o;
@@ -140,6 +141,44 @@ AR.views = AR.views || {};
     });
     return seg;
   }
+  var TEST_PHRASE = "مَرْحَبًا"; // "Hallo" – neutraler Test-Satz für die Stimmen-Vorschau
+
+  function voiceRow() {
+    var sel = el("select", { id: "voiceSelect" });
+    function fill() {
+      AR.ui.clear(sel);
+      sel.appendChild(el("option", { value: "", text: "Automatisch (erste gefundene)" }));
+      var list = AR.audio.arabicVoices();
+      list.forEach(function (v) {
+        var o = el("option", { value: v.voiceURI, text: v.name + (v.lang ? " · " + v.lang : "") });
+        if (store.get("voiceURI") === v.voiceURI) o.selected = true;
+        sel.appendChild(o);
+      });
+      if (!list.length) {
+        sel.appendChild(el("option", { value: "", text: "Keine arabische Stimme gefunden", disabled: "disabled" }));
+      }
+    }
+    fill();
+    // Manche Geräte (v.a. iOS) laden Stimmen erst asynchron nach – dann neu befüllen.
+    AR.audio.onVoicesReady = fill;
+    sel.addEventListener("change", function () {
+      AR.audio.setVoice(sel.value);
+      AR.audio.speak(TEST_PHRASE);
+    });
+    // Eigene Zeile statt der label-links/control-rechts-.setting – Stimmennamen sind oft lang.
+    return el("div", { class: "setting", style: "flex-direction:column;align-items:stretch;gap:10px" }, [
+      el("div", {}, [
+        el("div", { class: "s-l", text: "Arabische Stimme" }),
+        el("div", { class: "s-d", text: "Falls mehrere auf deinem Gerät installiert sind" })
+      ]),
+      el("div", { class: "row", style: "gap:8px" }, [
+        el("div", { style: "flex:1;min-width:0" }, sel),
+        el("button", { class: "iconbtn", type: "button", "aria-label": "Stimme testen",
+          onclick: function () { AR.audio.speak(TEST_PHRASE); }, text: "🔊" })
+      ])
+    ]);
+  }
+
   function toggleRow(title, desc, key) {
     var input = el("input", { type: "checkbox" });
     input.checked = !!store.get(key);
