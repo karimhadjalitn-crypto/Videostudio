@@ -233,6 +233,18 @@ main { flex: 1; padding: 18px 16px 96px; }
   .verb-forms { display:flex; gap: 18px; justify-content:center; flex-wrap: wrap; }
 }
 
+/* Nomen: Einzahl / Mehrzahl nebeneinander, Sprechform jeweils darunter */
+.noun-forms { display:flex; gap: 22px; justify-content:center; flex-wrap:wrap;
+  align-items:flex-start; width:100%; }
+.noun-forms .nf { display:flex; flex-direction:column; align-items:center; min-width:0; }
+.noun-forms .nf small { color: var(--muted); font-size: 11px; text-transform: uppercase;
+  letter-spacing:.05em; }
+.noun-forms .nf .ar { font-size: 32px; line-height: 1.45; }
+.noun-forms .nf .nf-spoken { font-size: 21px; color: var(--muted); line-height: 1.4; }
+.chip.genus { margin-top: 2px; }
+.chip.genus.f { background: var(--gold-100); border-color: transparent; color: var(--gold); }
+.chip.genus.m { background: var(--accent-100); border-color: transparent; color: var(--accent-600); }
+
 /* Bewertung: 2×2 auf dem Handy, eine Reihe ab Tablet-Breite */
 .grade-row { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
 .grade { min-height: 58px; border-radius: 14px; border: 1px solid var(--border);
@@ -344,7 +356,13 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); ou
 .streak .n { font-size: 30px; font-weight: 800; }
 
 /* segmented control */
-.seg { display:flex; background: var(--surface-2); border-radius: 12px; padding: 4px; gap:4px; }
+.seg { display:flex; background: var(--surface-2); border-radius: 12px; padding: 4px; gap:4px;
+  min-width: 0; max-width: 100%; }
+/* Schmale Geräte: Schalter rutscht unter sein Label statt daneben zu quetschen */
+@media (max-width: 400px) {
+  .setting { flex-wrap: wrap; }
+  .setting .seg { width: 100%; }
+}
 .seg button { flex:1; border:0; background:none; min-height:40px; border-radius:9px; font-weight:650; color: var(--muted); }
 .seg button.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
 

@@ -68,7 +68,7 @@ python3 -m http.server 8000
 
 | Bereich | Beschreibung |
 |---|---|
-| 🃏 **Karteikarten** | Verben zeigen alle vier Formen (Vergangenheit · Präsens · Zukunft · Befehlsform). Umdrehen, selbst einschätzen in vier Stufen (*Nochmal / Schwer / Gut / Leicht*) – unter jedem Knopf steht, wann die Karte wiederkommt. Richtung DE→AR, AR→DE oder gemischt. **Wischen** (rechts = Gut, links = Nochmal, hoch = Leicht, runter = Schwer), **Tastatur** (Leer = umdrehen, 1/2/3/4 = bewerten) und **⭐-Stern** zum Merken. |
+| 🃏 **Karteikarten** | Nomen zeigen **Einzahl und Mehrzahl** – jeweils volles Fuṣḥā und die Sprechform darunter – plus **männlich/weiblich**. Verben zeigen alle vier Formen (Vergangenheit · Präsens · Zukunft · Befehlsform). Umdrehen, selbst einschätzen in vier Stufen (*Nochmal / Schwer / Gut / Leicht*) – unter jedem Knopf steht, wann die Karte wiederkommt. Richtung DE→AR, AR→DE oder gemischt. **Wischen** (rechts = Gut, links = Nochmal, hoch = Leicht, runter = Schwer), **Tastatur** (Leer = umdrehen, 1/2/3/4 = bewerten) und **⭐-Stern** zum Merken. |
 | 🎯 **Quiz** | **Sehen** (Multiple Choice) und **Hören** (Wort anhören, Bedeutung wählen). Tastatur 1–4. Speist denselben Fortschritt. |
 | 💬 **Sätze** | **Baukasten** (Wörter ordnen), **Muster** (Satz-Karten), **Ersetzen** (Lückentext + Variante). |
 | ➕ **Neu** | Eigene Wörter **tippen** (mit arabischer Bildschirmtastatur), aus **Datei** (.txt/.csv/.docx) oder per **Bild** (Texterkennung) importieren. |

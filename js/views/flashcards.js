@@ -133,13 +133,16 @@ AR.views = AR.views || {};
       if (c.imperative) forms.push(vf("Befehlsform", c.imperative));
       box.appendChild(el("div", { class: "verb-forms" }, forms));
       box.appendChild(el("div", { class: "answer-de", text: c.de, style: small ? "display:none" : "" }));
+    } else if (c.type === "noun" && (c.plural || c.genus)) {
+      box.appendChild(nounForms(c));
+      if (c.genus) box.appendChild(genusChip(c.genus));
+      box.appendChild(el("div", { class: "answer-de", text: c.de, style: small ? "display:none" : "" }));
     } else {
       box.appendChild(ui.ar(data.arText(c.fusha), small ? "prompt-ar" : "answer-ar"));
-      if (store.get("showSpoken") && c.spoken && data.stripHarakat(c.spoken) !== data.stripHarakat(c.fusha)) {
-        box.appendChild(el("div", { class: "row", style: "gap:8px" }, [
-          el("span", { class: "muted", style: "font-size:13px", text: "gesprochen:" }),
-          ui.ar(c.spoken, "spoken")
-        ]));
+      // Sprechform zeigen, sobald sie sich überhaupt unterscheidet. (Früher wurde
+      // ohne Harakat verglichen – dadurch war sie fast immer „gleich" und blieb weg.)
+      if (store.get("showSpoken") && c.spoken && c.spoken !== c.fusha) {
+        box.appendChild(spokenLine(c.spoken));
       }
     }
     if (c.example) box.appendChild(el("div", { class: "muted", style: "font-size:13px;text-align:center", text: "z.B. " + c.example }));
@@ -150,6 +153,33 @@ AR.views = AR.views || {};
     return el("div", { class: "vf" }, [
       el("small", { text: label }),
       ui.ar(data.arText(arabic || "—")),
+    ]);
+  }
+
+  /* Nomen: Einzahl + Mehrzahl, je volles Fusha und Sprechform darunter */
+  function nounForms(c) {
+    var cells = [nf("Einzahl", c.fusha, c.spoken)];
+    if (c.plural) cells.push(nf("Mehrzahl", c.plural, c.pluralSpoken));
+    return el("div", { class: "noun-forms" }, cells);
+  }
+  function nf(label, fusha, spoken) {
+    var cell = el("div", { class: "nf" }, [
+      el("small", { text: label }),
+      ui.ar(data.arText(fusha || "—"))
+    ]);
+    if (store.get("showSpoken") && spoken && spoken !== fusha) {
+      cell.appendChild(ui.ar(data.arText(spoken), "nf-spoken"));
+    }
+    return cell;
+  }
+  function genusChip(g) {
+    return el("span", { class: "chip genus " + g,
+      text: g === "f" ? "weiblich" : "männlich" });
+  }
+  function spokenLine(spoken) {
+    return el("div", { class: "row", style: "gap:8px" }, [
+      el("span", { class: "muted", style: "font-size:13px", text: "gesprochen:" }),
+      ui.ar(data.arText(spoken), "spoken")
     ]);
   }
 
