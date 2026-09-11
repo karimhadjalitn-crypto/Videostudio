@@ -178,7 +178,7 @@ kaputt ist.
 
 ## 9a. Stand des Quran-Trakts
 
-**Wortschatz: 311 Wörter** in fünf Stufen (`tools/quran_words.py`)
+**Wortschatz: 343 Wörter** in fünf Stufen (`tools/quran_words.py`)
 
 | Stufe | Inhalt | Wörter |
 |---|---|---|
@@ -186,9 +186,9 @@ kaputt ist.
 | 2 | häufigste Nomen | 69 |
 | 3 | häufigste Verben | 70 |
 | 4 | Eigenschaften und Gottesnamen | 55 |
-| 5 | Wörter aus den Gebetstexten | 57 |
+| 5 | Wörter aus den Suren und Gebetstexten | 89 |
 
-120 davon stehen auch im Alltagswortschatz und sind verknüpft (`also`) –
+121 davon stehen auch im Alltagswortschatz und sind verknüpft (`also`) –
 sie werden nicht zweimal von vorn gelernt. Das bestätigt die Annahme aus
 Abschnitt 2: der Gesamtaufwand ist deutlich kleiner als die Summe beider Listen.
 
@@ -196,11 +196,12 @@ Häufigkeitszahlen stehen nur bei 25 Wörtern, wo sie belastbar sind. Die
 Lernreihenfolge hängt an der Stufe, nicht an der Zahl – eine erfundene
 Häufigkeit wäre schlechter als gar keine.
 
-**Texte: 13, davon 11 Suren und 2 Gebetstexte** (`tools/quran_texts.py`),
-zusammen 60 Verse und 271 Wortformen, davon 246 mit dem Wortschatz verknüpft:
+**Texte: 16, davon 14 Suren und 2 Gebetstexte** (`tools/quran_texts.py`),
+zusammen 81 Verse und 352 Wortformen, davon 318 mit dem Wortschatz verknüpft:
 
-- al-Fātiḥa, al-Ikhlāṣ, al-Falaq, an-Nās, al-ʿAṣr, al-Kawthar, an-Naṣr,
-  al-Kāfirūn, al-Qadr, Quraysh, al-Fīl
+- **Sure 104 bis 114 lückenlos** – al-Humazah, al-Fīl, Quraysh, al-Māʿūn,
+  al-Kawthar, al-Kāfirūn, an-Naṣr, al-Masad, al-Ikhlāṣ, al-Falaq, an-Nās
+- dazu al-Fātiḥa, al-Qadr, al-ʿAṣr
 - Taschahhud, Adhkār aus Rukūʿ und Sujūd
 
 Stufe 5 existiert, weil eine reine Häufigkeitsliste die kurzen Suren schlecht

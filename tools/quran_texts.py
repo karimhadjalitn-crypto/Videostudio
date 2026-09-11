@@ -487,6 +487,172 @@ TEXTS = [
         ],
     },
     # ------------------------------------------------------------------ #
+    {
+        "id": "masad", "kind": "sura", "nr": 111,
+        "name": "الْمَسَد", "nameDe": "Die Palmfasern",
+        "ayat": [
+            {"nr": 1, "de": "Zugrunde gehen sollen die Hände Abu Lahabs, und zugrunde gegangen ist er.",
+             "words": [
+                 {"ar": "تَبَّتْ", "de": "zugrunde gehen sollen", "lemma": "تَبَّ", "root": "ت ب ب"},
+                 {"ar": "يَدَا", "de": "die beiden Hände", "lemma": "يَد", "root": "ي د ي"},
+                 {"ar": "أَبِي", "de": "des Vaters von", "lemma": "أَب", "root": "أ ب و"},
+                 {"ar": "لَهَبٍ", "de": "Lahab", "root": "ل ه ب", "name": True},
+                 {"ar": "وَتَبَّ", "de": "und er ist zugrunde gegangen", "lemma": "تَبَّ", "root": "ت ب ب"},
+             ]},
+            {"nr": 2, "de": "Nicht nützt ihm sein Besitz und was er erworben hat.",
+             "words": [
+                 {"ar": "مَا", "de": "nicht", "root": "—"},
+                 {"ar": "أَغْنَىٰ", "de": "nützt", "lemma": "أَغْنَى", "root": "غ ن ي"},
+                 {"ar": "عَنْهُ", "de": "ihm", "root": "—"},
+                 {"ar": "مَالُهُ", "de": "sein Besitz", "lemma": "مَال", "root": "م و ل"},
+                 {"ar": "وَمَا", "de": "und was", "root": "—"},
+                 {"ar": "كَسَبَ", "de": "er erworben hat", "lemma": "كَسَبَ", "root": "ك س ب"},
+             ]},
+            {"nr": 3, "de": "Er wird einem Feuer voller Flammen ausgesetzt sein,",
+             "words": [
+                 {"ar": "سَيَصْلَىٰ", "de": "er wird ausgesetzt sein", "lemma": "صَلِيَ", "root": "ص ل ي"},
+                 {"ar": "نَارًا", "de": "einem Feuer", "lemma": "نَار", "root": "ن و ر"},
+                 {"ar": "ذَاتَ", "de": "voller", "lemma": "ذَات", "root": "—"},
+                 {"ar": "لَهَبٍ", "de": "Flammen", "lemma": "لَهَب", "root": "ل ه ب"},
+             ]},
+            {"nr": 4, "de": "und seine Frau, die Trägerin des Brennholzes,",
+             "words": [
+                 {"ar": "وَامْرَأَتُهُ", "de": "und seine Frau", "lemma": "اِمْرَأَة", "root": "م ر أ"},
+                 {"ar": "حَمَّالَةَ", "de": "die Trägerin", "lemma": "حَمَّالَة", "root": "ح م ل"},
+                 {"ar": "الْحَطَبِ", "de": "des Brennholzes", "lemma": "حَطَب", "root": "ح ط ب"},
+             ]},
+            {"nr": 5, "de": "um ihren Hals ein Strick aus Palmfasern.",
+             "words": [
+                 {"ar": "فِي", "de": "an", "root": "—"},
+                 {"ar": "جِيدِهَا", "de": "ihrem Hals", "lemma": "جِيد", "root": "ج ي د"},
+                 {"ar": "حَبْلٌ", "de": "ein Strick", "lemma": "حَبْل", "root": "ح ب ل"},
+                 {"ar": "مِنْ", "de": "aus", "root": "—"},
+                 {"ar": "مَسَدٍ", "de": "Palmfasern", "lemma": "مَسَد", "root": "م س د"},
+             ]},
+        ],
+    },
+    # ------------------------------------------------------------------ #
+    {
+        "id": "maun", "kind": "sura", "nr": 107,
+        "name": "الْمَاعُون", "nameDe": "Die Hilfeleistung",
+        "note": "Warnt vor dem Gebet ohne Herz und vor Härte gegen Bedürftige.",
+        "ayat": [
+            {"nr": 1, "de": "Hast du den gesehen, der das Gericht für Lüge erklärt?",
+             "words": [
+                 {"ar": "أَرَأَيْتَ", "de": "hast du gesehen", "lemma": "رَأَى", "root": "ر أ ي"},
+                 {"ar": "الَّذِي", "de": "den, der", "root": "—"},
+                 {"ar": "يُكَذِّبُ", "de": "für Lüge erklärt", "lemma": "كَذَّبَ", "root": "ك ذ ب"},
+                 {"ar": "بِالدِّينِ", "de": "das Gericht", "lemma": "دِين", "root": "د ي ن"},
+             ]},
+            {"nr": 2, "de": "Das ist der, der die Waise wegstößt",
+             "words": [
+                 {"ar": "فَذَٰلِكَ", "de": "das ist", "root": "—"},
+                 {"ar": "الَّذِي", "de": "der, der", "root": "—"},
+                 {"ar": "يَدُعُّ", "de": "wegstößt", "lemma": "دَعَّ", "root": "د ع ع"},
+                 {"ar": "الْيَتِيمَ", "de": "die Waise", "lemma": "يَتِيم", "root": "ي ت م"},
+             ]},
+            {"nr": 3, "de": "und nicht dazu anhält, den Armen zu speisen.",
+             "words": [
+                 {"ar": "وَلَا", "de": "und nicht", "root": "—"},
+                 {"ar": "يَحُضُّ", "de": "anhält", "lemma": "حَضَّ", "root": "ح ض ض"},
+                 {"ar": "عَلَىٰ", "de": "zu", "lemma": "عَلَى", "root": "ع ل و"},
+                 {"ar": "طَعَامِ", "de": "dem Speisen", "lemma": "طَعَام", "root": "ط ع م"},
+                 {"ar": "الْمِسْكِينِ", "de": "des Armen", "lemma": "مِسْكِين", "root": "س ك ن"},
+             ]},
+            {"nr": 4, "de": "Wehe denn den Betenden,",
+             "words": [
+                 {"ar": "فَوَيْلٌ", "de": "wehe denn", "lemma": "وَيْل", "root": "و ي ل"},
+                 {"ar": "لِلْمُصَلِّينَ", "de": "den Betenden", "lemma": "مُصَلٍّ", "root": "ص ل و"},
+             ]},
+            {"nr": 5, "de": "die ihr Gebet achtlos verrichten,",
+             "words": [
+                 {"ar": "الَّذِينَ", "de": "die", "root": "—"},
+                 {"ar": "هُمْ", "de": "sie", "root": "—"},
+                 {"ar": "عَنْ", "de": "gegenüber", "root": "—"},
+                 {"ar": "صَلَاتِهِمْ", "de": "ihrem Gebet", "lemma": "صَلَاة", "root": "ص ل و"},
+                 {"ar": "سَاهُونَ", "de": "achtlos sind", "lemma": "سَاهٍ", "root": "س ه و"},
+             ]},
+            {"nr": 6, "de": "die gesehen werden wollen",
+             "words": [
+                 {"ar": "الَّذِينَ", "de": "die", "root": "—"},
+                 {"ar": "هُمْ", "de": "sie", "root": "—"},
+                 {"ar": "يُرَاءُونَ", "de": "gesehen werden wollen", "lemma": "رَاءَى", "root": "ر أ ي"},
+             ]},
+            {"nr": 7, "de": "und die Hilfeleistung verweigern.",
+             "words": [
+                 {"ar": "وَيَمْنَعُونَ", "de": "und sie verweigern", "lemma": "مَنَعَ", "root": "م ن ع"},
+                 {"ar": "الْمَاعُونَ", "de": "die Hilfeleistung", "lemma": "مَاعُون", "root": "م ع ن"},
+             ]},
+        ],
+    },
+    # ------------------------------------------------------------------ #
+    {
+        "id": "humazah", "kind": "sura", "nr": 104,
+        "name": "الْهُمَزَة", "nameDe": "Der Stichler",
+        "ayat": [
+            {"nr": 1, "de": "Wehe jedem Stichler und Verleumder,",
+             "words": [
+                 {"ar": "وَيْلٌ", "de": "wehe", "lemma": "وَيْل", "root": "و ي ل"},
+                 {"ar": "لِكُلِّ", "de": "jedem", "lemma": "كُلّ", "root": "ك ل ل"},
+                 {"ar": "هُمَزَةٍ", "de": "Stichler", "lemma": "هُمَزَة", "root": "ه م ز"},
+                 {"ar": "لُمَزَةٍ", "de": "Verleumder", "lemma": "لُمَزَة", "root": "ل م ز"},
+             ]},
+            {"nr": 2, "de": "der Besitz zusammenträgt und ihn immer wieder zählt.",
+             "words": [
+                 {"ar": "الَّذِي", "de": "der", "root": "—"},
+                 {"ar": "جَمَعَ", "de": "zusammenträgt", "lemma": "جَمَعَ", "root": "ج م ع"},
+                 {"ar": "مَالًا", "de": "Besitz", "lemma": "مَال", "root": "م و ل"},
+                 {"ar": "وَعَدَّدَهُ", "de": "und ihn zählt", "lemma": "عَدَّدَ", "root": "ع د د"},
+             ]},
+            {"nr": 3, "de": "Er meint, sein Besitz mache ihn unsterblich.",
+             "words": [
+                 {"ar": "يَحْسَبُ", "de": "er meint", "lemma": "حَسِبَ", "root": "ح س ب"},
+                 {"ar": "أَنَّ", "de": "dass", "root": "—"},
+                 {"ar": "مَالَهُ", "de": "sein Besitz", "lemma": "مَال", "root": "م و ل"},
+                 {"ar": "أَخْلَدَهُ", "de": "ihn unsterblich macht", "lemma": "أَخْلَدَ", "root": "خ ل د"},
+             ]},
+            {"nr": 4, "de": "Keineswegs! Er wird gewiss in die Zermalmende geworfen.",
+             "words": [
+                 {"ar": "كَلَّا", "de": "keineswegs", "root": "—"},
+                 {"ar": "لَيُنْبَذَنَّ", "de": "er wird gewiss geworfen", "lemma": "نَبَذَ", "root": "ن ب ذ"},
+                 {"ar": "فِي", "de": "in", "root": "—"},
+                 {"ar": "الْحُطَمَةِ", "de": "die Zermalmende", "lemma": "حُطَمَة", "root": "ح ط م"},
+             ]},
+            {"nr": 5, "de": "Und was lässt dich wissen, was die Zermalmende ist?",
+             "words": [
+                 {"ar": "وَمَا", "de": "und was", "root": "—"},
+                 {"ar": "أَدْرَاكَ", "de": "lässt dich wissen", "lemma": "أَدْرَى", "root": "د ر ي"},
+                 {"ar": "مَا", "de": "was", "root": "—"},
+                 {"ar": "الْحُطَمَةُ", "de": "die Zermalmende (ist)", "lemma": "حُطَمَة", "root": "ح ط م"},
+             ]},
+            {"nr": 6, "de": "Das entfachte Feuer Allahs,",
+             "words": [
+                 {"ar": "نَارُ", "de": "das Feuer", "lemma": "نَار", "root": "ن و ر"},
+                 {"ar": "اللَّهِ", "de": "Allahs", "lemma": "اللَّه", "root": "أ ل ه"},
+                 {"ar": "الْمُوقَدَةُ", "de": "das entfachte", "lemma": "مُوقَدَة", "root": "و ق د"},
+             ]},
+            {"nr": 7, "de": "das über die Herzen emporsteigt.",
+             "words": [
+                 {"ar": "الَّتِي", "de": "das", "root": "—"},
+                 {"ar": "تَطَّلِعُ", "de": "emporsteigt", "lemma": "اِطَّلَعَ", "root": "ط ل ع"},
+                 {"ar": "عَلَى", "de": "über", "lemma": "عَلَى", "root": "ع ل و"},
+                 {"ar": "الْأَفْئِدَةِ", "de": "die Herzen", "lemma": "فُؤَاد", "root": "ف أ د"},
+             ]},
+            {"nr": 8, "de": "Es schlägt über ihnen zusammen",
+             "words": [
+                 {"ar": "إِنَّهَا", "de": "wahrlich, es", "root": "—"},
+                 {"ar": "عَلَيْهِمْ", "de": "über ihnen", "lemma": "عَلَى", "root": "ع ل و"},
+                 {"ar": "مُؤْصَدَةٌ", "de": "ist verschlossen", "lemma": "مُؤْصَدَة", "root": "أ ص د"},
+             ]},
+            {"nr": 9, "de": "in langgestreckten Säulen.",
+             "words": [
+                 {"ar": "فِي", "de": "in", "root": "—"},
+                 {"ar": "عَمَدٍ", "de": "Säulen", "lemma": "عَمَد", "root": "ع م د"},
+                 {"ar": "مُمَدَّدَةٍ", "de": "langgestreckten", "lemma": "مُمَدَّدَة", "root": "م د د"},
+             ]},
+        ],
+    },
+    # ------------------------------------------------------------------ #
     # Gebetstexte
     # ------------------------------------------------------------------ #
     {
