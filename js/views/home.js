@@ -92,6 +92,26 @@ AR.views = AR.views || {};
     grid.appendChild(deckCard(data.deckById("all")));
     body.appendChild(grid);
 
+    /* Quran-Bereich – eigener Trakt, prominent über der Grammatik */
+    var qc = data.quranCards();
+    if (qc.length) {
+      var q = store.counts(qc);
+      var qpct = q.total ? Math.round(q.gekonnt / q.total * 100) : 0;
+      body.appendChild(el("div", { class: "section-title", text: "Quran" }));
+      body.appendChild(el("button", { class: "deck quran-entry", style: "width:100%",
+        onclick: function () { AR.app.go("quran"); } }, [
+        el("div", { class: "row", style: "justify-content:space-between" }, [
+          el("span", { class: "emoji", text: "📖" }),
+          el("span", { class: "badge", style: "background:rgba(255,255,255,.25);color:#fff",
+            text: q.total + " Wörter" })
+        ]),
+        el("div", { class: "name", text: "Quran verstehen" }),
+        ui.progressBar(qpct, ""),
+        el("div", { class: "sub", text: q.gekonnt + " gekonnt · " +
+          data.quranTexts().length + " Texte Wort für Wort" })
+      ]));
+    }
+
     body.appendChild(el("div", { class: "section-title", text: "Grammatik" }));
     body.appendChild(el("button", { class: "deck", style: "width:100%",
       onclick: function () { AR.app.go("grammar"); } }, [

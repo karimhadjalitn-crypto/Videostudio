@@ -65,7 +65,7 @@ AR.views = AR.views || {};
         onclick: function () { AR.audio.speak(c.fusha); } }, "🔊  Anhören");
       var inner = el("div", { class: "center stack", style: "align-items:center" }, [play]);
       if (session.answered) {
-        inner.appendChild(ui.ar(data.arText(c.fusha), "prompt-ar"));
+        inner.appendChild(ui.ar(data.cardAr(c), "prompt-ar"));
         if (store.get("showSpoken") && c.spoken && data.stripHarakat(c.spoken) !== data.stripHarakat(c.fusha))
           inner.appendChild(ui.ar(c.spoken, "spoken"));
       } else {

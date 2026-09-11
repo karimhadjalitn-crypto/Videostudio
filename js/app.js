@@ -11,12 +11,14 @@ window.AR = window.AR || {};
   var app = {
     currentDeck: "mine",
     browseDeckId: "mine",
+    quranTextId: null,
 
     go: function (view) {
       current = view;
       var main = document.getElementById("main");
       var v = AR.views[view] || (view === "deck" ? null : null);
       if (view === "deck") { AR.views.home.renderDeck(main, app.currentDeck); }
+      else if (view === "qurantext") { AR.views.quran.renderText(main, app.quranTextId); }
       else if (AR.views[view]) { AR.views[view].render(main); }
       else { AR.views.home.render(main); }
       updateTabs(view);
@@ -32,6 +34,7 @@ window.AR = window.AR || {};
     },
     openDeck: function (id) { app.currentDeck = id; app.go("deck"); },
     browseDeck: function (id) { app.browseDeckId = id; app.go("browse"); },
+    openQuranText: function (id) { app.quranTextId = id; app.go("qurantext"); },
 
     isIOS: function () {
       return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
@@ -74,7 +77,8 @@ window.AR = window.AR || {};
     Array.prototype.forEach.call(tabs, function (t) {
       var v = t.getAttribute("data-view");
       // Deck-Detail & Browser zählen zum Home-Tab
-      var match = v === view || (v === "home" && (view === "deck" || view === "browse" || view === "grammar"));
+      var match = v === view || (v === "home" && (view === "deck" || view === "browse" ||
+        view === "grammar" || view === "quran" || view === "qurantext"));
       t.classList.toggle("active", !!match);
     });
   }

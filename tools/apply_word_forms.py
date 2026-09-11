@@ -131,18 +131,10 @@ def main():
     with open(mpath, "w", encoding="utf-8") as f:
         json.dump(meta, f, ensure_ascii=False, separators=(",", ":"))
 
-    # appdata.js neu buendeln
-    bundle = {
-        "vocab": vocab,
-        "sentences": json.load(open(os.path.join(DATA, "sentences.json"), encoding="utf-8")),
-        "idioms": json.load(open(os.path.join(DATA, "idioms.json"), encoding="utf-8")),
-        "grammar": json.load(open(os.path.join(DATA, "grammar.json"), encoding="utf-8")),
-        "meta": meta,
-    }
-    with open(os.path.join(DATA, "appdata.js"), "w", encoding="utf-8") as f:
-        f.write("window.APPDATA=")
-        json.dump(bundle, f, ensure_ascii=False, separators=(",", ":"))
-        f.write(";\n")
+    # appdata.js neu buendeln (gemeinsame Stelle, damit die Build-Wege
+    # nicht auseinanderlaufen - zieht auch quran.json mit ein)
+    from bundle import bundle as build_bundle
+    build_bundle()
 
     print("Unicode normalisiert     : %d Felder" % n_norm)
     print("Sprechform neu gebildet  : %d" % n_spoken)

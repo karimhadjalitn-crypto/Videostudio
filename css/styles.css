@@ -195,6 +195,35 @@ main { flex: 1; padding: 18px 16px 96px; }
 .deck.feature .bar { background: rgba(255,255,255,.3); }
 .deck.feature .bar > span { background: #fff; }
 
+/* Quran: eigener Trakt, in Gold statt im Teal der Alltagsdecks */
+.deck.quran-entry { background: linear-gradient(135deg, #8a6b2f 0%, #6b5225 100%);
+  color:#fff; border:0; }
+.deck.quran-entry .sub, .deck.quran-entry .name { color:#fff; }
+.deck.quran-entry .bar { background: rgba(255,255,255,.3); }
+.deck.quran-entry .bar > span { background:#fff; }
+
+/* Quran-Übersicht: Stufen und Textliste */
+.qlevel, .qtext { width:100%; text-align:left; background:none; border:0; padding:10px 0;
+  border-bottom:1px solid var(--border); display:flex; flex-direction:column; gap:8px; }
+.qlevel:last-child, .qtext:last-child { border-bottom:0; }
+.qtext-ar { font-size:22px; color: var(--accent-600); }
+.qtitle-ar { font-size:34px; line-height:1.6; }
+
+/* Vers Wort für Wort */
+.aya { margin-top:10px; }
+.aya-nr { display:inline-grid; place-items:center; min-width:26px; height:26px; padding:0 6px;
+  border-radius:999px; background: var(--surface-2); color: var(--muted);
+  font-size:12px; font-weight:700; }
+.aya-ar { direction: rtl; display:flex; flex-wrap:wrap; gap:4px; justify-content:center;
+  margin:8px 0 10px; }
+.aya-word { background: transparent; border:1px solid transparent; border-radius:10px;
+  padding:2px 6px; font: inherit; color: inherit; }
+.aya-word .ar { font-size:30px; line-height:1.85; }
+.aya-word:active { background: var(--accent-100); border-color: var(--accent); }
+.aya-de { font-size:14px; color: var(--muted); text-align:center; line-height:1.55; }
+.qword-ar { font-size:40px; line-height:1.6; }
+.qinfo-ar { font-size:22px; }
+
 /* progress bar */
 .bar { height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
 .bar > span { display:block; height:100%; background: var(--accent); border-radius: inherit;

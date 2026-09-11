@@ -104,7 +104,7 @@ AR.views = AR.views || {};
       front.appendChild(el("div", { class: "prompt-de", text: c.de }));
       front.appendChild(el("div", { class: "muted", text: typeLabel(c) }));
     } else {
-      front.appendChild(ui.ar(data.arText(c.fusha), "prompt-ar"));
+      front.appendChild(ui.ar(data.cardAr(c), "prompt-ar"));
       front.appendChild(ui.speakButton(c.fusha));
     }
     front.appendChild(el("div", { class: "tap-hint", text: "Tippen zum Umdrehen" }));
@@ -134,6 +134,26 @@ AR.views = AR.views || {};
       box.appendChild(el("div", { class: "verb-forms" }, forms));
       if (c.prep || c.prepNote) box.appendChild(prepLine(c));
       box.appendChild(el("div", { class: "answer-de", text: c.de, style: small ? "display:none" : "" }));
+    } else if (c.type === "quran") {
+      // Quranwörter immer voll vokalisiert, dazu Wurzel und Häufigkeit
+      box.appendChild(ui.ar(data.cardAr(c), small ? "prompt-ar" : "answer-ar"));
+      var meta = [];
+      if (c.root && c.root !== "—") {
+        meta.push(el("span", { class: "chip" }, [
+          el("span", { class: "muted", style: "font-size:11px", text: "Wurzel " }),
+          ui.ar(c.root)
+        ]));
+      }
+      if (c.freq) {
+        meta.push(el("span", { class: "chip", text: c.freq + "× im Quran" }));
+      }
+      if (c.also) {
+        meta.push(el("span", { class: "chip accent", text: "auch im Alltag" }));
+      }
+      if (meta.length) {
+        box.appendChild(el("div", { class: "row", style: "gap:6px;flex-wrap:wrap;justify-content:center" }, meta));
+      }
+      box.appendChild(el("div", { class: "answer-de", text: c.de, style: small ? "display:none" : "" }));
     } else if (c.type === "adjective" && c.feminine) {
       box.appendChild(el("div", { class: "noun-forms" }, [
         nf("männlich", c.fusha, c.spoken),
@@ -145,7 +165,7 @@ AR.views = AR.views || {};
       if (c.genus) box.appendChild(genusChip(c.genus));
       box.appendChild(el("div", { class: "answer-de", text: c.de, style: small ? "display:none" : "" }));
     } else {
-      box.appendChild(ui.ar(data.arText(c.fusha), small ? "prompt-ar" : "answer-ar"));
+      box.appendChild(ui.ar(data.cardAr(c), small ? "prompt-ar" : "answer-ar"));
       // Sprechform zeigen, sobald sie sich überhaupt unterscheidet. (Früher wurde
       // ohne Harakat verglichen – dadurch war sie fast immer „gleich" und blieb weg.)
       if (store.get("showSpoken") && c.spoken && c.spoken !== c.fusha) {
@@ -231,6 +251,7 @@ AR.views = AR.views || {};
 
   function typeLabel(c) {
     return { verb: "Verb", noun: "Nomen", adjective: "Adjektiv", preposition: "Präposition",
+      quran: "Quran-Wort",
       conjunction: "Konjunktion", question: "Frage/Pronomen" }[c.type] || "";
   }
 

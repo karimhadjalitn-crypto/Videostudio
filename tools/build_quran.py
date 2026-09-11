@@ -134,6 +134,9 @@ def main():
     with open(os.path.join(DATA, "quran.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
 
+    from bundle import bundle as build_bundle
+    build_bundle()
+
     print("Woerter            : %d  %s" % (len(words), levels))
     print("davon im Alltag    : %d (werden nicht doppelt gelernt)" % overlap)
     print("mit Haeufigkeit    : %d" % sum(1 for w in words if w.get("freq")))
