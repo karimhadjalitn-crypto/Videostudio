@@ -23,6 +23,7 @@ window.AR = window.AR || {};
     srs: {},          // cardId -> {box,due,seen,correct,wrong,last}
     userCards: [],    // selbst hinzugefügte Vokabeln
     favorites: {},    // cardId -> true (markierte Wörter)
+    issues: [],       // gemeldete Fehler: {card,de,fusha,text,ts}
     settings: Object.assign({}, DEFAULT_SETTINGS),
     stats: { studyDates: {}, totalReviews: 0 }
   };
@@ -36,6 +37,7 @@ window.AR = window.AR || {};
         state.srs = d.srs || {};
         state.userCards = d.userCards || [];
         state.favorites = d.favorites || {};
+        state.issues = d.issues || [];
         state.settings = Object.assign({}, DEFAULT_SETTINGS, d.settings || {});
         state.stats = Object.assign({ studyDates: {}, totalReviews: 0 }, d.stats || {});
       }
@@ -249,6 +251,28 @@ window.AR = window.AR || {};
     save();
   }
 
+  /* ---------- Gemeldete Fehler ----------
+     Die Vokabeln sind aus Sprachwissen erzeugt, nicht aus einem geprüften
+     Wörterbuch. Auffälliges soll direkt an der Karte markierbar sein. */
+  function reportIssue(card, text) {
+    state.issues.push({
+      card: card.id, de: card.de, fusha: card.fusha,
+      text: (text || "").trim(), ts: Date.now()
+    });
+    save();
+  }
+  function issues() { return state.issues; }
+  function deleteIssue(i) { state.issues.splice(i, 1); save(); }
+  function clearIssues() { state.issues = []; save(); }
+  function issuesAsText() {
+    return state.issues.map(function (x) {
+      var d = new Date(x.ts);
+      return "- " + x.de + " (" + x.fusha + ", " + x.card + "): " +
+        (x.text || "ohne Beschreibung") +
+        "  [" + d.getDate() + "." + (d.getMonth() + 1) + "." + d.getFullYear() + "]";
+    }).join("\n");
+  }
+
   /* ---------- Favoriten ---------- */
   function toggleFav(id) {
     if (state.favorites[id]) delete state.favorites[id];
@@ -265,7 +289,8 @@ window.AR = window.AR || {};
   }
   function exportData() {
     return JSON.stringify({ srs: state.srs, userCards: state.userCards,
-      favorites: state.favorites, settings: state.settings, stats: state.stats }, null, 2);
+      favorites: state.favorites, settings: state.settings, stats: state.stats,
+      issues: state.issues }, null, 2);
   }
   function importData(json) {
     var d = JSON.parse(json);
@@ -274,6 +299,7 @@ window.AR = window.AR || {};
     if (d.favorites) state.favorites = d.favorites;
     if (d.settings) state.settings = Object.assign({}, DEFAULT_SETTINGS, d.settings);
     if (d.stats) state.stats = d.stats;
+    if (d.issues) state.issues = d.issues;
     saveNow();
   }
 
@@ -289,6 +315,8 @@ window.AR = window.AR || {};
     userCards: function () { return state.userCards; },
     addUserCard: addUserCard, deleteUserCard: deleteUserCard,
     toggleFav: toggleFav, isFav: isFav, favCount: favCount,
+    reportIssue: reportIssue, issues: issues, deleteIssue: deleteIssue,
+    clearIssues: clearIssues, issuesAsText: issuesAsText,
     stats: function () { return state.stats; },
     resetProgress: resetProgress, exportData: exportData, importData: importData,
     _state: state

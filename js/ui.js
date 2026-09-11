@@ -84,6 +84,40 @@ window.AR = window.AR || {};
       el("span", { style: "width:" + Math.max(0, Math.min(100, pct)) + "%" }));
   }
 
+  /* ---------- Fehler an einer Karte melden ----------
+     Die Vokabeln sind aus Sprachwissen erzeugt, nicht gegen ein Wörterbuch
+     geprüft. Was komisch aussieht, soll sofort markierbar sein. */
+  function reportButton(card) {
+    var b = el("button", { class: "reportbtn", type: "button",
+      "aria-label": "Fehler an dieser Karte melden", text: "⚑" });
+    b.addEventListener("click", function (e) { e.stopPropagation(); reportSheet(card); });
+    return b;
+  }
+
+  function reportSheet(card) {
+    var store = AR.store;
+    var ta = el("textarea", { placeholder: "Was stimmt nicht? Kurz beschreiben – oder oben antippen.",
+      style: "min-height:90px" });
+    var choices = el("div", { class: "row", style: "gap:8px;flex-wrap:wrap" });
+    ["Übersetzung falsch", "Vokalzeichen falsch", "Plural falsch", "Wort unüblich"].forEach(function (t) {
+      choices.appendChild(el("button", { class: "chip", type: "button", text: t,
+        onclick: function () { ta.value = ta.value ? ta.value + ", " + t : t; ta.focus(); } }));
+    });
+
+    AR.app.sheet("Fehler melden", el("div", { class: "stack" }, [
+      el("div", { class: "row", style: "gap:8px;justify-content:center" }, [
+        el("b", { text: card.de }), ar(card.fusha)
+      ]),
+      choices,
+      ta,
+      el("button", { class: "btn btn-primary block", onclick: function () {
+        store.reportIssue(card, ta.value);
+        AR.app.closeSheet();
+        toast("Gemeldet ✓ – danke, ich schau's mir an");
+      } }, "Melden")
+    ]));
+  }
+
   /* ---------- Lernziel einstellen ---------- */
   /* Öffnet ein Blatt, in dem das Ziel frei gewählt werden kann.
      onSave wird nach dem Speichern aufgerufen (zum Neuzeichnen). */
@@ -232,6 +266,6 @@ window.AR = window.AR || {};
     speakButton: speakButton, statusChip: statusChip, progressBar: progressBar,
     arabicKeyboard: arabicKeyboard, insertAtCursor: insertAtCursor,
     starButton: starButton, installSteps: installSteps, doneScreen: doneScreen,
-    goalSheet: goalSheet
+    goalSheet: goalSheet, reportButton: reportButton, reportSheet: reportSheet
   };
 })(window.AR);

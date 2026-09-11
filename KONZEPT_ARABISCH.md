@@ -67,11 +67,25 @@ imperative, ex, example, source`.
 | `plural` | Plural, voll vokalisiert | `بُيُوتٌ` |
 | `pluralSpoken` | Plural in Pausalform | `بُيُوت` |
 
+**Neu für Adjektive:**
+
+| Feld | Bedeutung | Beispiel |
+|---|---|---|
+| `feminine` | weibliche Form | `كَبِيرَةٌ` |
+| `feminineSpoken` | weibliche Form in Pausalform | `كَبِيرَة` |
+
 **Neu für Verben:**
 
 | Feld | Bedeutung | Beispiel |
 |---|---|---|
 | `prep` | verlangte Präposition | `إِلَى` bei `اِحْتَاجَ` |
+| `prepNote` | Warnung, wenn Deutsch eine Präposition hat und Arabisch nicht | „warten auf → ohne Vorwort" |
+
+**Sprechform — wichtige Einschränkung:** Die Pausalform wird nur für
+flektierende Wortarten gebildet. Präpositionen, Konjunktionen und Pronomen
+sind *mabnī*: ihre Endung gehört zum Wort und fällt nicht weg. مَعَ bleibt
+مَعَ („maʿa l-bayt"), هُوَ bleibt هُوَ. Diese Wörter stehen nie am Satzende,
+eine Pausalform existiert dort gar nicht.
 
 **Neu für Quranvokabeln** (eigener Bereich, eigene Datei):
 
@@ -153,7 +167,7 @@ Korrekturweg eingebaut.
 
 | # | Inhalt | Status |
 |---|---|---|
-| 1 | **Datenfundament** — Plural + Genus für 245 Nomen, Verb-Präpositionen, Dubletten und Übersetzungsfehler bereinigen, Prüfskripte | in Arbeit |
+| 1 | **Datenfundament** — Plural + Genus für 245 Nomen, weibliche Form für 102 Adjektive, Präpositionen für 71 Verben, Datenkorrekturen, „Fehler melden"-Knopf | **fertig** |
 | 2 | **Quran-Trakt** — Frequenzwortschatz, Gebetstexte, Suren Wort für Wort, Quran-Grammatik | offen |
 | 3 | **Der Pfad** — Tagesprogramm, Soll-Ist gegen die Termine, Meilensteine | offen |
 | 4 | **Reden** — Alltagswortschatz ausbauen, Sprechübungen, Sprech-Grammatik | offen |

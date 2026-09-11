@@ -333,6 +333,14 @@ SHORT = "َُِ"            # َ ُ ِ
 # alle Vokal-/Hilfszeichen: Tanwin, Kurzvokale, Schadda, Sukun, Dolch-Alif
 MARKS = TANWEEN + SHORT + "ّْٰ"
 
+# Defektive Nomen (manqus): ihr auslautendes ي faellt im unbestimmten
+# Nominativ/Genitiv weg und kehrt in Pause zurueck. An der Schrift NICHT
+# erkennbar - غَالٍ (manqus) und سَفَرٍ (nur Genitiv) sehen gleich aus.
+MANQUS = set()
+for _w in ("غَالٍ", "مَاضٍ", "أَيْدٍ", "مَعَانٍ", "أَرَاضٍ", "لَيَالٍ",
+           "قَاضٍ", "نَادٍ", "وَادٍ"):
+    MANQUS.add(unicodedata.normalize("NFC", _w))
+
 
 def pausal(word):
     """Pausalform ('nah an Fusha'): Endung wegfallen lassen.
@@ -348,25 +356,42 @@ def pausal(word):
     if not w:
         return None
 
-    # maqsur: Fathatan vor Alif/Alif maqsura -> nur das Tanwin faellt weg
-    for alif in ("ى", "ا"):
-        if w.endswith("ً" + alif):
-            return w[:-2] + "َ" + alif
+    # Mehrteilige Ausdruecke (Genitivverbindungen wie جَوَازُ سَفَرٍ) Wort fuer
+    # Wort behandeln - in Pause verliert jedes Glied seine Endung.
+    if " " in w:
+        return " ".join(pausal(part) for part in w.split(" "))
 
-    # Zeichen am Wortende abtrennen. Nach NFC kann dort Tanwin VOR der
-    # Schadda stehen (أُمٌّ), deshalb wird der ganze Block betrachtet und
-    # nicht nur das jeweils letzte Zeichen.
+    # manqus: das getilgte Ya kehrt in Pause zurueck (أَيْدٍ -> أَيْدِي).
+    # Ob ein Wort manqus ist, steht NICHT in der Schrift - سَفَرٍ sieht genauso
+    # aus, ist aber nur ein Genitiv. Deshalb feste Liste statt Regel.
+    if w in MANQUS:
+        base = w
+        while base and base[-1] in MARKS:
+            base = base[:-1]
+        return base + "ِي"
+
+    # maqsur: Wort endet auf Alif/Alif maqsura und traegt davor ein Fathatan
+    # (مَعْنًى، حُمًّى). Nach NFC kann zwischen beiden noch eine Schadda stehen,
+    # darum wird der ganze Zeichenblock geprueft statt nur das Nachbarzeichen.
+    if w[-1] in ("ى", "ا"):
+        i = len(w) - 1
+        j = i
+        while j > 0 and w[j - 1] in MARKS:
+            j -= 1
+        marks = w[j:i]
+        if "ً" in marks:
+            keep = "".join(c for c in marks if c not in TANWEEN)
+            return w[:j] + keep + "َ" + w[i]
+        return w
+
+    # Zeichen am Wortende abtrennen. Nach NFC kann dort das Tanwin VOR der
+    # Schadda stehen (أُمٌّ), deshalb der ganze Block statt nur das letzte Zeichen.
     i = len(w)
     while i > 0 and w[i - 1] in MARKS:
         i -= 1
     base, marks = w[:i], w[i:]
 
-    # manqus: getilgtes ya kehrt in Pause zurueck (أَيْدٍ -> أَيْدِي)
-    if "ٍ" in marks:
-        keep = "".join(c for c in marks if c not in TANWEEN + SHORT)
-        return base + keep + "ِي"
-
-    # sonst: Tanwin und Endvokal weg, Schadda/Sukun bleiben
+    # Tanwin und Endvokal weg, Schadda/Sukun bleiben
     return base + "".join(c for c in marks if c not in TANWEEN + SHORT)
 
 

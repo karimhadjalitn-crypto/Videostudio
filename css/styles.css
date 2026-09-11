@@ -210,7 +210,10 @@ main { flex: 1; padding: 18px 16px 96px; }
 .flash .face {
   position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 14px; padding: 24px; text-align: center;
+  gap: 14px; text-align: center;
+  /* oben Platz für den Kategorie-Chip, unten für den Tipp-Hinweis –
+     sonst schiebt sich voller Karteninhalt darunter */
+  padding: 54px 20px 40px;
   background: var(--surface); border: 1px solid var(--border);
   border-radius: 22px; box-shadow: var(--shadow);
 }
@@ -241,6 +244,12 @@ main { flex: 1; padding: 18px 16px 96px; }
   letter-spacing:.05em; }
 .noun-forms .nf .ar { font-size: 32px; line-height: 1.45; }
 .noun-forms .nf .nf-spoken { font-size: 21px; color: var(--muted); line-height: 1.4; }
+/* Verb: „steht mit إِلَى" bzw. Warnung bei abweichender Rektion */
+.prep-line { display:flex; align-items:center; justify-content:center; gap:8px;
+  flex-wrap:wrap; font-size:14px; margin-top:2px; }
+.prep-line .prep-ar { font-size: 24px; color: var(--accent-600); font-weight:600; }
+.prep-line.warn { color: var(--gold); font-size:13px; text-align:center; }
+
 .chip.genus { margin-top: 2px; }
 .chip.genus.f { background: var(--gold-100); border-color: transparent; color: var(--gold); }
 .chip.genus.m { background: var(--accent-100); border-color: transparent; color: var(--accent-600); }
@@ -270,6 +279,14 @@ main { flex: 1; padding: 18px 16px 96px; }
 .session-top .bar { flex:1; }
 .speakbtn { display:inline-grid; place-items:center; width:44px; height:44px; border-radius:12px;
   border:1px solid var(--border); background: var(--surface-2); color: var(--accent-600); }
+/* Fehler-Melden-Fahne an der Karte – bewusst zurückhaltend */
+.reportbtn { display:inline-grid; place-items:center; width:44px; height:44px; border-radius:12px;
+  border:1px solid var(--border); background: transparent; color: var(--muted); font-size:17px; }
+.reportbtn:active { color: var(--danger); border-color: var(--danger); }
+.issue-row { display:flex; justify-content:space-between; gap:10px; align-items:flex-start;
+  border-bottom:1px solid var(--border); padding:8px 0; }
+.issue-row .txt { min-width:0; font-size:14px; }
+.issue-row .txt .what { color: var(--muted); font-size:13px; }
 
 /* ---------- Quiz ---------- */
 .q-prompt { font-size: 30px; font-weight: 750; text-align:center; padding: 26px 10px; }
@@ -409,7 +426,10 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); ou
 .flash-wrap { position: relative; }
 .flash-wrap > .starbtn { position: absolute; top: 10px; inset-inline-end: 12px; z-index: 6;
   background: var(--surface-2); box-shadow: var(--shadow); }
-.flash { min-height: 360px; }
+/* Vorder- und Rückseite liegen für den Umdreh-Effekt übereinander und brauchen
+   deshalb eine feste Höhe. Bemessen nach der vollsten Karte: Verb mit vier
+   Formen plus Präpositionszeile. */
+.flash { min-height: 410px; }
 .flash .face { overflow-y: auto; }
 .example { width: 100%; border-top: 1px solid var(--border); padding-top: 10px; margin-top: 2px;
   display: flex; flex-direction: column; gap: 6px; align-items: center; }

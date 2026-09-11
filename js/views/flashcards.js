@@ -132,6 +132,13 @@ AR.views = AR.views || {};
       var forms = [vf("Vergangenheit", c.fusha), vf("Präsens", c.present), vf("Zukunft", c.future)];
       if (c.imperative) forms.push(vf("Befehlsform", c.imperative));
       box.appendChild(el("div", { class: "verb-forms" }, forms));
+      if (c.prep || c.prepNote) box.appendChild(prepLine(c));
+      box.appendChild(el("div", { class: "answer-de", text: c.de, style: small ? "display:none" : "" }));
+    } else if (c.type === "adjective" && c.feminine) {
+      box.appendChild(el("div", { class: "noun-forms" }, [
+        nf("männlich", c.fusha, c.spoken),
+        nf("weiblich", c.feminine, c.feminineSpoken)
+      ]));
       box.appendChild(el("div", { class: "answer-de", text: c.de, style: small ? "display:none" : "" }));
     } else if (c.type === "noun" && (c.plural || c.genus)) {
       box.appendChild(nounForms(c));
@@ -146,7 +153,10 @@ AR.views = AR.views || {};
       }
     }
     if (c.example) box.appendChild(el("div", { class: "muted", style: "font-size:13px;text-align:center", text: "z.B. " + c.example }));
-    box.appendChild(ui.speakButton(c.fusha));
+    box.appendChild(el("div", { class: "row", style: "gap:10px;justify-content:center" }, [
+      ui.speakButton(c.fusha),
+      ui.reportButton(c)
+    ]));
     return box;
   }
   function vf(label, arabic) {
@@ -171,6 +181,18 @@ AR.views = AR.views || {};
       cell.appendChild(ui.ar(data.arText(spoken), "nf-spoken"));
     }
     return cell;
+  }
+  /* Verb: verlangte Präposition bzw. Warnung, wenn Deutsch eine hat und Arabisch nicht */
+  function prepLine(c) {
+    if (c.prep) {
+      return el("div", { class: "prep-line" }, [
+        el("span", { class: "muted", text: "steht mit" }),
+        ui.ar(data.arText(c.prep), "prep-ar")
+      ]);
+    }
+    return el("div", { class: "prep-line warn" }, [
+      el("span", { text: "⚠ " + c.prepNote })
+    ]);
   }
   function genusChip(g) {
     return el("span", { class: "chip genus " + g,

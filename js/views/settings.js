@@ -53,6 +53,35 @@ AR.views = AR.views || {};
     ]));
     view.appendChild(card2);
 
+    /* Gemeldete Fehler */
+    var issues = store.issues();
+    if (issues.length) {
+      view.appendChild(el("div", { class: "section-title", text: "Von dir gemeldet (" + issues.length + ")" }));
+      var ic = el("div", { class: "card stack" });
+      ic.appendChild(el("p", { class: "muted", style: "font-size:13px",
+        text: "Diese Karten hast du als fehlerhaft markiert. Schick mir die Liste, dann korrigiere ich sie." }));
+      issues.forEach(function (x, i) {
+        ic.appendChild(el("div", { class: "issue-row" }, [
+          el("div", { class: "txt" }, [
+            el("div", { style: "font-weight:600" }, [x.de + "  ", ui.ar(x.fusha)]),
+            el("div", { class: "what", text: x.text || "ohne Beschreibung" })
+          ]),
+          el("button", { class: "iconbtn", style: "width:34px;height:34px;flex:none", text: "✕",
+            onclick: function () { store.deleteIssue(i); render(main); } })
+        ]));
+      });
+      ic.appendChild(el("button", { class: "btn block", style: "margin-top:6px", onclick: function () {
+        var t = store.issuesAsText();
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(t).then(function () { ui.toast("Liste kopiert ✓"); },
+                                                function () { AR.app.sheet("Gemeldete Fehler", el("textarea", { text: t, style: "min-height:200px" })); });
+        } else {
+          AR.app.sheet("Gemeldete Fehler", el("textarea", { text: t, style: "min-height:200px" }));
+        }
+      } }, "📋 Liste kopieren"));
+      view.appendChild(ic);
+    }
+
     /* Korrekturen an Karims Liste */
     var changes = (data.meta.changes || []);
     if (changes.length) {

@@ -16,7 +16,9 @@ import re
 import unicodedata
 
 from imperative import imperative
-from noun_forms import SPELLING, MEANING, lookup, pausal, nfc
+from noun_forms import SPELLING, MEANING, TANWEEN, lookup, pausal, nfc
+import adjective_forms as af
+import verb_prepositions as vp
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -187,13 +189,9 @@ def norm_bare(s):
         s = s[2:]
     return s
 
-def pausal(fusha):
-    """Sprechform (nah an Fuṣḥā) grob: letzten Kurzvokal / Tanwīn weglassen."""
-    trailing = set("ًٌٍَُِْ")
-    s = fusha
-    while s and s[-1] in trailing:
-        s = s[:-1]
-    return s
+# Die Sprechform kommt aus noun_forms.pausal() (oben importiert). Hier stand
+# früher eine gröbere eigene Fassung, die den Import überschrieben hat - sie
+# konnte weder مَعْنًى → مَعْنَى noch أَيْدٍ → أَيْدِي richtig bilden.
 
 # ------------------------------------------------------------------ #
 # Einheitliche Vokabel-Liste aufbauen
@@ -323,28 +321,62 @@ for v in vocab:
 # (Quelle: tools/noun_forms.py – arabische Plurale sind gebrochen und
 #  lassen sich nicht ableiten, sie stehen dort Wort für Wort.)
 # ------------------------------------------------------------------ #
-plural_count = genus_count = 0
+plural_count = genus_count = fem_count = prep_count = 0
+AR_FIELDS = ("fusha", "spoken", "present", "future", "imperative")
 for v in vocab:
+    # Einheitliche Unicode-Form, sonst schlagen Vergleiche bei Wörtern mit
+    # Schadda fehl (Tanwin kann davor oder dahinter kodiert sein).
+    for fld in AR_FIELDS:
+        if v.get(fld):
+            v[fld] = nfc(v[fld])
+
     f = nfc(v["fusha"])
     if f in SPELLING:
         v["fusha"] = SPELLING[f]
-        v["spoken"] = pausal(v["fusha"])
         f = v["fusha"]
+
+    # Sprechform nur für flektierende Wortarten neu bilden. Präpositionen,
+    # Konjunktionen und Pronomen sind mabnī – ihre Endung gehört zum Wort
+    # (مَعَ bleibt مَعَ). Bei Karims Sammel-Typ entscheidet das Tanwin.
+    if v["type"] in ("noun", "adjective", "verb") or any(c in TANWEEN for c in f):
+        sp = pausal(f)
+        if sp:
+            v["spoken"] = sp
+
     if f in MEANING:
         v["de"] = MEANING[f]
-    if v["type"] != "noun":
-        continue
-    entry = lookup(f)
-    if entry is None:
-        print("  ! noun_forms.py kennt kein:", v["de"], v["fusha"])
-        continue
-    plural, genus = entry
-    v["genus"] = genus
-    genus_count += 1
-    if plural:
-        v["plural"] = plural
-        v["pluralSpoken"] = pausal(plural)
-        plural_count += 1
+    elif f in af.MEANING:
+        v["de"] = af.MEANING[f]
+
+    if v["type"] == "noun":
+        entry = lookup(f)
+        if entry is None:
+            print("  ! noun_forms.py kennt kein:", v["de"], v["fusha"])
+            continue
+        plural, genus = entry
+        v["genus"] = genus
+        genus_count += 1
+        if plural:
+            v["plural"] = plural
+            v["pluralSpoken"] = pausal(plural)
+            plural_count += 1
+
+    elif v["type"] == "adjective":
+        fem = af.feminine(f)
+        if fem:
+            v["feminine"] = fem
+            v["feminineSpoken"] = pausal(fem)
+            fem_count += 1
+
+    elif v["type"] == "verb":
+        prep = vp.preposition(f)
+        if prep:
+            v["prep"] = prep
+            prep_count += 1
+        note = vp.direct_note(f)
+        if note:
+            v["prepNote"] = note
+            prep_count += 1
 
 # ------------------------------------------------------------------ #
 # Beispielsätze mit Vokabeln verknüpfen (für „Im Satz …" auf den Karten)
@@ -410,6 +442,8 @@ meta = {
         "imperatives": imp_count,
         "plurals": plural_count,
         "genus": genus_count,
+        "feminines": fem_count,
+        "prepositions": prep_count,
     },
     "changes": changes,
     "karim_matched": len(matched),
