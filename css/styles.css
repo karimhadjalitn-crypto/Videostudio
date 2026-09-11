@@ -490,3 +490,23 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); ou
 .sheet-grip { width: 40px; height: 4px; border-radius: 999px; background: var(--border); margin: 2px auto 10px; }
 .sheet select { margin-bottom: 4px; }
 @keyframes sheetup { from { transform: translateY(100%);} to { transform: none; } }
+
+/* Quran-Grammatik: aufklappbare Themen */
+.gram { padding: 0; overflow: hidden; }
+.gram-head { width:100%; display:flex; justify-content:space-between; align-items:center;
+  gap:10px; background:none; border:0; padding:14px; text-align:left; }
+.gram-caret { color: var(--muted); transition: transform .2s; }
+.gram-head.open .gram-caret { transform: rotate(180deg); }
+.gram-body { padding: 0 14px 14px; border-top:1px solid var(--border); }
+.gram-body > p:first-child { margin-top:12px; }
+.gram-rows { display:flex; flex-direction:column; gap:12px; }
+.gram-row { border-top:1px solid var(--border); padding-top:10px; }
+.gram-key { font-size:26px; color: var(--accent-600); }
+.gram-ex { margin-top:6px; padding: 8px 10px; background: var(--surface-2); border-radius:10px;
+  display:flex; flex-direction:column; gap:4px; align-items:flex-end; }
+.gram-ex-ar { font-size:24px; line-height:1.7; text-align:right; }
+.gram-ex .muted { text-align:right; width:100%; }
+.gram-ref { align-self:flex-start; background:none; border:0; padding:2px 0;
+  color: var(--accent-600); font-size:12px; font-weight:600; }
+.gram-note { margin-top:12px; padding:10px 12px; border-radius:10px;
+  background: var(--gold-100); color: var(--text); font-size:13px; line-height:1.5; }

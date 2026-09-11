@@ -168,7 +168,7 @@ Korrekturweg eingebaut.
 | # | Inhalt | Status |
 |---|---|---|
 | 1 | **Datenfundament** — Plural + Genus für 245 Nomen, weibliche Form für 102 Adjektive, Präpositionen für 71 Verben, Datenkorrekturen, „Fehler melden"-Knopf | **fertig** |
-| 2 | **Quran-Trakt** — Frequenzwortschatz, Gebetstexte, Suren Wort für Wort | **Wortschatz + Texte fertig**, Quran-Grammatik offen |
+| 2 | **Quran-Trakt** — Frequenzwortschatz, Gebetstexte, Suren Wort für Wort, Quran-Grammatik | **fertig** |
 | 3 | **Der Pfad** — Tagesprogramm, Soll-Ist gegen die Termine, Meilensteine | offen |
 | 4 | **Reden** — Alltagswortschatz ausbauen, Sprechübungen, Sprech-Grammatik | offen |
 | 5 | **Feinschliff** — UX-Korrekturen, vollständiger Testdurchlauf | offen |
@@ -208,8 +208,15 @@ abdeckt – genau die werden aber täglich gebetet. Beim Bauen meldet
 `tools/build_quran.py` jedes Textwort, das noch keine Vokabel hat; diese Liste
 ist die Arbeitsvorlage, wenn weitere Suren dazukommen.
 
-**Noch offen in Etappe 2:** Quran-Grammatik (nur was im Quran vorkommt),
-weitere Suren aus Juz ʿAmma.
+**Grammatik: 7 Themen** (`tools/quran_grammar.py`) – Pronominalsuffixe,
+Präsens-Vorsilben, Genitivverbindung, der Artikel und die Sonnenbuchstaben,
+Verneinung (لَا / لَمْ / لَنْ / مَا), die häufigen Partikeln, und die Wurzel als
+Schlüssel zu ganzen Wortfamilien. Jede Regel steht an einem Vers, der in der
+App liegt; der Verweis springt direkt dorthin. Der Build prüft, dass jeder
+Versverweis existiert.
+
+**Noch offen:** weitere Suren aus Juz ʿAmma (die Lückenliste aus
+`build_quran.py` ist die Arbeitsvorlage).
 
 ## 9b. Offene Fragen an Karim
 

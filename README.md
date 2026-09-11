@@ -75,7 +75,7 @@ python3 -m http.server 8000
 | 🔍 **Suche** | Globale Suche auf der Startseite über alle Vokabeln (Deutsch oder Arabisch). |
 | ⚑ **Fehler melden** | An jeder Karte sitzt eine Fahne: Stimmt etwas nicht, antippen und kurz beschreiben. Die Meldungen sammeln sich in den Einstellungen und lassen sich als Liste kopieren. |
 | ⭐ **Favoriten** | Wörter mit dem Stern markieren und gezielt als eigenes Deck üben. |
-| 📖 **Quran** | Eigener Bereich: **311 Wörter** in fünf Lernstufen (die häufigsten Wörter, Nomen, Verben, Eigenschaften/Gottesnamen, Wörter aus den Gebetstexten) und **13 Texte Wort für Wort** – elf Suren plus Taschahhud und die Adhkār aus Rukūʿ und Sujūd. Jedes Wort im Vers ist antippbar und zeigt Bedeutung, Grundform und Wurzel. Quranwörter behalten ihre Vokalzeichen immer. |
+| 📖 **Quran** | Eigener Bereich: **311 Wörter** in fünf Lernstufen (die häufigsten Wörter, Nomen, Verben, Eigenschaften/Gottesnamen, Wörter aus den Gebetstexten) und **13 Texte Wort für Wort** – elf Suren plus Taschahhud und die Adhkār aus Rukūʿ und Sujūd. Jedes Wort im Vers ist antippbar und zeigt Bedeutung, Grundform und Wurzel. Quranwörter behalten ihre Vokalzeichen immer. Dazu **7 Grammatik-Themen** – nur was man zum Verstehen braucht, jede Regel an einem Vers aus der App erklärt. |
 | 🎯 **Lernziel** | Frei einstellbar (Standard 100 Wörter). Der Balken auf der Startseite zeigt, wie viele Wörter du schon sicher kannst – antippen zum Ändern. |
 | 📊 **Statistik** | Was du kannst, Lernziel, Lernserie, schwierige Wörter, Favoriten, Fortschritt je Deck. |
 | ⚙️ **Einstellungen** | Design (hell/dunkel), Richtung, Sprechform/Harakat/Audio (+ Auswahl der arabischen Stimme, falls mehrere installiert sind), Sitzungsgröße, Lernziel, Installations­anleitung, Sichern/Laden. |
@@ -146,6 +146,7 @@ tools/
   imperative.py         Befehlsform (Imperativ) aus dem Präsens ableiten
   quran_words.py        Quran-Grundwortschatz nach Lernstufen
   quran_texts.py        Suren und Gebetstexte, Wort für Wort
+  quran_grammar.py      Grammatik für den Quran (7 Themen)
   build_quran.py        -> data/quran.json, verknüpft Verse mit Wortschatz
   bundle.py             baut data/appdata.js aus den data/*.json
   noun_forms.py         Plural + Genus je Nomen, Pausalform-Regeln

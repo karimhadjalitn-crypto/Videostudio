@@ -65,7 +65,86 @@ AR.views = AR.views || {};
       view.appendChild(textList(adhkar));
     }
 
+    var gram = (data.quran.grammar || []);
+    if (gram.length) {
+      view.appendChild(el("div", { class: "section-title", text: "Grammatik für den Quran" }));
+      view.appendChild(el("button", { class: "deck", style: "width:100%",
+        onclick: function () { AR.app.go("qurangrammar"); } }, [
+        el("div", { class: "row" }, [
+          el("span", { class: "emoji", text: "🔑" }),
+          el("div", {}, [
+            el("div", { class: "name", text: "Nur was du zum Verstehen brauchst" }),
+            el("div", { class: "sub", text: gram.length + " Themen, an Versen erklärt, die du kennst" })
+          ])
+        ])
+      ]));
+    }
+
     AR.ui.clear(main).appendChild(view);
+  }
+
+  /* -------------------- Grammatik -------------------- */
+  function renderGrammar(main) {
+    var gram = data.quran.grammar || [];
+    var view = el("div", { class: "view" });
+    view.appendChild(el("button", { class: "link", style: "margin-bottom:10px",
+      onclick: function () { AR.app.go("quran"); }, text: "‹ Zurück" }));
+    view.appendChild(el("h2", { text: "Grammatik für den Quran" }));
+    view.appendChild(el("p", { class: "muted", style: "font-size:14px",
+      text: "Bewusst nur das, was du brauchst, um die Verse zu verstehen – " +
+            "keine Kasuslehre. Jede Regel steht an einem Vers, den du schon hast." }));
+
+    gram.forEach(function (g) {
+      var body = el("div", { class: "gram-body", hidden: "hidden" });
+      body.appendChild(el("p", { class: "muted", style: "font-size:14px", text: g.intro }));
+
+      var tbl = el("div", { class: "gram-rows" });
+      g.rows.forEach(function (r) {
+        var row = el("div", { class: "gram-row" }, [
+          el("div", { class: "row", style: "justify-content:space-between;gap:10px;align-items:baseline" }, [
+            ui.ar(r.ar, "gram-key"),
+            el("span", { style: "font-size:14px;font-weight:600;text-align:right", text: r.de })
+          ])
+        ]);
+        if (r.example) {
+          row.appendChild(el("div", { class: "gram-ex" }, [
+            ui.ar(r.example, "gram-ex-ar"),
+            el("div", { class: "muted", style: "font-size:13px", text: r.exampleDe || "" }),
+            r.ref ? refLink(r.ref) : null
+          ]));
+        }
+        tbl.appendChild(row);
+      });
+      body.appendChild(tbl);
+      if (g.note) {
+        body.appendChild(el("div", { class: "gram-note", text: g.note }));
+      }
+
+      var head = el("button", { class: "gram-head", onclick: function () {
+        body.hidden = !body.hidden;
+        head.classList.toggle("open", !body.hidden);
+      } }, [
+        el("div", { style: "text-align:left;min-width:0" }, [
+          el("div", { style: "font-weight:650", text: g.title }),
+          el("div", { class: "muted", style: "font-size:13px", text: g.short })
+        ]),
+        el("span", { class: "gram-caret", text: "▾" })
+      ]);
+
+      view.appendChild(el("div", { class: "card gram" }, [head, body]));
+    });
+
+    AR.ui.clear(main).appendChild(view);
+  }
+
+  /* Verweis „al-Fātiḥa 2" – führt direkt in den Text */
+  function refLink(ref) {
+    var parts = ref.split(":");
+    var t = data.quranTextById(parts[0]);
+    if (!t) return null;
+    return el("button", { class: "gram-ref", onclick: function () {
+      AR.app.openQuranText(t.id);
+    } }, t.nameDe + " " + parts[1] + " ›");
   }
 
   function coverageHint(known) {
@@ -180,5 +259,5 @@ AR.views = AR.views || {};
     ]);
   }
 
-  AR.views.quran = { render: render, renderText: renderText };
+  AR.views.quran = { render: render, renderText: renderText, renderGrammar: renderGrammar };
 })(window.AR);

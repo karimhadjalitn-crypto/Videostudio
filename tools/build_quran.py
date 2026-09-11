@@ -27,6 +27,7 @@ sys.path.insert(0, HERE)
 
 from quran_words import WORDS
 from quran_texts import TEXTS
+from quran_grammar import GRAMMAR
 
 MARKS = re.compile("[ً-ْٰـ]")
 
@@ -116,6 +117,17 @@ def main():
             item["note"] = t["note"]
         texts.append(item)
 
+    # ---------- Grammatik: Verweise auf Verse pruefen ----------
+    verse_index = {}
+    for t in texts:
+        for a in t["ayat"]:
+            verse_index["%s:%s" % (t["id"], a["nr"])] = True
+    bad_refs = []
+    for g in GRAMMAR:
+        for r in g["rows"]:
+            if r.get("ref") and r["ref"] not in verse_index:
+                bad_refs.append((g["id"], r["ar"], r["ref"]))
+
     levels = {}
     for w in words:
         levels[str(w["level"])] = levels.get(str(w["level"]), 0) + 1
@@ -123,12 +135,14 @@ def main():
     out = {
         "words": words,
         "texts": texts,
+        "grammar": GRAMMAR,
         "meta": {
             "words": len(words), "levels": levels,
             "texts": len(texts), "ayat": verse_count,
             "suras": sum(1 for t in texts if t["kind"] == "sura"),
             "adhkar": sum(1 for t in texts if t["kind"] == "dhikr"),
             "overlap_alltag": overlap,
+            "grammar": len(GRAMMAR),
         },
     }
     with open(os.path.join(DATA, "quran.json"), "w", encoding="utf-8") as f:
@@ -144,6 +158,12 @@ def main():
           % (len(texts), out["meta"]["suras"], out["meta"]["adhkar"]))
     print("Verse / Wortformen : %d / %d" % (verse_count, word_count))
     print("davon verknuepft   : %d" % linked)
+    print("Grammatik-Themen   : %d" % len(GRAMMAR))
+    if bad_refs:
+        print()
+        print("FEHLERHAFTE VERSVERWEISE (%d):" % len(bad_refs))
+        for g, ar, ref in bad_refs:
+            print("   %-12s %-20s -> %s" % (g, ar, ref))
     if unbekannt:
         print()
         print("Noch nicht im Wortschatz (%d) - Kandidaten fuer die naechste Stufe:" % len(unbekannt))

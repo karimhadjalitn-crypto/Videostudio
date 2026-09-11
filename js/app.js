@@ -19,6 +19,7 @@ window.AR = window.AR || {};
       var v = AR.views[view] || (view === "deck" ? null : null);
       if (view === "deck") { AR.views.home.renderDeck(main, app.currentDeck); }
       else if (view === "qurantext") { AR.views.quran.renderText(main, app.quranTextId); }
+      else if (view === "qurangrammar") { AR.views.quran.renderGrammar(main); }
       else if (AR.views[view]) { AR.views[view].render(main); }
       else { AR.views.home.render(main); }
       updateTabs(view);
@@ -78,7 +79,8 @@ window.AR = window.AR || {};
       var v = t.getAttribute("data-view");
       // Deck-Detail & Browser zählen zum Home-Tab
       var match = v === view || (v === "home" && (view === "deck" || view === "browse" ||
-        view === "grammar" || view === "quran" || view === "qurantext"));
+        view === "grammar" || view === "quran" || view === "qurantext" ||
+        view === "qurangrammar"));
       t.classList.toggle("active", !!match);
     });
   }
