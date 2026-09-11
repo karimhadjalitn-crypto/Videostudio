@@ -75,6 +75,7 @@ python3 -m http.server 8000
 | 🔍 **Suche** | Globale Suche auf der Startseite über alle Vokabeln (Deutsch oder Arabisch). |
 | ⚑ **Fehler melden** | An jeder Karte sitzt eine Fahne: Stimmt etwas nicht, antippen und kurz beschreiben. Die Meldungen sammeln sich in den Einstellungen und lassen sich als Liste kopieren. |
 | ⭐ **Favoriten** | Wörter mit dem Stern markieren und gezielt als eigenes Deck üben. |
+| 📖 **Quran** | Eigener Bereich: **311 Wörter** in fünf Lernstufen (die häufigsten Wörter, Nomen, Verben, Eigenschaften/Gottesnamen, Wörter aus den Gebetstexten) und **13 Texte Wort für Wort** – elf Suren plus Taschahhud und die Adhkār aus Rukūʿ und Sujūd. Jedes Wort im Vers ist antippbar und zeigt Bedeutung, Grundform und Wurzel. Quranwörter behalten ihre Vokalzeichen immer. |
 | 🎯 **Lernziel** | Frei einstellbar (Standard 100 Wörter). Der Balken auf der Startseite zeigt, wie viele Wörter du schon sicher kannst – antippen zum Ändern. |
 | 📊 **Statistik** | Was du kannst, Lernziel, Lernserie, schwierige Wörter, Favoriten, Fortschritt je Deck. |
 | ⚙️ **Einstellungen** | Design (hell/dunkel), Richtung, Sprechform/Harakat/Audio (+ Auswahl der arabischen Stimme, falls mehrere installiert sind), Sitzungsgröße, Lernziel, Installations­anleitung, Sichern/Laden. |
@@ -143,6 +144,10 @@ tools/
   quelle_lernbuch.docx  Quelle
   build_data.py         Wortschatz aus .docx extrahieren
   imperative.py         Befehlsform (Imperativ) aus dem Präsens ableiten
+  quran_words.py        Quran-Grundwortschatz nach Lernstufen
+  quran_texts.py        Suren und Gebetstexte, Wort für Wort
+  build_quran.py        -> data/quran.json, verknüpft Verse mit Wortschatz
+  bundle.py             baut data/appdata.js aus den data/*.json
   noun_forms.py         Plural + Genus je Nomen, Pausalform-Regeln
   adjective_forms.py    weibliche Form der Adjektive
   verb_prepositions.py  Präposition, die ein Verb verlangt
@@ -172,7 +177,15 @@ python3 tools/imperative.py        # alle Befehlsformen auflisten
 python3 tools/noun_forms.py        # Nomen-Tabelle + Pausalform-Beispiele
 python3 tools/adjective_forms.py   # Selbsttest der weiblichen Formen
 python3 tools/verb_prepositions.py # Anzahl und Überschneidungen
+python3 tools/build_quran.py       # Quran-Daten + Lückenbericht
 ```
+
+Der Quran-Teil wird getrennt gebaut:
+```bash
+python3 tools/build_quran.py     # data/quran.json + appdata.js
+```
+Es meldet dabei jedes Wort aus den Texten, das noch keine Vokabelkarte hat –
+diese Liste ist die Arbeitsvorlage, wenn weitere Suren dazukommen.
 
 ---
 

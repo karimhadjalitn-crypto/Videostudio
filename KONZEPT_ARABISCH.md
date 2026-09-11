@@ -168,13 +168,71 @@ Korrekturweg eingebaut.
 | # | Inhalt | Status |
 |---|---|---|
 | 1 | **Datenfundament** — Plural + Genus für 245 Nomen, weibliche Form für 102 Adjektive, Präpositionen für 71 Verben, Datenkorrekturen, „Fehler melden"-Knopf | **fertig** |
-| 2 | **Quran-Trakt** — Frequenzwortschatz, Gebetstexte, Suren Wort für Wort, Quran-Grammatik | offen |
+| 2 | **Quran-Trakt** — Frequenzwortschatz, Gebetstexte, Suren Wort für Wort | **Wortschatz + Texte fertig**, Quran-Grammatik offen |
 | 3 | **Der Pfad** — Tagesprogramm, Soll-Ist gegen die Termine, Meilensteine | offen |
 | 4 | **Reden** — Alltagswortschatz ausbauen, Sprechübungen, Sprech-Grammatik | offen |
 | 5 | **Feinschliff** — UX-Korrekturen, vollständiger Testdurchlauf | offen |
 
 Nach jeder Etappe ist die App benutzbar. Kein Zustand, in dem sie tagelang
 kaputt ist.
+
+## 9a. Stand des Quran-Trakts
+
+**Wortschatz: 311 Wörter** in fünf Stufen (`tools/quran_words.py`)
+
+| Stufe | Inhalt | Wörter |
+|---|---|---|
+| 1 | Funktionswörter und Spitzenreiter | 60 |
+| 2 | häufigste Nomen | 69 |
+| 3 | häufigste Verben | 70 |
+| 4 | Eigenschaften und Gottesnamen | 55 |
+| 5 | Wörter aus den Gebetstexten | 57 |
+
+120 davon stehen auch im Alltagswortschatz und sind verknüpft (`also`) –
+sie werden nicht zweimal von vorn gelernt. Das bestätigt die Annahme aus
+Abschnitt 2: der Gesamtaufwand ist deutlich kleiner als die Summe beider Listen.
+
+Häufigkeitszahlen stehen nur bei 25 Wörtern, wo sie belastbar sind. Die
+Lernreihenfolge hängt an der Stufe, nicht an der Zahl – eine erfundene
+Häufigkeit wäre schlechter als gar keine.
+
+**Texte: 13, davon 11 Suren und 2 Gebetstexte** (`tools/quran_texts.py`),
+zusammen 60 Verse und 271 Wortformen, davon 246 mit dem Wortschatz verknüpft:
+
+- al-Fātiḥa, al-Ikhlāṣ, al-Falaq, an-Nās, al-ʿAṣr, al-Kawthar, an-Naṣr,
+  al-Kāfirūn, al-Qadr, Quraysh, al-Fīl
+- Taschahhud, Adhkār aus Rukūʿ und Sujūd
+
+Stufe 5 existiert, weil eine reine Häufigkeitsliste die kurzen Suren schlecht
+abdeckt – genau die werden aber täglich gebetet. Beim Bauen meldet
+`tools/build_quran.py` jedes Textwort, das noch keine Vokabel hat; diese Liste
+ist die Arbeitsvorlage, wenn weitere Suren dazukommen.
+
+**Noch offen in Etappe 2:** Quran-Grammatik (nur was im Quran vorkommt),
+weitere Suren aus Juz ʿAmma.
+
+## 9b. Offene Fragen an Karim
+
+Gesammelt während der Nachtschicht, zu klären bevor es weitergeht:
+
+1. **Navigation.** Der Quran-Bereich hängt zurzeit auf der Startseite unter den
+   Decks. Soll er einen **eigenen Tab** in der unteren Leiste bekommen? Es wären
+   dann sechs statt fünf Tabs – auf dem iPhone etwas enger, dafür ist der Quran
+   immer einen Fingertipp entfernt. Da er das Hauptziel ist, spricht viel dafür.
+2. **Schreibweise.** Die Verse stehen in der modernen vokalisierten Standardform
+   (الْحَمْدُ). Mushafs nach Uthmani-Satz schreiben teils anders (ٱلْحَمْدُ, zusätzliche
+   Lesezeichen). Soll ich näher an das Schriftbild deines Mushafs?
+3. **Übersetzungsstil.** Ich übersetze bewusst wörtlich („Dir allein dienen wir"),
+   damit Wort und Bedeutung zusammenpassen. Lieber flüssiger formuliert?
+4. **Welche Suren als nächstes?** Bisher die kürzesten und meistgebeteten.
+   Welche betest du am häufigsten, welche kannst du auswendig und willst sie
+   endlich verstehen?
+5. **Quran-Grammatik – Umfang.** Vorschlag: Pronominalsuffixe (ـهُ، ـكَ، ـنَا),
+   Präsens-Vorsilben, Dual, und die Partikeln, die ständig vorkommen
+   (إِنَّ، أَنَّ، لَمْ + Jussiv). Keine Kasus-Feinheiten. Passt das?
+6. **Tagespensum für den Pfad (Etappe 3).** Gerechnet war: 4 neue Wörter am Tag
+   ergeben 600 bis Ramadan. Im System stecken jetzt 311 – das trägt gut zwei
+   Monate. Bleibt es bei 4, oder lieber flexibler („heute wenig Zeit")?
 
 ## 10. Bekannte Datenfehler (Stand der ersten Prüfung)
 
