@@ -129,7 +129,7 @@ AR.views = AR.views || {};
     return el("div", { class: "setting" }, [ el("div", { class: "s-l", text: label }), control ]);
   }
   function segControl(key, opts) {
-    var seg = el("div", { class: "seg", style: "width:auto" });
+    var seg = el("div", { class: "seg" });
     opts.forEach(function (o) {
       var b = el("button", { class: store.get(key) === o[0] ? "active" : "", text: o[1],
         onclick: function () {

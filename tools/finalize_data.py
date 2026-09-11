@@ -16,6 +16,7 @@ import re
 import unicodedata
 
 from imperative import imperative
+from noun_forms import SPELLING, MEANING, lookup, pausal, nfc
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -318,6 +319,34 @@ for v in vocab:
         imp_count += 1
 
 # ------------------------------------------------------------------ #
+# Schreibfehler + Bedeutungen korrigieren, Plural und Genus für Nomen
+# (Quelle: tools/noun_forms.py – arabische Plurale sind gebrochen und
+#  lassen sich nicht ableiten, sie stehen dort Wort für Wort.)
+# ------------------------------------------------------------------ #
+plural_count = genus_count = 0
+for v in vocab:
+    f = nfc(v["fusha"])
+    if f in SPELLING:
+        v["fusha"] = SPELLING[f]
+        v["spoken"] = pausal(v["fusha"])
+        f = v["fusha"]
+    if f in MEANING:
+        v["de"] = MEANING[f]
+    if v["type"] != "noun":
+        continue
+    entry = lookup(f)
+    if entry is None:
+        print("  ! noun_forms.py kennt kein:", v["de"], v["fusha"])
+        continue
+    plural, genus = entry
+    v["genus"] = genus
+    genus_count += 1
+    if plural:
+        v["plural"] = plural
+        v["pluralSpoken"] = pausal(plural)
+        plural_count += 1
+
+# ------------------------------------------------------------------ #
 # Beispielsätze mit Vokabeln verknüpfen (für „Im Satz …" auf den Karten)
 # Striktes Matching: nur Harakat/Tatwil + Artikel weg, KEINE Buchstaben-
 # Vereinheitlichung (sonst kollidiert z. B. مَاء „Wasser" mit مَا „was").
@@ -379,6 +408,8 @@ meta = {
         "sentences": len(book["sentences"]),
         "idioms": len(book["idioms"]),
         "imperatives": imp_count,
+        "plurals": plural_count,
+        "genus": genus_count,
     },
     "changes": changes,
     "karim_matched": len(matched),
