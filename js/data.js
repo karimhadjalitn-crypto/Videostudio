@@ -13,7 +13,11 @@ window.AR = window.AR || {};
     "Studium und Arbeit": "🎓", "Körper und Gesundheit": "🩺",
     "Natur, Wetter und Dinge": "🌤️", "Adjektive": "🎨",
     "Präpositionen & Orte": "📍", "Konjunktionen": "🔗",
-    "Fragewörter & Pronomen": "❓", "Meine Wörter": "✍️"
+    "Fragewörter & Pronomen": "❓", "Meine Wörter": "✍️",
+    "Zahlen": "🔢", "Farben": "🌈", "Zeit und Kalender": "📅",
+    "Kleidung": "👕", "Berufe": "🧰", "Höflichkeit und Gespräch": "🤝",
+    "Tiere": "🐫", "Stadt und Einkaufen": "🏙️", "Technik und Medien": "📱",
+    "Gefühle und Charakter": "💭", "Kleine Wörter": "🔤"
   };
 
   function allCards() {
@@ -240,7 +244,12 @@ window.AR = window.AR || {};
     // Falsche Antworten aus demselben Trakt ziehen: bei einer Quranvokabel
     // waeren Alltagswoerter als Ablenker zu leicht zu erkennen.
     var source = (card.type === "quran") ? quranCards() : allCards();
-    var pool = source.filter(function (c) { return c.id !== card.id; });
+    // Karten mit demselben arabischen Wort fallen raus. حَتَّى steht z.B.
+    // zweimal drin (als Vorwort und als Konjunktion) – als falsche Antwort
+    // waere es in Wahrheit richtig.
+    var pool = source.filter(function (c) {
+      return c.id !== card.id && c.fusha !== card.fusha;
+    });
     var correct = answerText(card, dir);
     function key(c) { return answerText(c, dir); }
     // bevorzugt gleiche Kategorie, dann gleicher Typ, dann Rest

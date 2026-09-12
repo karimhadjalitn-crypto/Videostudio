@@ -170,8 +170,11 @@ Korrekturweg eingebaut.
 | 1 | **Datenfundament** — Plural + Genus für 245 Nomen, weibliche Form für 102 Adjektive, Präpositionen für 71 Verben, Datenkorrekturen, „Fehler melden"-Knopf | **fertig** |
 | 2 | **Quran-Trakt** — Frequenzwortschatz, Gebetstexte, Suren Wort für Wort, Quran-Grammatik | **fertig** |
 | 3 | **Der Pfad** — Tagesprogramm in drei Größen, Soll-Ist gegen die Termine | **fertig** |
-| 4 | **Reden** — Alltagswortschatz ausbauen, Sprechübungen, Sprech-Grammatik | offen |
+| 4 | **Reden** — Alltagswortschatz von 614 auf 1309 Wörter ausgebaut, elf neue Themen | **fertig** |
 | 5 | **Feinschliff** — UX-Korrekturen, vollständiger Testdurchlauf | offen |
+
+Sprechübungen waren für Etappe 4 vorgesehen und sind auf Karims Wunsch
+gestrichen („Die Sprachübung kannst du weglassen", 12.09.2026).
 
 Nach jeder Etappe ist die App benutzbar. Kein Zustand, in dem sie tagelang
 kaputt ist.
@@ -247,6 +250,77 @@ sind. Ein ausgelassener Tag kostet nichts außer ein paar Zehntel im Tagessoll.
 
 Umgesetzt in `js/path.js`; das Tagesprogramm ist über das Deck `today`
 erreichbar und nutzt Karteikarten und Fortschritt unverändert mit.
+
+## 9d. Der Wortschatz-Ausbau (Etappe 4)
+
+**614 → 1309 Wörter.** Die neuen Einträge stehen in `tools/vocab_extra.py`,
+eingetragen werden sie von `tools/build_extra.py` direkt in `data/vocab.json` –
+wie schon bei `apply_word_forms.py`, damit die Karten-IDs und damit der
+Lernfortschritt stehen bleiben.
+
+Eine Lückenprüfung zeigte, dass alltäglichste Wortfelder ganz fehlten: Zahlen,
+Farben, Wochentage, Kleidung, Berufe. Elf Themen sind neu dazugekommen:
+
+| Thema | Wörter | Thema | Wörter |
+|---|---|---|---|
+| Zahlen | 30 | Tiere | 24 |
+| Farben | 15 | Stadt und Einkaufen | 28 |
+| Zeit und Kalender | 28 | Technik und Medien | 23 |
+| Kleidung | 14 | Gefühle und Charakter | 31 |
+| Berufe | 14 | Kleine Wörter | 37 |
+| Höflichkeit und Gespräch | 32 | | |
+
+Dazu 128 neue Verben und Zuwachs in allen bestehenden Themen. Alles voll
+vokalisiert, Nomen mit Plural und Genus, Adjektive mit weiblicher Form,
+Verben mit Präsens, Zukunft, Befehlsform und – wo nötig – Rektion.
+
+**Abgeleitet statt abgeschrieben.** Sprechform, weibliche Form, Zukunft und
+Befehlsform entstehen aus den vorhandenen Regeln (`noun_forms.pausal`,
+`adjective_forms.feminine`, `imperative.imperative`). Nur was nicht ableitbar
+ist, steht in der Quelle: Plural, Genus, Präsensvokal, Rektion und die
+Ausnahmen (Farben nach أَفْعَلُ/فَعْلَاءُ, Diptote, manqūṣ).
+
+**Neu: der Hinweis auf der Karte.** Ein Feld `note` für den einen Satz, der
+sonst fehlt – die umgekehrte Zahl-Kongruenz (ثَلَاثَةُ كُتُبٍ), die Anrede an
+eine Frau (كَيْفَ حَالُكِ؟), die zweite Bedeutung eines Wortes. 19 Karten haben
+einen.
+
+**Drei Fehler in der Ableitung gefunden und behoben:**
+
+- Die Zukunft bekam ein سـ ohne Fatha (`سيَذْهَبُ` statt `سَيَذْهَبُ`).
+- Vierbuchstabige Verben bekamen eine Hamza vorgesetzt (`أَتَرْجِمْ` statt
+  `تَرْجِمْ`). Die Unterscheidung läuft jetzt über den Vokal auf dem ersten
+  Stammbuchstaben: Fatha heißt Form II/III/vierbuchstabig (keine Hilfssilbe),
+  Sukūn oder Kasra heißt Form IV (Hamzat qaṭʿ). An den 160 bestehenden Verben
+  ändert sich dadurch nichts – geprüft.
+- Vier Verben mit Hamza folgen der Regel nicht und stehen jetzt als Ausnahme:
+  يَأْمُرُ → مُرْ, يُؤَكِّدُ → أَكِّدْ, يُؤْلِمُ → آلِمْ, يَأْمَلُ → اِئْمَلْ.
+
+**Dubletten.** Der Build vergleicht jedes neue Wort mit dem Bestand – mit
+Vokalzeichen, ohne Artikel. Ohne Vokalzeichen zu vergleichen wäre falsch:
+شَعْرٌ *Haar* und شَعَرَ *fühlen* sind zwei Wörter. 30 solcher Paare meldet der
+Build als Hinweis; elf echte Dubletten wurden vorher aus der Quelle genommen.
+
+Dabei fielen drei Dubletten im **alten** Bestand auf und sind behoben:
+أَرْضٌ stand zweimal (*Boden* und *Erde*) – eine Karte heißt jetzt أَرْضِيَّةٌ
+*Fußboden*; دَجَاجٌ und دَجَاجَةٌ hießen beide *Huhn*; حَتَّى steht als Vorwort
+und als Konjunktion und trägt jetzt zwei klar getrennte Bedeutungen.
+Zusätzlich fallen im Quiz jetzt alle Karten mit demselben arabischen Wort als
+Ablenker aus – eine „falsche" Antwort, die in Wahrheit richtig ist, kann so
+nicht mehr vorkommen.
+
+**Zwei Anzeigefehler**, gefunden beim Durchmessen aller 13 216 Kartenseiten
+(1309 + 343 Karten × 2 Richtungen × 2 Seiten × 2 Breiten):
+
+- Karten mit Beispielsatz waren höher als die Karte. Die Rückseite lag hinter
+  einem Innen-Scroll, den man leicht übersieht – die deutsche Übersetzung war
+  faktisch unsichtbar. Vorder- und Rückseite liegen jetzt in derselben
+  Rasterzelle (`grid-area: 1/1`) statt absolut; die Karte wächst mit.
+- Lange deutsche Wörter ohne Trennstelle („aussteigen/hinuntergehen",
+  „Maghrib/Sonnenuntergang") schoben sich seitlich aus der Karte –
+  behoben mit `overflow-wrap: anywhere`.
+
+Nach der Korrektur: 0 Fehler, 0 enge Stellen, keine Konsolenfehler.
 
 ## 9b. Offene Fragen an Karim
 

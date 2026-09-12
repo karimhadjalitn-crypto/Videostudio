@@ -24,6 +24,10 @@ EXCEPTIONS = {
     "يَأْخُذُ": "خُذْ",   # يَأْخُذُ -> خُذْ
     "يَأْكُلُ": "كُلْ",   # يَأْكُلُ -> كُلْ
     "يَجِيءُ": "جِئْ",         # يَجِيءُ -> جِئْ
+    "يَأْمُرُ": "مُرْ",        # wie خُذْ und كُلْ: die Hamza faellt weg
+    "يَأْمَلُ": "اِئْمَلْ",    # Hamza mit Sukun nach Kasra wird ئ
+    "يُؤَكِّدُ": "أَكِّدْ",    # im Praesens ؤ, im Imperativ wieder أ
+    "يُؤْلِمُ": "آلِمْ",       # أَأْلِمْ zieht sich zu آلِمْ zusammen
     # Passiv – kein Imperativ
     "يُشْفَى": None,                 # يُشْفَى (gesund werden)
     "يُولَدُ": None,                 # يُولَدُ (geboren werden)
@@ -77,20 +81,20 @@ def imperative(present):
     if not stem:
         return None
 
-    # --- Form II / III behalten kein Praefix ---
     first = stem[0]
-    form_ii_iii = (
-        prefix_damma and FATHA in first[1] and len(stem) >= 2
-        and (SHADDA in stem[1][1] or (stem[1][0] == "ا" and stem[1][1] == ""))
-    )
-
     body = "".join(ch + mk for ch, mk in stem)
-    needs_hamza = (SUKUN in first[1]) or (SHADDA in first[1])
 
-    if prefix_damma and not form_ii_iii:
-        # Form IV: Hamzat qatʿ mit Fatha, Stamm-Sukūn bleibt
+    # Praefix يُ: Form II (يُسَلِّمُ), Form III (يُقَاتِلُ) und die
+    # vierbuchstabigen Verben (يُتَرْجِمُ) tragen alle ein Fatha auf dem ersten
+    # Stammbuchstaben und brauchen keine Hilfssilbe. Form IV hat dort ein
+    # Sukūn (يُخْبِرُ) bzw. nach der Verkuerzung ein Kasra (يُرِيدُ) – sie
+    # bekommt die Hamzat qatʿ.
+    if prefix_damma:
+        if FATHA in first[1]:
+            return body
         return "أ" + FATHA + body
-    if not needs_hamza:
+
+    if not (SUKUN in first[1] or SHADDA in first[1]):
         return body
 
     # Hilfs-Hamza: Damma nur, wenn der Stammvokal Damma ist.

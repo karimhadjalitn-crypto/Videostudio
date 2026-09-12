@@ -173,6 +173,7 @@ AR.views = AR.views || {};
       }
     }
     if (c.example) box.appendChild(el("div", { class: "muted", style: "font-size:13px;text-align:center", text: "z.B. " + c.example }));
+    if (c.note) box.appendChild(noteLine(c.note));
     box.appendChild(el("div", { class: "row", style: "gap:10px;justify-content:center" }, [
       ui.speakButton(c.fusha),
       ui.reportButton(c)
@@ -218,6 +219,24 @@ AR.views = AR.views || {};
     return el("span", { class: "chip genus " + g,
       text: g === "f" ? "weiblich" : "männlich" });
   }
+  /* Kurzer Hinweis unter der Karte. Die Hinweise mischen Deutsch und
+     Arabisch – die arabischen Stellen brauchen ihre eigene Schrift und
+     Leserichtung, sonst zerfaellt die Zeile. */
+  var ARABIC = /[؀-ۿݐ-ݿﭐ-﻿][؀-ۿݐ-ݿﭐ-﻿\s]*/g;
+  function noteLine(text) {
+    var line = el("div", { class: "note-line" });
+    var last = 0, m;
+    ARABIC.lastIndex = 0;
+    while ((m = ARABIC.exec(text)) !== null) {
+      if (m.index > last) line.appendChild(document.createTextNode(text.slice(last, m.index)));
+      line.appendChild(ui.ar(m[0].trim(), "note-ar"));
+      last = m.index + m[0].length;
+      if (/\s$/.test(m[0])) line.appendChild(document.createTextNode(" "));
+    }
+    if (last < text.length) line.appendChild(document.createTextNode(text.slice(last)));
+    return line;
+  }
+
   function spokenLine(spoken) {
     return el("div", { class: "row", style: "gap:8px" }, [
       el("span", { class: "muted", style: "font-size:13px", text: "gesprochen:" }),
@@ -251,7 +270,7 @@ AR.views = AR.views || {};
 
   function typeLabel(c) {
     return { verb: "Verb", noun: "Nomen", adjective: "Adjektiv", preposition: "Präposition",
-      quran: "Quran-Wort",
+      quran: "Quran-Wort", number: "Zahl", phrase: "Wendung",
       conjunction: "Konjunktion", question: "Frage/Pronomen" }[c.type] || "";
   }
 

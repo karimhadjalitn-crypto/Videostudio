@@ -236,15 +236,24 @@ main { flex: 1; padding: 18px 16px 96px; }
 
 /* ---------- Flashcard ---------- */
 .flash-wrap { perspective: 1400px; }
+/* Vorder- und Rückseite liegen für den Umdreh-Effekt übereinander. Statt sie
+   absolut zu setzen (dann müsste die Höhe geraten werden), liegen beide in
+   derselben Rasterzelle: die Karte wird von selbst so hoch wie die vollere
+   der beiden Seiten. */
 .flash {
   position: relative; width: 100%; min-height: 340px; cursor: pointer;
+  display: grid; grid-template-columns: minmax(0, 1fr);
   transform-style: preserve-3d; transition: transform .5s cubic-bezier(.2,.7,.2,1);
 }
 .flash.flipped { transform: rotateY(180deg); }
 .flash .face {
-  position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  grid-area: 1 / 1; position: relative;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 14px; text-align: center;
+  /* Lange Wörter wie „aussteigen/hinuntergehen" haben keine Trennstelle und
+     schoben sich sonst seitlich aus der Karte. */
+  overflow-wrap: anywhere;
   /* oben Platz für den Kategorie-Chip, unten für den Tipp-Hinweis –
      sonst schiebt sich voller Karteninhalt darunter */
   padding: 54px 20px 40px;
@@ -283,6 +292,11 @@ main { flex: 1; padding: 18px 16px 96px; }
   flex-wrap:wrap; font-size:14px; margin-top:2px; }
 .prep-line .prep-ar { font-size: 24px; color: var(--accent-600); font-weight:600; }
 .prep-line.warn { color: var(--gold); font-size:13px; text-align:center; }
+
+/* Kurzer Hinweis unter der Antwort (Sonderfall, Gebrauch, zweite Bedeutung) */
+.note-line { font-size: 13px; line-height: 1.7; color: var(--muted);
+             text-align: center; max-width: 30ch; margin: 2px auto 0; }
+.note-line .note-ar { font-size: 17px; color: var(--text); }
 
 .chip.genus { margin-top: 2px; }
 .chip.genus.f { background: var(--gold-100); border-color: transparent; color: var(--gold); }
@@ -460,11 +474,9 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); ou
 .flash-wrap { position: relative; }
 .flash-wrap > .starbtn { position: absolute; top: 10px; inset-inline-end: 12px; z-index: 6;
   background: var(--surface-2); box-shadow: var(--shadow); }
-/* Vorder- und Rückseite liegen für den Umdreh-Effekt übereinander und brauchen
-   deshalb eine feste Höhe. Bemessen nach der vollsten Karte: Verb mit vier
-   Formen plus Präpositionszeile. */
+/* Mindesthöhe, damit kurze Karten nicht zusammenschnurren. Nach oben wächst
+   die Karte mit dem Inhalt mit. */
 .flash { min-height: 410px; }
-.flash .face { overflow-y: auto; }
 .example { width: 100%; border-top: 1px solid var(--border); padding-top: 10px; margin-top: 2px;
   display: flex; flex-direction: column; gap: 6px; align-items: center; }
 .ex-label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 700; }

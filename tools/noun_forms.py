@@ -338,7 +338,9 @@ MARKS = TANWEEN + SHORT + "ّْٰ"
 # erkennbar - غَالٍ (manqus) und سَفَرٍ (nur Genitiv) sehen gleich aus.
 MANQUS = set()
 for _w in ("غَالٍ", "مَاضٍ", "أَيْدٍ", "مَعَانٍ", "أَرَاضٍ", "لَيَالٍ",
-           "قَاضٍ", "نَادٍ", "وَادٍ"):
+           "قَاضٍ", "نَادٍ", "وَادٍ",
+           # aus der Wortschatz-Erweiterung
+           "مُحَامٍ", "ثَانٍ", "عَالٍ", "رَاضٍ", "صَحَارٍ", "مَقَالٍ"):
     MANQUS.add(unicodedata.normalize("NFC", _w))
 
 

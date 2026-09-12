@@ -10,31 +10,48 @@ Wiederholungssystem · eigene Wörter hinzufügen · installierbar als App (offl
 
 ## Was drin ist
 
-- **614 Vokabeln** – das komplette Lehrbuch **plus** deine 100 Wörter, zusammengeführt
-  (160 Verben, 245 Nomen, 102 Adjektive, Präpositionen,
-  Konjunktionen, Fragewörter).
+- **1309 Vokabeln im Alltagstrakt** – das Lehrbuch, deine 100 Wörter und der
+  große Ausbau vom September, alles zusammengeführt
+  (288 Verben, 625 Nomen, 182 Adjektive, 28 Zahlen, 79 Wendungen,
+  Präpositionen, Konjunktionen, Fragewörter).
+- **343 Quran-Vokabeln** in fünf Stufen, dazu 16 Texte Wort für Wort – eigener Tab.
 - **100 Satzmuster** mit Wort-für-Wort-Übersetzung.
 - **20 Redewendungen** und eine vollständige Verb-Konjugationstabelle.
 - Jede **Verb-Karte** zeigt **Vergangenheit + Präsens + Zukunft + Befehlsform** zusammen
   (Befehlsform = Imperativ/صيغة الأمر, z. B. ذَهَبَ → **اِذْهَبْ** „geh!“).
 - Jede Karte zeigt **Fuṣḥā (mit Harakat)** und die **Sprechform**.
+- Jede **Nomen-Karte** zeigt **Einzahl + Mehrzahl** und das **Genus**,
+  jede **Adjektiv-Karte** die **männliche und weibliche Form**.
+- Wo es einen Sonderfall gibt (Zahl-Kongruenz, Anrede an eine Frau, zweite
+  Bedeutung), steht ein **kurzer Hinweis** unter der Antwort.
 - Wo möglich ein **Beispielsatz** auf der Karte, mit hervorgehobenem Wort (aus den 100 Satzmustern).
 
 ### Decks
-- Verben (160)
-- Familie und Menschen (31)
-- Haus und Alltag (30)
-- Essen und Trinken (33)
-- Orte und Reisen (33)
-- Religion und Moschee (29)
-- Studium und Arbeit (32)
-- Körper und Gesundheit (27)
-- Natur, Wetter und Dinge (30)
-- Adjektive (102)
+- Verben (288)
+- Familie und Menschen (42)
+- Haus und Alltag (62)
+- Essen und Trinken (60)
+- Orte und Reisen (68)
+- Religion und Moschee (62)
+- Studium und Arbeit (58)
+- Körper und Gesundheit (62)
+- Natur, Wetter und Dinge (59)
+- Adjektive (165)
 - Präpositionen & Orte (24)
 - Konjunktionen (20)
 - Fragewörter & Pronomen (25)
 - Meine Wörter (38)
+- Zahlen (30)
+- Farben (15)
+- Zeit und Kalender (28)
+- Kleidung (14)
+- Berufe (14)
+- Höflichkeit und Gespräch (32)
+- Tiere (24)
+- Stadt und Einkaufen (28)
+- Technik und Medien (23)
+- Gefühle und Charakter (31)
+- Kleine Wörter (37)
 
 Dazu ein Stern-Deck **„Mein Wortschatz"** (deine 100 Vokabeln) und **„Schwierige Wörter"**
 (automatisch aus deinen Fehlern).

@@ -10,3 +10,6 @@ tools/_splash_links.html
 # Python-Zwischendateien
 __pycache__/
 *.pyc
+
+# Test-Screenshots
+shots_grade/
