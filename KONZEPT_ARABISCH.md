@@ -409,6 +409,34 @@ behalten — sie stehen fertig in den Daten und tippt niemand selbst nach.
 Titel — drei Zeilen lang, und der Schalter rutschte darunter aus der Flucht der
 anderen. Der Hinweis steht jetzt in der kleinen Zeile darunter, wo er hingehört.
 
+### Updates kommen ohne Zutun an
+
+Der Service Worker lädt eine neue Fassung im Hintergrund und übernimmt sofort
+(`skipWaiting` + `clients.claim`). Die Seite, die gerade läuft, führte aber
+weiter den alten Code aus — man hätte die App **zweimal** öffnen müssen, um
+Neuerungen zu sehen. Die App horcht jetzt auf `controllerchange` und lädt sich
+selbst neu. Drei Regeln halten das unaufdringlich:
+
+- Beim **allerersten Besuch** wird nicht neu geladen — der erste
+  Controller-Wechsel ist die Erstinstallation, kein Update. Der Zuhörer hängt
+  trotzdem von Anfang an dran, sonst ginge ein Update in derselben Sitzung
+  verloren.
+- **Mitten in einer Lernrunde** wird gewartet. Kommt das Update während
+  Karteikarten oder Quiz, erscheint nur ein Hinweis; neu geladen wird, sobald
+  die Runde verlassen wird.
+- Vor dem Neuladen wird der Fortschritt **festgeschrieben**.
+
+Dabei fiel ein älterer Fehler auf: Gespeichert wird mit 120 ms Verzögerung, und
+niemand schrieb beim Verlassen noch einmal weg. Wer direkt nach einer Bewertung
+die App wegwischte oder umschaltete, verlor sie. `pagehide` und
+`visibilitychange` schreiben jetzt sofort — auf iOS die richtigen Ereignisse,
+`beforeunload` ist dort unzuverlässig.
+
+Geprüft mit einem Server, der mitten im Durchlauf von der alten auf die neue
+Fassung umschaltet: nach **einmal** Öffnen läuft die neue Fassung, der alte
+Cache ist weg, und zwei Bewertungen, die unmittelbar vor dem Wegschalten
+gemacht wurden, haben das Update überlebt.
+
 ### Geprüft
 
 | Prüfung | Umfang | Ergebnis |
@@ -419,6 +447,7 @@ anderen. Der Hinweis steht jetzt in der kleinen Zeile darunter, wo er hingehört
 | Quran | 16 Texte, 96 angetippte Wörter, 68 Grammatikknöpfe | fehlerfrei |
 | Daten | 1652 Karten auf Zeichen, Vokalzeichen, Dubletten, Verbformen | 0 Probleme |
 | Offline | Netz gekappt, App neu geladen | vollständig |
+| Update | alte Fassung installiert, neue veröffentlicht, einmal geöffnet | neue Fassung da, Fortschritt erhalten |
 | Tempo | Start 0,56 s · längste Ansicht 32 ms | — |
 
 ## 9b. Offene Fragen an Karim

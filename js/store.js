@@ -46,18 +46,35 @@ window.AR = window.AR || {};
     } catch (e) { console.warn("Konnte Fortschritt nicht laden:", e); }
     // Altlasten aus der Zeit, als jede angesehene Liste leere Eintraege anlegte
     if (compact()) save();
+    flushOnHide();
   }
 
   var saveTimer = null;
   function save() {
     clearTimeout(saveTimer);
     saveTimer = setTimeout(function () {
+      saveTimer = null;
       try { localStorage.setItem(KEY, JSON.stringify(state)); }
       catch (e) { console.warn("Speichern fehlgeschlagen:", e); }
     }, 120);
   }
   function saveNow() {
+    clearTimeout(saveTimer);
+    saveTimer = null;
     try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  /* Beim Verlassen sofort wegschreiben. Gespeichert wird sonst mit 120 ms
+     Verzögerung – wer die App direkt nach einer Bewertung wegwischt oder
+     umschaltet, hätte sie verloren. iOS friert eine App beim Wegschalten
+     ohne Vorwarnung ein, deshalb pagehide und visibilitychange statt
+     beforeunload (das dort unzuverlässig ist). */
+  function flushOnHide() {
+    if (typeof window === "undefined") return;
+    window.addEventListener("pagehide", function () { if (saveTimer) saveNow(); });
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "hidden" && saveTimer) saveNow();
+    });
   }
 
   /* ---------- Einstellungen ---------- */

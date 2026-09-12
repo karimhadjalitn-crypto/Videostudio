@@ -25,6 +25,8 @@ window.AR = window.AR || {};
       // Damit das Stylesheet je Ansicht anders layouten kann (auf dem iPad
       // braucht eine Liste die volle Breite, eine Karteikarte nicht).
       if (main) main.setAttribute("data-view", view);
+      // Ein Update, das während einer Lernrunde kam, greift jetzt
+      if (updateWartet && darfNeuLaden()) { neuLaden(); return; }
       updateTabs(view);
       updateBadge();
       window.scrollTo(0, 0);
@@ -125,9 +127,44 @@ window.AR = window.AR || {};
     // Service Worker (nur über http/https, nicht file://)
     if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
       navigator.serviceWorker.register("sw.js").catch(function () { /* offline optional */ });
+      watchForUpdate();
     }
 
     app.go("home");
+  }
+
+  /* ---------- Neue Version übernehmen ----------
+     Der Service Worker lädt eine neue Fassung im Hintergrund und übernimmt
+     sofort (skipWaiting + clients.claim). Die Seite, die gerade läuft, führt
+     aber weiter den alten Code aus — ohne das hier müsste man die App zweimal
+     öffnen, um die Neuerungen zu sehen.
+
+     Neu geladen wird erst, wenn es nicht stört: mitten in einer Lernrunde
+     wartet die App, bis die Runde verlassen wird. Der Lernfortschritt hängt
+     nicht daran, er steht nach jeder Bewertung im Speicher. */
+  var updateWartet = false;
+
+  function watchForUpdate() {
+    // Beim allerersten Besuch gibt es noch keinen Controller. Der erste
+    // Wechsel ist dann die Erstinstallation und kein Update – bei dem darf
+    // nicht neu geladen werden. Der Zuhörer hängt trotzdem von Anfang an
+    // dran, sonst würde ein Update in derselben Sitzung verpasst.
+    var hatteController = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener("controllerchange", function () {
+      if (!hatteController) { hatteController = true; return; }
+      if (updateWartet) return;
+      updateWartet = true;
+      if (darfNeuLaden()) neuLaden();
+      else AR.ui.toast("Update bereit – wird nach dieser Runde geladen");
+    });
+  }
+  function darfNeuLaden() {
+    return current !== "flashcards" && current !== "quiz";
+  }
+  function neuLaden() {
+    // Erst den Fortschritt festschreiben, dann neu laden
+    try { AR.store.saveNow(); } catch (e) {}
+    location.reload();
   }
 
   AR.app = app;

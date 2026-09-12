@@ -1,5 +1,5 @@
 /* Service Worker – Offline-Cache für die Lern-App */
-var CACHE = "arabisch-lernen-v13";
+var CACHE = "arabisch-lernen-v14";
 var ASSETS = [
   "./",
   "index.html",
