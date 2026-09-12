@@ -121,21 +121,32 @@ window.AR = window.AR || {};
       var known = 0;
       cards.forEach(function (c) { if (AR.store.status(c.id) === "known") known++; });
 
+      // Gegen das rechnen, was wirklich in der App steht. Stünde hier die
+      // geplante Zahl, zeigte der Balken ein Ziel an, das man gar nicht
+      // erreichen KANN – und meldete „hinten dran", obwohl alles Vorhandene
+      // sitzt. Die geplante Zahl bleibt als Hinweis erhalten.
+      var vorhanden = cards.length;
+      var target = Math.min(g.target, vorhanden);
+      var fehlt = Math.max(0, g.target - vorhanden);
+
       var end = Date.parse(g.deadline);
       var total = Math.max(1, Math.round((end - start) / DAY));
       var gone = Math.max(0, Math.round((Date.now() - start) / DAY));
-      var left = Math.max(0, Math.round((end - Date.now()) / DAY));
+      var left = Math.round((end - Date.now()) / DAY);
+      var vorbei = left < 0;
+      left = Math.max(0, left);
       // Soll: linear über die Laufzeit verteilt
-      var soll = Math.round(g.target * Math.min(1, gone / total));
-      var perDay = left > 0 ? Math.max(0, (g.target - known) / left) : 0;
+      var soll = Math.round(target * Math.min(1, gone / total));
+      var perDay = left > 0 ? Math.max(0, (target - known) / left) : 0;
 
       return {
-        id: g.id, label: g.label, short: g.short, target: g.target,
-        known: known, soll: soll, daysLeft: left,
-        pct: Math.min(100, Math.round(known / g.target * 100)),
+        id: g.id, label: g.label, short: g.short,
+        target: target, geplant: g.target, vorhanden: vorhanden, fehlt: fehlt,
+        known: known, soll: soll, daysLeft: left, vorbei: vorbei,
+        pct: Math.min(100, Math.round(known / Math.max(1, target) * 100)),
         onTrack: known >= soll,
         perDay: Math.round(perDay * 10) / 10,
-        reached: known >= g.target
+        reached: known >= target
       };
     });
   }

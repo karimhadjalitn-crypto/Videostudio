@@ -423,11 +423,12 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); ou
 /* segmented control */
 .seg { display:flex; background: var(--surface-2); border-radius: 12px; padding: 4px; gap:4px;
   min-width: 0; max-width: 100%; }
-/* Schmale Geräte: Schalter rutscht unter sein Label statt daneben zu quetschen */
-@media (max-width: 400px) {
-  .setting { flex-wrap: wrap; }
-  .setting .seg { width: 100%; }
-}
+/* Der Schalter rutscht unter sein Label, sobald daneben kein Platz mehr ist.
+   Früher hing das an einer festen Grenze von 400px – zwischen 401 und 470px
+   blieb er in der Zeile stehen und schob sich seitlich aus dem Bild.
+   Jetzt entscheidet der Platz, nicht die Gerätebreite. */
+.setting { flex-wrap: wrap; }
+.setting .seg { flex: 1 1 250px; }
 .seg button { flex:1; border:0; background:none; min-height:40px; border-radius:9px; font-weight:650; color: var(--muted); }
 .seg button.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
 
@@ -542,3 +543,58 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); ou
   border-top: 1px solid var(--border); padding-top: 12px; }
 .goal-row { width: 100%; background: none; border: 0; padding: 0; text-align: left;
   display: flex; flex-direction: column; gap: 5px; }
+
+/* ============================================================
+   Tablet – iPad hoch und quer
+
+   Bis hierher war die App auf jedem Bildschirm 680px breit. Auf einem iPad
+   quer stand sie damit als schmaler Streifen in der Mitte, links und rechts
+   je 360px leer. Ab Tabletbreite wird die Spalte breiter – aber nur dort,
+   wo Breite wirklich hilft: Listen und Übersichten. Eine Karteikarte liest
+   sich in einer ruhigen Spalte besser als über den halben Tisch gezogen.
+   ============================================================ */
+@media (min-width: 740px)  { :root { --maxw: 840px; } }
+@media (min-width: 1180px) { :root { --maxw: 960px; } }
+
+@media (min-width: 740px) {
+  /* Startseite zweispaltig: links der Einstieg, rechts Suche und Decks.
+     Die linke Spalte bleibt oben stehen, während rechts gescrollt wird. */
+  .view.home { display: grid; grid-template-columns: minmax(0, 330px) minmax(0, 1fr);
+               gap: 22px; align-items: start; }
+  .view.home .home-top { position: sticky; top: 80px; }
+  .view.home .home-main > input[type="search"] { margin-top: 0; }
+  .view.home .section-title { margin-top: 14px; }
+  /* In der schmaleren rechten Spalte bleiben zwei Deck-Spalten richtig */
+  .view.home .decks { grid-template-columns: 1fr 1fr; }
+
+  /* Ansichten, die eine Lesespalte bleiben */
+  #main[data-view="flashcards"] .view,
+  #main[data-view="add"] .view,
+  #main[data-view="qurantext"] .view { max-width: 620px; margin-inline: auto; }
+
+  /* Decks in drei Spalten statt zwei */
+  .decks { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+  /* Vier Antworten nebeneinander in zwei Reihen – auf dem quer gehaltenen
+     iPad war die vierte sonst unter der Falz. */
+  .options { grid-template-columns: 1fr 1fr; }
+
+  /* Wortliste zweispaltig: 1309 Vokabeln in einer Spalte sind viel Scrollen */
+  .vocab-list { display: grid; grid-template-columns: 1fr 1fr; column-gap: 26px; }
+  .vocab-list .vocab-row:nth-last-child(2):nth-child(odd) { border-bottom: 0; }
+}
+
+@media (min-width: 1180px) {
+  .decks { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .view.home { grid-template-columns: minmax(0, 360px) minmax(0, 1fr); }
+  .view.home .decks { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* Zeile in der Wortliste (vorher Inline-Stile, jetzt benannt – sonst lässt
+   sie sich nicht zweispaltig setzen) */
+.vocab-row { display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.vocab-row:last-child { border-bottom: 0; }
+.vocab-row .vr-l { min-width: 0; }
+.vocab-row .vr-de { font-weight: 600; }
+.vocab-row .vr-r { display: flex; align-items: center; gap: 2px; flex: 0 0 auto; }

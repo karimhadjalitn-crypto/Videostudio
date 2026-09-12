@@ -71,7 +71,37 @@ AR.views = AR.views || {};
       el("label", { class: "field", text: "Zukunft" }), futureI,
       el("label", { class: "field", text: "Befehlsform (wird automatisch ergänzt)" }), imperativeI
     ]);
-    typeSel.addEventListener("change", function () { verbBox.classList.toggle("hidden", typeSel.value !== "verb"); });
+
+    /* Nomen: Mehrzahl und Genus. Jede mitgelieferte Nomen-Karte zeigt beides –
+       ohne diese Felder wären selbst angelegte Wörter die einzigen ohne. */
+    var pluralI = arInput("Mehrzahl بُيُوتٌ");
+    var genusSel = el("select", {}, [["m", "männlich"], ["f", "weiblich"]].map(function (g) {
+      return el("option", { value: g[0], text: g[1] });
+    }));
+    var nounBox = el("div", { class: "stack" }, [
+      el("label", { class: "field", text: "Mehrzahl (optional – manche Wörter haben keine)" }), pluralI,
+      el("label", { class: "field", text: "Genus" }), genusSel
+    ]);
+
+    /* Adjektiv: weibliche Form, aus der männlichen vorgeschlagen */
+    var femI = arInput("weibliche Form كَبِيرَةٌ");
+    femI.addEventListener("input", function () { femI.dataset.touched = "1"; });
+    fushaI.addEventListener("input", function () {
+      if (femI.dataset.touched || typeSel.value !== "adjective") return;
+      femI.value = data.deriveFeminine(fushaI.value.trim()) || "";
+    });
+    var adjBox = el("div", { class: "stack hidden" }, [
+      el("label", { class: "field", text: "Weibliche Form (wird vorgeschlagen)" }), femI
+    ]);
+
+    typeSel.addEventListener("change", function () {
+      verbBox.classList.toggle("hidden", typeSel.value !== "verb");
+      nounBox.classList.toggle("hidden", typeSel.value !== "noun");
+      adjBox.classList.toggle("hidden", typeSel.value !== "adjective");
+      if (typeSel.value === "adjective" && !femI.dataset.touched) {
+        femI.value = data.deriveFeminine(fushaI.value.trim()) || "";
+      }
+    });
 
     // gemeinsame arabische Tastatur (zielt auf das aktive Feld)
     var kbd = ui.arabicKeyboard(function () { return activeAr; });
@@ -87,18 +117,30 @@ AR.views = AR.views || {};
     form.appendChild(el("label", { class: "field", text: "Arabisch (Fuṣḥā)" })); form.appendChild(fushaI);
     form.appendChild(el("label", { class: "field", text: "Sprechform (optional)" })); form.appendChild(spokenI);
     form.appendChild(verbBox);
+    form.appendChild(nounBox);
+    form.appendChild(adjBox);
     form.appendChild(el("div", { class: "row", style: "gap:8px;margin-top:6px" }, [kbdToggle]));
     form.appendChild(kbdWrap);
     form.appendChild(el("button", { class: "btn btn-primary btn-lg block", style: "margin-top:8px",
       onclick: function () {
         var de = deI.value.trim(), fusha = fushaI.value.trim();
         if (!de || !fusha) { ui.toast("Bitte Deutsch und Arabisch ausfüllen"); return; }
-        var card = { de: de, fusha: fusha, spoken: spokenI.value.trim() || pausal(fusha),
+        var card = { de: de, fusha: fusha,
+          spoken: spokenI.value.trim() || data.derivePausal(fusha),
           type: typeSel.value, category: catSel.value };
         if (typeSel.value === "verb") {
           card.present = presentI.value.trim();
           card.future = futureI.value.trim();
           card.imperative = imperativeI.value.trim() || data.deriveImperative(card.present) || "";
+        }
+        if (typeSel.value === "noun") {
+          card.genus = genusSel.value;
+          var pl = pluralI.value.trim();
+          if (pl) { card.plural = pl; card.pluralSpoken = data.derivePausal(pl); }
+        }
+        if (typeSel.value === "adjective") {
+          var fem = femI.value.trim() || data.deriveFeminine(fusha);
+          if (fem) { card.feminine = fem; card.feminineSpoken = data.derivePausal(fem); }
         }
         store.addUserCard(card);
         ui.toast("„" + de + "“ hinzugefügt ✓");

@@ -128,9 +128,10 @@ window.AR = window.AR || {};
   function weakCards() {
     var now = Date.now();
     var arr = allCards().map(function (c) {
-      var s = AR.store.cardState(c.id);
-      return { c: c, s: s };
-    }).filter(function (x) { return x.s.seen > 0 && (x.s.wrong > 0 || x.s.box <= 1); });
+      return { c: c, s: AR.store.peek(c.id) };
+    }).filter(function (x) {
+      return x.s && x.s.seen > 0 && (x.s.wrong > 0 || x.s.box <= 1);
+    });
     arr.sort(function (a, b) {
       return (b.s.wrong - b.s.box) - (a.s.wrong - a.s.box);
     });
@@ -230,6 +231,75 @@ window.AR = window.AR || {};
     return "ا" + (stemVowel === IM_DAMMA ? IM_DAMMA : IM_KASRA) + body;
   }
 
+  /* ---------- Sprechform und weibliche Form ----------
+     Dieselben Regeln wie tools/noun_forms.py und tools/adjective_forms.py.
+     Sie stehen hier, damit ein selbst angelegtes Wort genauso vollständig
+     wird wie der mitgelieferte Wortschatz. */
+  var TANWEEN = "ًٌٍ", SHORT = "َُِ", ALL_MARKS = TANWEEN + SHORT + "ّْٰ";
+
+  /* Pausalform: Endung fällt weg (بُيُوتٌ → بُيُوت). Mehrteiliges Wort für Wort. */
+  function nfc(s) { return s && s.normalize ? s.normalize("NFC") : s; }
+  function derivePausal(word, teilWort) {
+    var w = nfc((word || "").trim());
+    if (!w) return "";
+    if (w.indexOf(" ") >= 0) {
+      return w.split(" ").map(function (t) { return derivePausal(t, true); }).join(" ");
+    }
+    /* Defektives Nomen (manqūṣ): sein ausgelautetes ي fällt in der Nennform
+       weg und kehrt in Pause zurück – غَالٍ → غَالِي. Erkennbar am Kasratan:
+       eine Nennform endet sonst immer auf Dammatan. Bei einem Teilwort gilt
+       das NICHT – dort ist das Kasratan bloß ein Genitiv (جَوَازُ سَفَرٍ). */
+    if (!teilWort && w.indexOf("ٍ") >= 0) {
+      var b = w;
+      while (b.length && ALL_MARKS.indexOf(b.charAt(b.length - 1)) >= 0) b = b.slice(0, -1);
+      return nfc(b + "ِي");
+    }
+    var last = w.charAt(w.length - 1);
+    if (last === "ى" || last === "ا") {
+      // maqsur: مَعْنًى → مَعْنَى. Das Fathatan kann nach NFC hinter einer
+      // Schadda stehen, deshalb der ganze Zeichenblock davor.
+      var i = w.length - 1, j = i;
+      while (j > 0 && ALL_MARKS.indexOf(w.charAt(j - 1)) >= 0) j--;
+      var marks = w.slice(j, i);
+      if (marks.indexOf("ً") >= 0) {
+        var keep = "";
+        for (var k = 0; k < marks.length; k++)
+          if (TANWEEN.indexOf(marks.charAt(k)) < 0) keep += marks.charAt(k);
+        return nfc(w.slice(0, j) + keep + "َ" + last);
+      }
+      return w;
+    }
+    var e = w.length;
+    while (e > 0 && ALL_MARKS.indexOf(w.charAt(e - 1)) >= 0) e--;
+    var rest = "";
+    for (var m = e; m < w.length; m++) {
+      var c = w.charAt(m);
+      if (TANWEEN.indexOf(c) < 0 && SHORT.indexOf(c) < 0) rest += c;
+    }
+    return nfc(w.slice(0, e) + rest);
+  }
+
+  /* Weibliche Form eines Adjektivs: كَبِيرٌ → كَبِيرَةٌ, غَالٍ → غَالِيَةٌ */
+  var FEM_EXC = { "عَطْشَانُ": "عَطْشَى", "شَبْعَانُ": "شَبْعَى", "تَعْبَانُ": "تَعْبَى",
+                  "كَسْلَانُ": "كَسْلَى", "جَوْعَانُ": "جَوْعَى", "بَطِيءٌ": "بَطِيئَةٌ",
+                  "أَوَّلٌ": "أُولَى" };
+  function deriveFeminine(word) {
+    var w = nfc((word || "").trim());
+    if (!w) return "";
+    if (Object.prototype.hasOwnProperty.call(FEM_EXC, w)) return FEM_EXC[w];
+    var e = w.length;
+    while (e > 0 && ALL_MARKS.indexOf(w.charAt(e - 1)) >= 0) e--;
+    var base = w.slice(0, e), marks = w.slice(e);
+    // Endet das Wort auf ـى oder ـا, gibt es keine Regel (أَعْمَى → عَمْيَاءُ).
+    // Ohne diese Sperre käme أَعْمَىَةٌ heraus – ein Wort, das es nicht gibt.
+    var letzter = base.charAt(base.length - 1);
+    if (letzter === "ى" || letzter === "ا") return "";
+    // Farben und andere Diptote (أَحْمَرُ → حَمْرَاءُ) folgen der Regel ebenfalls nicht
+    if (marks.indexOf("ُ") >= 0 && base.charAt(0) === "أ") return "";
+    if (marks.indexOf("ٍ") >= 0) return nfc(base + "ِيَةٌ");     // manqus
+    return nfc(base + (marks.indexOf("ّ") >= 0 ? "ّ" : "") + "َةٌ");
+  }
+
   /* Vorderseite/Rückseite abhängig von Richtung
      dir: "de2ar" (Deutsch zeigen, Arabisch erraten) | "ar2de" */
   function resolveDirection() {
@@ -325,6 +395,7 @@ window.AR = window.AR || {};
     quranTexts: quranTexts, quranTextById: quranTextById,
     quranWordById: quranWordById,
     deriveImperative: deriveImperative,
+    derivePausal: derivePausal, deriveFeminine: deriveFeminine,
     resolveDirection: resolveDirection, distractors: distractors,
     answerText: answerText, promptText: promptText, shuffle: shuffle, emoji: EMOJI
   };

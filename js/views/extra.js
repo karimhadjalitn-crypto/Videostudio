@@ -66,7 +66,7 @@ AR.views = AR.views || {};
     view.appendChild(el("h2", { text: d.emoji + " " + d.name }));
 
     var search = el("input", { type: "search", placeholder: "Suchen (Deutsch oder Arabisch)…", style: "margin-bottom:12px" });
-    var listWrap = el("div", { class: "card" });
+    var listWrap = el("div", { class: "card vocab-list" });
     view.appendChild(search); view.appendChild(listWrap);
 
     function draw(filter) {
@@ -79,15 +79,15 @@ AR.views = AR.views || {};
       });
       if (!shown.length) { listWrap.appendChild(el("div", { class: "empty", text: "Nichts gefunden." })); return; }
       shown.forEach(function (c) {
-        var row = el("div", { class: "row", style: "justify-content:space-between;border-bottom:1px solid var(--border);padding:8px 0;gap:10px" });
-        var left = el("div", { style: "min-width:0" }, [
-          el("div", { style: "font-weight:600", text: c.de }),
+        var row = el("div", { class: "vocab-row" });
+        var left = el("div", { class: "vr-l" }, [
+          el("div", { class: "vr-de", text: c.de }),
           el("div", { class: "row", style: "gap:8px" }, [
-            ui.ar(data.arText(c.fusha), data.isVerb(c) ? "" : ""),
+            ui.ar(data.arText(c.fusha)),
             data.isVerb(c) ? el("span", { class: "muted", style: "font-size:13px" }, ui.ar(data.arText(c.present))) : document.createComment("x")
           ])
         ]);
-        var right = el("div", { class: "row", style: "gap:2px" }, [
+        var right = el("div", { class: "vr-r" }, [
           ui.statusChip(c.id), ui.speakButton(c.fusha), ui.starButton(c.id)
         ]);
         row.appendChild(left); row.appendChild(right);

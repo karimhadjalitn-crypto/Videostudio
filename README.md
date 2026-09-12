@@ -25,6 +25,10 @@ Wiederholungssystem · eigene Wörter hinzufügen · installierbar als App (offl
 - Wo es einen Sonderfall gibt (Zahl-Kongruenz, Anrede an eine Frau, zweite
   Bedeutung), steht ein **kurzer Hinweis** unter der Antwort.
 - Wo möglich ein **Beispielsatz** auf der Karte, mit hervorgehobenem Wort (aus den 100 Satzmustern).
+- **Audio** über die Stimme des Geräts, mit Auswahl, falls mehrere arabische
+  Stimmen installiert sind. Ist keine da, steht in den Einstellungen, wo man
+  sie herbekommt (iPhone-Einstellungen › Bedienungshilfen › Gesprochene Inhalte
+  › Stimmen › Arabisch).
 
 ### Decks
 - Verben (288)
@@ -70,7 +74,13 @@ Die App ist eine reine Webseite (kein Server, keine Anmeldung). Dein Fortschritt
 
 > Die App erkennt iPhone/iPad und zeigt die Schritte direkt an (Startseite oben
 > und unter *Einstellungen → App installieren*). Safe-Areas (Notch, Home-Indicator)
-> sind berücksichtigt; Hoch- und Querformat auf dem iPad funktionieren.
+> sind berücksichtigt.
+
+**Auf dem iPad** nutzt die App die Breite: ab 740 px steht links das
+Tagesprogramm und rechts Suche und Decks, die Decks stehen drei- bis vierspaltig,
+die vier Quizantworten als 2 × 2, und die Wortliste läuft zweispaltig.
+Karteikarten, das Formular für neue Wörter und die Suren behalten bewusst ihre
+ruhige Lesespalte. Hoch- und Querformat funktionieren beide.
 
 **Lokal ausprobieren:**
 ```bash

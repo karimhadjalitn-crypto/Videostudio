@@ -22,6 +22,9 @@ window.AR = window.AR || {};
       else if (view === "qurangrammar") { AR.views.quran.renderGrammar(main); }
       else if (AR.views[view]) { AR.views[view].render(main); }
       else { AR.views.home.render(main); }
+      // Damit das Stylesheet je Ansicht anders layouten kann (auf dem iPad
+      // braucht eine Liste die volle Breite, eine Karteikarte nicht).
+      if (main) main.setAttribute("data-view", view);
       updateTabs(view);
       updateBadge();
       window.scrollTo(0, 0);
@@ -63,12 +66,16 @@ window.AR = window.AR || {};
   function closeSheet() { var o = document.getElementById("overlay"); if (o) o.parentNode.removeChild(o); }
   app.closeSheet = closeSheet;
 
+  /* Die Zahl am Karten-Tab: was heute noch offen ist – dieselbe Zahl, die
+     „Heute" nennt. Vorher hing sie am zuletzt geöffneten Deck und sprang
+     beim Stöbern hin und her; als Hinweis auf offene Arbeit war sie damit
+     wertlos. */
   function updateBadge() {
     var badge = document.getElementById("dueBadge");
     if (!badge) return;
     try {
-      var due = AR.store.dueCount(AR.data.deckById(app.currentDeck).cards());
-      if (due > 0) { badge.textContent = due > 99 ? "99+" : due; badge.classList.remove("hidden"); }
+      var offen = AR.path.todayPlan().cards.length;
+      if (offen > 0) { badge.textContent = offen > 99 ? "99+" : offen; badge.classList.remove("hidden"); }
       else badge.classList.add("hidden");
     } catch (e) { badge.classList.add("hidden"); }
   }

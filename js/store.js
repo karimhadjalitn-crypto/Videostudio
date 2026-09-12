@@ -44,6 +44,8 @@ window.AR = window.AR || {};
         state.stats = Object.assign({ studyDates: {}, totalReviews: 0 }, d.stats || {});
       }
     } catch (e) { console.warn("Konnte Fortschritt nicht laden:", e); }
+    // Altlasten aus der Zeit, als jede angesehene Liste leere Eintraege anlegte
+    if (compact()) save();
   }
 
   var saveTimer = null;
@@ -100,11 +102,32 @@ window.AR = window.AR || {};
   var KNOWN_BOX = 2;   // ab hier gilt ein Wort als „gekonnt" (= 1× „Gut" oder „Leicht")
   var HARD_FACTOR = 0.6;
 
+  var FRISCH = { box: 0, due: 0, seen: 0, correct: 0, wrong: 0, hard: 0, last: 0 };
+
+  /* Legt einen Eintrag an. Nur aufrufen, wenn danach wirklich etwas
+     gespeichert wird – sonst peek() benutzen. */
   function cardState(id) {
     var s = state.srs[id];
-    if (!s) { s = { box: 0, due: 0, seen: 0, correct: 0, wrong: 0, hard: 0, last: 0 }; state.srs[id] = s; }
+    if (!s) { s = Object.assign({}, FRISCH); state.srs[id] = s; }
     if (s.hard == null) s.hard = 0;
     return s;
+  }
+  /* Nur lesen, ohne anzulegen – gibt null zurück, wenn es die Karte noch
+     nicht gibt. Wichtig: Die Liste der schwierigen Wörter geht über ALLE
+     Karten. Mit cardState() legte sie dabei für jede einzelne einen leeren
+     Eintrag an – über tausend Stück, die dann in jedem Speichervorgang und
+     in jeder Sicherungsdatei mitgeschleppt wurden. */
+  function peek(id) {
+    return state.srs[id] || null;
+  }
+  /* Leere Einträge wegräumen (aus der Zeit, als sie noch angelegt wurden) */
+  function compact() {
+    var weg = 0;
+    for (var id in state.srs) {
+      var s = state.srs[id];
+      if (s && !s.seen && !s.box && !s.wrong && !s.correct) { delete state.srs[id]; weg++; }
+    }
+    return weg;
   }
   // Ist die Karte "gekonnt"? („Gut" und „Leicht" zählen, „Schwer" noch nicht)
   function status(id) {
@@ -321,6 +344,7 @@ window.AR = window.AR || {};
     clearIssues: clearIssues, issuesAsText: issuesAsText,
     stats: function () { return state.stats; },
     resetProgress: resetProgress, exportData: exportData, importData: importData,
+    peek: peek, compact: compact,
     _state: state
   };
 })(window.AR);

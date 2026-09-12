@@ -28,10 +28,14 @@ AR.views = AR.views || {};
     var card2 = el("div", { class: "card" });
     card2.appendChild(toggleRow("Sprechform anzeigen", "„Nah an Fuṣḥā“ unter den Karten", "showSpoken"));
     card2.appendChild(toggleRow("Vokalzeichen (Harakat)", "Abschalten für Lese-Herausforderung", "showHarakat"));
+    // Der Hinweis gehört in die kleine Zeile darunter – als Teil der
+    // Überschrift wurde daraus ein dreizeiliger Titel, unter dem der
+    // Schalter aus der Flucht der anderen rutschte.
     var audioNote = AR.audio.available()
-      ? (AR.audio.hasArabicVoice() ? "" : " (keine arabische Stimme auf diesem Gerät gefunden)")
-      : " (nicht verfügbar)";
-    card2.appendChild(toggleRow("Audio-Aussprache" + audioNote, "Tippe auf 🔊 zum Anhören", "audio"));
+      ? (AR.audio.hasArabicVoice() ? "Tippe auf 🔊 zum Anhören"
+                                   : "Keine arabische Stimme auf diesem Gerät")
+      : "Auf diesem Gerät nicht verfügbar";
+    card2.appendChild(toggleRow("Audio-Aussprache", audioNote, "audio"));
     if (AR.audio.available()) card2.appendChild(voiceRow());
     // Sitzungsgröße
     var sizeSel = el("select", {}, [10, 15, 20, 30, 50].map(function (n) {
@@ -195,7 +199,7 @@ AR.views = AR.views || {};
       AR.audio.speak(TEST_PHRASE);
     });
     // Eigene Zeile statt der label-links/control-rechts-.setting – Stimmennamen sind oft lang.
-    return el("div", { class: "setting", style: "flex-direction:column;align-items:stretch;gap:10px" }, [
+    var row = el("div", { class: "setting", style: "flex-direction:column;align-items:stretch;gap:10px" }, [
       el("div", {}, [
         el("div", { class: "s-l", text: "Arabische Stimme" }),
         el("div", { class: "s-d", text: "Falls mehrere auf deinem Gerät installiert sind" })
@@ -206,6 +210,14 @@ AR.views = AR.views || {};
           onclick: function () { AR.audio.speak(TEST_PHRASE); }, text: "🔊" })
       ])
     ]);
+    // Ohne installierte Stimme nützt die Auswahl nichts – dann muss dastehen,
+    // wo man sie herbekommt. Das ist der Weg auf dem iPhone.
+    if (!AR.audio.arabicVoices().length) {
+      row.appendChild(el("div", { class: "s-d", style: "line-height:1.6" },
+        "Noch keine installiert? iPhone-Einstellungen › Bedienungshilfen › " +
+        "Gesprochene Inhalte › Stimmen › Arabisch. Danach diese App neu starten."));
+    }
+    return row;
   }
 
   function toggleRow(title, desc, key) {

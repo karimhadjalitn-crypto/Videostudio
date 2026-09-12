@@ -130,15 +130,27 @@ Bewusst ohne Spracherkennung:
   dem Preis"), Karim antwortet laut.
 - Satzbaukasten (existiert bereits).
 
-## 7. Audio — offen
+## 7. Audio — entschieden: die iPhone-Stimme
 
-Aktuell: Systemstimme des Geräts, klingt je nach Gerät anders und liest Harakat
-unzuverlässig. Entscheidung vertagt.
+*Entschieden am 12.09.2026: „Ja, dann lass einfach die iPhone Stimme."*
 
-Architektur trotzdem so bauen, dass Audio eine **austauschbare Schicht** ist:
-Läuft vorerst über die Systemstimme weiter; sobald entschieden, lassen sich
-vorproduzierte MP3s (Cloud-TTS, einmalig erzeugt, offline abgelegt) nachschalten,
-ohne dass etwas umgebaut werden muss.
+Es bleibt bei der Systemstimme des Geräts. Der Grund ist nüchtern: Die
+arabischen Stimmen bei ElevenLabs liegen samt und sonders hinter einer
+Tarifstufe, die Karims Konto nicht hat — alle 25 sind Bibliotheksstimmen und
+verlangen „creator tier or above". Eine bessere Stimme wäre also nicht
+gratis zu haben, und eine schlechte gekaufte wäre keine Verbesserung.
+
+Was die Systemstimme brauchbar macht:
+
+- **Stimmenauswahl** in den Einstellungen, falls mehrere arabische Stimmen
+  installiert sind — iOS liefert je nach Gerät unterschiedliche.
+- **Anleitung, wenn keine installiert ist.** Ohne arabische Stimme liest iOS
+  den Text mit deutscher Aussprache vor, was schlimmer ist als Stille. Steht
+  keine bereit, nennt die Einstellungsseite jetzt den Weg: iPhone-Einstellungen
+  › Bedienungshilfen › Gesprochene Inhalte › Stimmen › Arabisch.
+
+Die Schicht bleibt austauschbar (`js/audio.js`): Sollten später vorproduzierte
+MP3s dazukommen, muss an den Ansichten nichts geändert werden.
 
 ## 8. Datenqualität — was geht und was nicht
 
@@ -171,7 +183,7 @@ Korrekturweg eingebaut.
 | 2 | **Quran-Trakt** — Frequenzwortschatz, Gebetstexte, Suren Wort für Wort, Quran-Grammatik | **fertig** |
 | 3 | **Der Pfad** — Tagesprogramm in drei Größen, Soll-Ist gegen die Termine | **fertig** |
 | 4 | **Reden** — Alltagswortschatz von 614 auf 1309 Wörter ausgebaut, elf neue Themen | **fertig** |
-| 5 | **Feinschliff** — UX-Korrekturen, vollständiger Testdurchlauf | offen |
+| 5 | **Feinschliff** — iPad-Layout, Rundumprüfung, gefundene Fehler behoben | **fertig** |
 
 Sprechübungen waren für Etappe 4 vorgesehen und sind auf Karims Wunsch
 gestrichen („Die Sprachübung kannst du weglassen", 12.09.2026).
@@ -321,6 +333,93 @@ nicht mehr vorkommen.
   behoben mit `overflow-wrap: anywhere`.
 
 Nach der Korrektur: 0 Fehler, 0 enge Stellen, keine Konsolenfehler.
+
+## 9e. Feinschliff und Rundumprüfung (Etappe 5)
+
+### Das iPad
+
+Bis hierher war die App auf **jedem** Bildschirm 680 px breit. Auf einem quer
+gehaltenen iPad stand sie damit als schmaler Streifen in der Mitte, links und
+rechts je 360 px leer, und man sah keine drei Karten ohne zu scrollen.
+
+Ab 740 px Breite wird die Spalte breiter (840 px, ab 1180 px dann 960 px) —
+aber nur dort, wo Breite wirklich hilft:
+
+| Ansicht | auf dem Tablet |
+|---|---|
+| Startseite | zwei Spalten: links Heute, Serie, Schnellzugriff · rechts Suche und Decks |
+| Decks | drei Spalten, ab 1180 px vier |
+| Quiz | vier Antworten als 2 × 2 — quer war die vierte vorher unter der Falz |
+| Wortliste | zweispaltig; 1309 Vokabeln in einer Spalte sind sehr viel Scrollen |
+| Karteikarte, Neues Wort, Sure | bleiben eine ruhige Lesespalte von 620 px |
+
+Damit das Stylesheet je Ansicht anders layouten kann, trägt `#main` jetzt ein
+`data-view`-Attribut.
+
+Dazu: Im Manifest stand `"orientation": "portrait"` — die installierte App war
+aufs Hochformat festgenagelt. Auf dem iPad ist Querformat die natürliche
+Haltung, also `"any"`.
+
+### Was die Prüfung sonst gefunden hat
+
+**Der Schalter, der aus dem Bild lief.** Zwischen 401 und 470 px Breite schob
+sich der Richtungs-Schalter in den Einstellungen seitlich heraus. Ursache war
+eine feste Gerätegrenze von 400 px, unter der er umbrach. Jetzt entscheidet der
+Platz, nicht die Gerätebreite.
+
+**Ziele, die man nicht erreichen konnte.** Die Startseite versprach „0 / 600"
+Quranwörter und „0 / 1500" Alltagswörter — vorhanden waren 343 und 1309. Der
+Balken hätte nie voll werden können, und die App hätte „hinten dran" gemeldet,
+obwohl alles Vorhandene sitzt. Gerechnet wird jetzt gegen das, was wirklich in
+der App steht; die geplante Zahl steht als Hinweis daneben („Geplant sind 600 —
+257 davon kommen noch dazu"). Ist ein Termin verstrichen, sagt die Karte das,
+statt weiter „noch 0 Tage" zu rechnen.
+
+**Eine Zahl, die sprang.** Das Abzeichen am Karten-Tab zeigte die Fälligkeit
+des zuletzt geöffneten Decks — beim Stöbern sprang es von 24 auf 99+ auf 5. Als
+Hinweis auf offene Arbeit war es damit wertlos. Es zeigt jetzt, was heute offen
+ist: dieselbe Zahl, die auch „Heute" nennt. Dasselbe galt für die Zahl neben der
+Tagesserie, die die Fälligkeit nur des eigenen Wortschatzes zeigte, direkt neben
+einem Fortschritt, der über alle Karten rechnet.
+
+**Über tausend leere Einträge.** Die Liste der schwierigen Wörter geht über
+*alle* Karten und benutzte dafür eine Funktion, die fehlende Fortschrittsdaten
+gleich anlegt. Ein Blick auf die Statistik schrieb damit 1309 leere Einträge in
+den Speicher — die dann in jedem Speichervorgang und in jeder Sicherungsdatei
+mitgeschleppt wurden. Es gibt jetzt einen reinen Lesezugriff (`store.peek`), und
+beim Start werden Altlasten weggeräumt. Gemessen: 1317 Einträge vorher,
+11 nachher.
+
+**Die Suche fand den Quran nicht.** Sie ging nur über den Alltagswortschatz.
+Wer ein Wort sucht, sucht das Wort und nicht den Bereich — Quranwörter sind
+jetzt dabei und mit einem Merkzeichen versehen.
+
+**Selbst angelegte Wörter waren ärmer als der Rest.** Jede mitgelieferte
+Nomen-Karte zeigt Einzahl, Mehrzahl und Genus, jede Adjektiv-Karte beide
+Geschlechter — im Formular „Neu" gab es dafür keine Felder. Die Felder sind
+jetzt da, und die weibliche Form wird vorgeschlagen. Dafür sind die Regeln aus
+`noun_forms.py` und `adjective_forms.py` nach JavaScript portiert
+(`data.derivePausal`, `data.deriveFeminine`). Gegengeprüft an allen 1309 Karten:
+1306 stimmen mit der Python-Seite überein. Die drei Abweichungen sind
+zusammengesetzte Zahlwörter (أَحَدَ عَشَرَ), die *mabnī* sind und ihre Endung
+behalten — sie stehen fertig in den Daten und tippt niemand selbst nach.
+
+**Der Hinweis, der zur Überschrift wurde.** In den Einstellungen stand
+„Audio-Aussprache (keine arabische Stimme auf diesem Gerät gefunden)" als
+Titel — drei Zeilen lang, und der Schalter rutschte darunter aus der Flucht der
+anderen. Der Hinweis steht jetzt in der kleinen Zeile darunter, wo er hingehört.
+
+### Geprüft
+
+| Prüfung | Umfang | Ergebnis |
+|---|---|---|
+| Kartenlayout | 13 216 Kartenseiten (1652 Karten × 2 Richtungen × 2 Seiten × 2 Breiten) | 0 Fehler |
+| Bedienelemente | 310 Knöpfe, Schalter und Auswahllisten in 9 Ansichten × 3 Geräten | kein Absturz |
+| Bildschirmgrößen | 8 Geräte × 12 Ansichten, hell und dunkel | 0 Probleme |
+| Quran | 16 Texte, 96 angetippte Wörter, 68 Grammatikknöpfe | fehlerfrei |
+| Daten | 1652 Karten auf Zeichen, Vokalzeichen, Dubletten, Verbformen | 0 Probleme |
+| Offline | Netz gekappt, App neu geladen | vollständig |
+| Tempo | Start 0,56 s · längste Ansicht 32 ms | — |
 
 ## 9b. Offene Fragen an Karim
 

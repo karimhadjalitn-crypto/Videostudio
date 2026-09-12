@@ -11,17 +11,27 @@ AR.views = AR.views || {};
     var mine = data.deckById("mine");
     var mineCards = mine.cards();
     var c = store.counts(mineCards);
-    var due = store.dueCount(mineCards);
+    // Dieselbe Zahl wie „Heute" und wie das Abzeichen am Karten-Tab.
+    // Vorher stand hier die Fälligkeit nur des eigenen Wortschatzes, direkt
+    // neben einem Fortschritt, der über alle Karten rechnet – zwei Zahlen
+    // mit verschiedenem Bezug in einer Karte.
+    var due = AR.path.todayPlan().cards.length;
     var g = store.goalProgress(data.allCards());
     var streak = store.streak();
 
-    var view = el("div", { class: "view" });
+    var view = el("div", { class: "view home" });
+    /* Zwei Spalten auf dem Tablet: links der Einstieg (Heute, Serie,
+       Schnellzugriff), rechts Suche und Decks. Auf dem Handy stehen beide
+       Blöcke wie bisher untereinander. */
+    var oben = el("div", { class: "home-top" });
+    var unten = el("div", { class: "home-main" });
+    view.appendChild(oben); view.appendChild(unten);
 
     /* Der Weg: was heute dran ist */
-    view.appendChild(todayCard(main));
+    oben.appendChild(todayCard(main));
 
     /* Streak und eigenes Lernziel – kompakt, seit „Heute" den Einstieg macht */
-    view.appendChild(el("div", { class: "card stack", style: "margin-top:14px" }, [
+    oben.appendChild(el("div", { class: "card stack", style: "margin-top:14px" }, [
       el("div", { class: "row" }, [
         el("div", { class: "streak" }, [
           el("span", { class: "flame", text: streak > 0 ? "🔥" : "🌙" }),
@@ -34,7 +44,7 @@ AR.views = AR.views || {};
         el("div", { class: "center" }, [
           el("div", { class: "n progress-num", style: "font-size:26px;font-weight:800",
             text: due }),
-          el("div", { class: "muted", style: "font-size:12px", text: "Karten fällig" })
+          el("div", { class: "muted", style: "font-size:12px", text: "heute offen" })
         ])
       ]),
       ui.progressBar(g.pct),
@@ -52,7 +62,7 @@ AR.views = AR.views || {};
 
     /* iOS: Installations-Hinweis (einmal, ausblendbar) */
     if (AR.app.isIOS() && !AR.app.isStandalone() && !localStorage.getItem("installHintDismissed")) {
-      view.appendChild(installHint());
+      oben.appendChild(installHint());
     }
 
     /* Schnellzugriff – der große Einstieg sitzt jetzt oben in „Heute“ */
@@ -61,7 +71,7 @@ AR.views = AR.views || {};
       el("button", { class: "btn block", onclick: function () { AR.app.setDeck("mine"); AR.app.go("quiz"); } }, "🎯 Quiz"),
       el("button", { class: "btn block", onclick: function () { AR.app.go("sentences"); } }, "💬 Sätze")
     ]);
-    view.appendChild(quick);
+    oben.appendChild(quick);
 
     /* Globale Suche */
     var search = el("input", { type: "search", enterkeyhint: "search",
@@ -72,8 +82,8 @@ AR.views = AR.views || {};
       if (q.length >= 1) renderResults(body, q);
       else renderDefault(body, mine, mineCards, c);
     });
-    view.appendChild(search);
-    view.appendChild(body);
+    unten.appendChild(search);
+    unten.appendChild(body);
     renderDefault(body, mine, mineCards, c);
 
     AR.ui.clear(main).appendChild(view);
@@ -143,12 +153,17 @@ AR.views = AR.views || {};
         ui.progressBar(g.pct),
         el("div", { class: "row", style: "justify-content:space-between;gap:8px" }, [
           el("span", { class: "muted", style: "font-size:12px",
-            text: g.reached ? "🎉 erreicht"
+            text: g.reached ? (g.fehlt ? "🎉 alles Vorhandene gekonnt" : "🎉 erreicht")
+                : g.vorbei ? "Termin ist vorbei"
                 : "noch " + g.daysLeft + " Tage · " + g.perDay + " Wörter/Tag" }),
           el("span", { class: "chip " + (g.onTrack ? "accent" : "gold"),
             style: "font-size:11px;padding:3px 8px",
             text: g.reached ? "fertig" : (g.onTrack ? "im Plan" : "hinten dran") })
-        ])
+        ]),
+        // Solange weniger Wörter im System stehen als geplant, soll das auch
+        // dastehen – sonst wirkt der Balken wie ein gebrochenes Versprechen.
+        g.fehlt ? el("div", { class: "muted", style: "font-size:11px",
+          text: "Geplant sind " + g.geplant + " – " + g.fehlt + " davon kommen noch dazu." }) : null
       ]));
     });
     card.appendChild(gbox);
@@ -205,7 +220,9 @@ AR.views = AR.views || {};
   function renderResults(body, q) {
     AR.ui.clear(body);
     var ql = q.toLowerCase(), qbare = data.stripHarakat(q);
-    var res = data.allCards().filter(function (card) {
+    // Auch die Quranwörter durchsuchen. Sie sind ein eigener Bereich, aber
+    // wer ein Wort sucht, sucht das Wort – nicht den Bereich.
+    var res = data.allCards().concat(data.quranCards()).filter(function (card) {
       return card.de.toLowerCase().indexOf(ql) >= 0 ||
         data.stripHarakat(card.fusha).indexOf(qbare) >= 0 || card.fusha.indexOf(q) >= 0;
     }).slice(0, 60);
@@ -218,9 +235,13 @@ AR.views = AR.views || {};
     res.forEach(function (card) {
       list.appendChild(el("div", { class: "row", style: "justify-content:space-between;gap:10px;border-bottom:1px solid var(--border);padding-bottom:8px" }, [
         el("div", { style: "min-width:0" }, [
-          el("div", { style: "font-weight:600", text: card.de }),
+          el("div", { class: "row", style: "gap:6px" }, [
+            el("span", { style: "font-weight:600", text: card.de }),
+            data.isQuran(card) ? el("span", { class: "chip gold",
+              style: "font-size:10px;padding:2px 7px", text: "Quran" }) : null
+          ]),
           el("div", { class: "row", style: "gap:8px" }, [
-            ui.ar(data.arText(card.fusha)),
+            ui.ar(data.cardAr(card)),
             data.isVerb(card) ? ui.ar(data.arText(card.present), "") : document.createComment("x")
           ])
         ]),
