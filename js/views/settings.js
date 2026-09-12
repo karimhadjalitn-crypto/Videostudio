@@ -137,11 +137,8 @@ AR.views = AR.views || {};
       inst.appendChild(el("div", { class: "row", style: "gap:8px" }, [
         el("span", { style: "font-size:20px", text: "✅" }), el("b", { text: "Läuft bereits als installierte App" })
       ]));
-    } else if (AR.app.isIOS()) {
-      inst.appendChild(ui.installSteps());
     } else {
-      inst.appendChild(el("p", { class: "muted", style: "font-size:14px", text:
-        "Im Browser-Menü „Zum Startbildschirm hinzufügen“ bzw. „App installieren“ wählen – dann läuft sie im Vollbild und offline." }));
+      inst.appendChild(ui.installSteps());
     }
     view.appendChild(inst);
 

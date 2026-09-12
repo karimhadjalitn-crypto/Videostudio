@@ -67,10 +67,16 @@ Dazu ein Stern-Deck **„Mein Wortschatz"** (deine 100 Vokabeln) und **„Schwie
 Die App ist eine reine Webseite (kein Server, keine Anmeldung). Dein Fortschritt wird nur
 **lokal auf deinem Gerät** gespeichert.
 
+**Die App läuft hier:** https://karimhadjalitn-crypto.github.io/Videostudio/
+
 **Als App aufs iPhone/iPad (empfohlen):**
-1. Repository auf **GitHub Pages** veröffentlichen (Settings → Pages → Branch wählen).
-2. Die Pages-URL in **Safari** öffnen → **Teilen-Symbol** → **„Zum Home-Bildschirm“**.
+1. Den Link in **Safari** öffnen.
+2. Unten auf das **Teilen-Symbol** tippen → **„Zum Home-Bildschirm“** → **„Hinzufügen“**.
 3. Läuft danach als App im Vollbild, mit eigenem Icon, Startbildschirm und offline.
+
+Auf Android führt der Weg über das Chrome-Menü (⋮) → „App installieren“. Bietet
+der Browser die Installation selbst an, steht auf der Startseite statt der
+Anleitung ein Knopf.
 
 > Die App erkennt iPhone/iPad und zeigt die Schritte direkt an (Startseite oben
 > und unter *Einstellungen → App installieren*). Safe-Areas (Notch, Home-Indicator)

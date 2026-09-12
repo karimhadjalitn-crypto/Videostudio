@@ -235,6 +235,9 @@ window.AR = window.AR || {};
   }
 
   /* iOS-Installationsanleitung (Schritte) */
+  /* Anleitung zum Installieren. Die Schritte unterscheiden sich je Gerät;
+     bietet der Browser selbst einen Installationsdialog an (Chrome auf
+     Android), gibt es stattdessen einen echten Knopf. */
   function installSteps() {
     function step(n, node) {
       return el("div", { class: "row", style: "gap:10px;align-items:flex-start" }, [
@@ -242,13 +245,30 @@ window.AR = window.AR || {};
         el("div", { style: "flex:1", html: node })
       ]);
     }
-    return el("div", { class: "stack", style: "gap:10px" }, [
-      step(1, 'Öffne diese Seite in <b>Safari</b> und tippe unten auf das <b>Teilen-Symbol</b> ' +
-              '<span class="ios-share">□↑</span> (Quadrat mit Pfeil nach oben).'),
-      step(2, 'Wähle <b>„Zum Home-Bildschirm“</b> <span style="opacity:.7">(ggf. etwas nach unten scrollen)</span>.'),
-      step(3, 'Oben rechts auf <b>„Hinzufügen“</b> tippen.'),
-      el("div", { class: "muted", style: "font-size:13px", text: "Danach liegt „Arabisch“ als App auf dem Home-Bildschirm und öffnet im Vollbild – auch offline." })
-    ]);
+    var box = el("div", { class: "stack", style: "gap:10px" });
+
+    if (AR.app.canInstall()) {
+      box.appendChild(el("button", { class: "btn btn-primary btn-lg block",
+        onclick: function () { AR.app.promptInstall(); } }, "📲  Jetzt installieren"));
+      box.appendChild(el("div", { class: "muted", style: "font-size:13px",
+        text: "Danach liegt „Arabisch“ als App auf dem Startbildschirm und öffnet im Vollbild – auch ohne Netz." }));
+      return box;
+    }
+
+    if (AR.app.isIOS()) {
+      box.appendChild(step(1, 'Öffne diese Seite in <b>Safari</b> und tippe unten auf das <b>Teilen-Symbol</b> ' +
+        '<span class="ios-share">□↑</span> (Quadrat mit Pfeil nach oben).'));
+      box.appendChild(step(2, 'Wähle <b>„Zum Home-Bildschirm“</b> <span style="opacity:.7">(ggf. etwas nach unten scrollen)</span>.'));
+      box.appendChild(step(3, 'Oben rechts auf <b>„Hinzufügen“</b> tippen.'));
+    } else {
+      box.appendChild(step(1, 'Öffne diese Seite in <b>Chrome</b> und tippe oben rechts auf das <b>Menü</b> ' +
+        '<span class="ios-share">⋮</span> (drei Punkte).'));
+      box.appendChild(step(2, 'Wähle <b>„App installieren“</b> oder <b>„Zum Startbildschirm hinzufügen“</b>.'));
+      box.appendChild(step(3, 'Mit <b>„Installieren“</b> bestätigen.'));
+    }
+    box.appendChild(el("div", { class: "muted", style: "font-size:13px",
+      text: "Danach liegt „Arabisch“ als App auf dem Startbildschirm und öffnet im Vollbild – auch ohne Netz." }));
+    return box;
   }
 
   /* Session-Abschluss-Bildschirm */

@@ -7,6 +7,7 @@ window.AR = window.AR || {};
 
   var TAB_VIEWS = { home: 1, flashcards: 1, quiz: 1, sentences: 1, add: 1 };
   var current = "home";
+  var installEvent = null;   // Angebot des Browsers, die App zu installieren
 
   var app = {
     currentDeck: "mine",
@@ -49,6 +50,16 @@ window.AR = window.AR || {};
     isStandalone: function () {
       return window.navigator.standalone === true ||
         (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+    },
+    /* Chrome auf Android bietet einen eigenen Installationsdialog an und
+       meldet das vorher über beforeinstallprompt. Dann braucht es keine
+       Klickanleitung, sondern nur einen Knopf. */
+    canInstall: function () { return !!installEvent; },
+    promptInstall: function () {
+      if (!installEvent) return;
+      var e = installEvent;
+      installEvent = null;
+      e.prompt();
     },
 
     sheet: function (title, node) {
@@ -123,6 +134,16 @@ window.AR = window.AR || {};
       var mq = window.matchMedia("(prefers-color-scheme: dark)");
       if (mq.addEventListener) mq.addEventListener("change", function () { AR.store.applyTheme(); });
     }
+
+    // Bietet der Browser die Installation an, das Angebot aufheben und die
+    // Startseite neu zeichnen – dann steht dort ein echter Knopf statt einer
+    // Klickanleitung.
+    window.addEventListener("beforeinstallprompt", function (e) {
+      e.preventDefault();
+      installEvent = e;
+      if (current === "home") app.go("home");
+    });
+    window.addEventListener("appinstalled", function () { installEvent = null; });
 
     // Service Worker (nur über http/https, nicht file://)
     if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {

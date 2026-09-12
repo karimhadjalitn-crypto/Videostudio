@@ -60,8 +60,9 @@ AR.views = AR.views || {};
       ])
     ]));
 
-    /* iOS: Installations-Hinweis (einmal, ausblendbar) */
-    if (AR.app.isIOS() && !AR.app.isStandalone() && !localStorage.getItem("installHintDismissed")) {
+    /* Hinweis zum Installieren (einmal, ausblendbar). Gilt für jedes Gerät –
+       vorher nur fürs iPhone, auf Android stand gar nichts da. */
+    if (!AR.app.isStandalone() && !localStorage.getItem("installHintDismissed")) {
       oben.appendChild(installHint());
     }
 
