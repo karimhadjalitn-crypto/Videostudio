@@ -15,7 +15,9 @@ window.AR = window.AR || {};
     audio: true,           // Text-to-Speech
     voiceURI: "",           // gewählte Stimme für die Aussprache ("" = automatisch)
     sessionSize: 20,
-    goal: 100              // Lernziel: so viele Wörter sollen „gekonnt" werden
+    goal: 100,             // Lernziel: so viele Wörter sollen „gekonnt" werden
+    pace: "normal",        // Tagesgröße: kurz | normal | viel
+    pathStart: ""          // erster Tag mit Pfad (für den Soll-Ist-Abgleich)
   };
 
   var state = {

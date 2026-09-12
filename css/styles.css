@@ -135,6 +135,11 @@ main { flex: 1; padding: 18px 16px 96px; }
   min-height: var(--tap);
 }
 .tab svg { width: 22px; height: 22px; }
+/* Sechs Tabs passen auf schmalen Geräten nur knapp – dort etwas kompakter */
+@media (max-width: 400px) {
+  .tab { font-size: 10px; padding: 6px 1px; gap: 2px; }
+  .tab svg { width: 20px; height: 20px; }
+}
 .tab.active { color: var(--accent-600); }
 .tab.active .pip { opacity: 1; }
 
@@ -510,3 +515,18 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); ou
   color: var(--accent-600); font-size:12px; font-weight:600; }
 .gram-note { margin-top:12px; padding:10px 12px; border-radius:10px;
   background: var(--gold-100); color: var(--text); font-size:13px; line-height:1.5; }
+
+/* Der Weg: Tagesprogramm auf der Startseite */
+.today-card { gap: 14px; }
+/* .seg button ist display:block – ohne display:flex greift die Spalten-
+   richtung nicht und die Minutenangabe rutscht neben das Label. */
+.pace-seg button { display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 0; min-height: 48px; padding: 5px 2px;
+  line-height: 1.25; }
+.pace-seg button span { font-size: 14px; }
+.pace-seg button small { font-size: 10px; font-weight: 500; opacity: .75; white-space: nowrap; }
+@media (max-width: 360px) { .pace-seg button span { font-size: 13px; } }
+.goal-box { display: flex; flex-direction: column; gap: 10px;
+  border-top: 1px solid var(--border); padding-top: 12px; }
+.goal-row { width: 100%; background: none; border: 0; padding: 0; text-align: left;
+  display: flex; flex-direction: column; gap: 5px; }

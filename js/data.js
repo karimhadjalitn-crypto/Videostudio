@@ -52,6 +52,8 @@ window.AR = window.AR || {};
   }
 
   function deckById(id) {
+    if (id === "today") return { id: "today", name: "Heute", emoji: "☀️",
+      cards: function () { return AR.path.todayPlan().cards; } };
     if (id === "weak") return { id: "weak", name: "Schwierige Wörter", emoji: "🔥", cards: weakCards };
     if (id === "fav") return { id: "fav", name: "Favoriten", emoji: "⭐", cards: favCards };
     if (id && id.indexOf("quran") === 0) return quranDeck(id);

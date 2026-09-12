@@ -169,7 +169,7 @@ Korrekturweg eingebaut.
 |---|---|---|
 | 1 | **Datenfundament** — Plural + Genus für 245 Nomen, weibliche Form für 102 Adjektive, Präpositionen für 71 Verben, Datenkorrekturen, „Fehler melden"-Knopf | **fertig** |
 | 2 | **Quran-Trakt** — Frequenzwortschatz, Gebetstexte, Suren Wort für Wort, Quran-Grammatik | **fertig** |
-| 3 | **Der Pfad** — Tagesprogramm, Soll-Ist gegen die Termine, Meilensteine | offen |
+| 3 | **Der Pfad** — Tagesprogramm in drei Größen, Soll-Ist gegen die Termine | **fertig** |
 | 4 | **Reden** — Alltagswortschatz ausbauen, Sprechübungen, Sprech-Grammatik | offen |
 | 5 | **Feinschliff** — UX-Korrekturen, vollständiger Testdurchlauf | offen |
 
@@ -219,9 +219,42 @@ Versverweis existiert.
 **Noch offen:** weitere Suren aus Juz ʿAmma (die Lückenliste aus
 `build_quran.py` ist die Arbeitsvorlage).
 
+## 9c. Der Pfad (Etappe 3)
+
+**Drei Tagesgrößen**, weil die verfügbare Zeit stark schwankt:
+
+| Größe | Zeit | Wiederholungen | neue Wörter |
+|---|---|---|---|
+| Kurz | ~5 Min | max. 10 | 0 (bzw. 3, wenn nichts fällig ist) |
+| Normal | ~15 Min | max. 25 | 5 |
+| Lang | ~30 Min | max. 50 | 12 |
+
+Die kleinste Größe darf nie ins Leere laufen: Sind keine Wiederholungen
+fällig, gibt es auch dort drei neue Wörter – sonst wäre ein kurzer Tag
+wertlos.
+
+**Fällige Wiederholungen** kommen zuerst und aus beiden Trakten gemischt,
+schwächste Karten zuerst. Was über die Tagesgröße hinausgeht, wartet – es
+geht nichts verloren, und die App sagt das auch so.
+
+**Neue Wörter** verteilen sich automatisch: bis Ramadan 70 % Quran / 30 %
+Alltag, danach umgekehrt. Ist ein Trakt leer, füllt der andere auf.
+
+**Soll-Ist gegen die Termine** statt Streak-Druck: Das Soll verteilt sich
+linear über die Laufzeit ab dem ersten Tag mit Pfad (`pathStart`). Angezeigt
+wird „im Plan" oder „hinten dran", dazu wie viele Wörter pro Tag noch nötig
+sind. Ein ausgelassener Tag kostet nichts außer ein paar Zehntel im Tagessoll.
+
+Umgesetzt in `js/path.js`; das Tagesprogramm ist über das Deck `today`
+erreichbar und nutzt Karteikarten und Fortschritt unverändert mit.
+
 ## 9b. Offene Fragen an Karim
 
-Gesammelt während der Nachtschicht, zu klären bevor es weitergeht:
+*Alle sechs am 12.09.2026 beantwortet: eigener Tab ja · moderne
+Standardschreibung bleibt · wörtliche Übersetzung bleibt · Suren reichen
+vorerst · Grammatik passt · Pensum soll stärker mitschwanken.*
+
+Ursprüngliche Liste:
 
 1. **Navigation.** Der Quran-Bereich hängt zurzeit auf der Startseite unter den
    Decks. Soll er einen **eigenen Tab** in der unteren Leiste bekommen? Es wären

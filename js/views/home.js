@@ -17,8 +17,11 @@ AR.views = AR.views || {};
 
     var view = el("div", { class: "view" });
 
-    /* Kopf: Streak + Fortschritt zum Lernziel */
-    view.appendChild(el("div", { class: "card stack" }, [
+    /* Der Weg: was heute dran ist */
+    view.appendChild(todayCard(main));
+
+    /* Streak und eigenes Lernziel – kompakt, seit „Heute" den Einstieg macht */
+    view.appendChild(el("div", { class: "card stack", style: "margin-top:14px" }, [
       el("div", { class: "row" }, [
         el("div", { class: "streak" }, [
           el("span", { class: "flame", text: streak > 0 ? "🔥" : "🌙" }),
@@ -52,12 +55,9 @@ AR.views = AR.views || {};
       view.appendChild(installHint());
     }
 
-    /* Schnellstart */
-    view.appendChild(el("button", { class: "btn btn-primary btn-lg block", style: "margin-top:14px",
-      onclick: function () { AR.app.setDeck("mine"); AR.app.go("flashcards"); } },
-      [ due > 0 ? (due + " Karten lernen") : "Wortschatz üben" ]));
-
+    /* Schnellzugriff – der große Einstieg sitzt jetzt oben in „Heute“ */
     var quick = el("div", { class: "row", style: "gap:10px;margin-top:10px" }, [
+      el("button", { class: "btn block", onclick: function () { AR.app.setDeck("mine"); AR.app.go("flashcards"); } }, "🃏 Karten"),
       el("button", { class: "btn block", onclick: function () { AR.app.setDeck("mine"); AR.app.go("quiz"); } }, "🎯 Quiz"),
       el("button", { class: "btn block", onclick: function () { AR.app.go("sentences"); } }, "💬 Sätze")
     ]);
@@ -77,6 +77,83 @@ AR.views = AR.views || {};
     renderDefault(body, mine, mineCards, c);
 
     AR.ui.clear(main).appendChild(view);
+  }
+
+  /* ---------- Heute ----------
+     Drei Größen, weil die verfügbare Zeit stark schwankt. Die kleinste
+     hält den Fortschritt allein schon am Leben – ohne schlechtes Gewissen
+     an Tagen, an denen nicht mehr geht. */
+  function todayCard(main) {
+    var plan = AR.path.todayPlan();
+    var card = el("div", { class: "card stack today-card" });
+
+    card.appendChild(el("div", { class: "row", style: "justify-content:space-between" }, [
+      el("span", { style: "font-weight:700", text: "☀️ Heute" }),
+      plan.done ? el("span", { class: "chip accent", text: plan.done + " gelernt" }) : null
+    ]));
+
+    /* Größe wählen */
+    var seg = el("div", { class: "seg pace-seg" });
+    AR.path.paces().forEach(function (p) {
+      var b = el("button", { class: AR.path.pace().id === p.id ? "active" : "", onclick: function () {
+        AR.path.setPace(p.id);
+        render(main);
+      } }, [
+        el("span", { text: p.label }),
+        el("small", { text: "~" + p.minutes + " Min" })
+      ]);
+      seg.appendChild(b);
+    });
+    card.appendChild(seg);
+
+    /* Was ist drin? */
+    var parts = [];
+    if (plan.reviews.length) parts.push(plan.reviews.length + " Wiederholungen");
+    if (plan.fresh.length) parts.push(plan.fresh.length + " neue Wörter");
+    var summary = parts.length ? parts.join(" · ") : "Nichts fällig – alles frisch.";
+    card.appendChild(el("div", { class: "muted", style: "font-size:14px", text: summary }));
+
+    if (plan.dueTotal > plan.reviews.length) {
+      card.appendChild(el("div", { class: "muted", style: "font-size:12px",
+        text: "Insgesamt " + plan.dueTotal + " fällig – der Rest wartet, nichts geht verloren." }));
+    }
+
+    if (plan.cards.length) {
+      card.appendChild(el("button", { class: "btn btn-primary btn-lg block", onclick: function () {
+        AR.app.setDeck("today"); AR.app.go("flashcards");
+      } }, "▶  Los geht's"));
+    } else {
+      card.appendChild(el("button", { class: "btn block", onclick: function () {
+        AR.app.setDeck("mine"); AR.app.go("flashcards");
+      } }, "Trotzdem üben"));
+    }
+
+    /* Zieltermine */
+    var goals = AR.path.goals();
+    var gbox = el("div", { class: "goal-box" });
+    goals.forEach(function (g) {
+      gbox.appendChild(el("button", { class: "goal-row", onclick: function () {
+        AR.app.go(g.id === "quran" ? "quran" : "stats");
+      } }, [
+        el("div", { class: "row", style: "justify-content:space-between;gap:8px" }, [
+          el("span", { style: "font-size:13px;font-weight:600", text: g.label }),
+          el("span", { class: "muted", style: "font-size:12px",
+            text: g.known + " / " + g.target })
+        ]),
+        ui.progressBar(g.pct),
+        el("div", { class: "row", style: "justify-content:space-between;gap:8px" }, [
+          el("span", { class: "muted", style: "font-size:12px",
+            text: g.reached ? "🎉 erreicht"
+                : "noch " + g.daysLeft + " Tage · " + g.perDay + " Wörter/Tag" }),
+          el("span", { class: "chip " + (g.onTrack ? "accent" : "gold"),
+            style: "font-size:11px;padding:3px 8px",
+            text: g.reached ? "fertig" : (g.onTrack ? "im Plan" : "hinten dran") })
+        ])
+      ]));
+    });
+    card.appendChild(gbox);
+
+    return card;
   }
 
   function renderDefault(body, mine, mineCards, c) {
