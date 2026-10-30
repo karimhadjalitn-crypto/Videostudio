@@ -1,5 +1,5 @@
 /* ============================================================
-   ui.js – DOM-Helfer, Toast, Sprech-Knopf, arabische Tastatur
+   ui.js – DOM-Helfer, Toast, iOS-Bausteine, Quran-Karte, arabische Tastatur
    ============================================================ */
 window.AR = window.AR || {};
 (function (AR) {
@@ -44,15 +44,114 @@ window.AR = window.AR || {};
     toastTimer = setTimeout(function () { clear(wrap); }, 2200);
   }
 
-  /* Sprech-Knopf */
-  function speakButton(text, cls) {
-    if (!AR.audio.available()) return document.createComment("no-audio");
-    var b = el("button", {
-      class: "speakbtn" + (cls ? " " + cls : ""), "aria-label": "Aussprechen",
-      html: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a9 9 0 0 1 0 14"/></svg>'
-    });
-    b.addEventListener("click", function (e) { e.stopPropagation(); AR.audio.speak(text); });
-    return b;
+  /* ---------- iOS-Bausteine ---------- */
+  var ICONS = {
+    gear: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+    chevron: '<svg viewBox="0 0 8 14" width="8" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l6 6-6 6"/></svg>',
+    check: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>'
+  };
+  function icon(name) { return ICONS[name] || ""; }
+
+  /* Großer Titel wie in iOS-Apps, optional mit Untertitel und Knopf rechts */
+  function largeTitle(title, sub, right) {
+    return el("header", { class: "large-title" }, [
+      el("div", { class: "lt-text" }, [
+        sub ? el("div", { class: "lt-sub", text: sub }) : null,
+        el("h1", { text: title })
+      ]),
+      right || null
+    ]);
+  }
+  /* Zurück-Zeile über Unterseiten */
+  function backBar(label, onBack) {
+    return el("div", { class: "back-bar" }, [
+      el("button", { class: "navlink back", onclick: onBack }, [
+        el("span", { class: "back-chev", html: ICONS.chevron }), label
+      ])
+    ]);
+  }
+
+  /* Gruppierte Liste (inset grouped) */
+  function list(rows, header, footer) {
+    var wrap = el("section", { class: "group" });
+    if (header) wrap.appendChild(el("div", { class: "group-h", text: header }));
+    wrap.appendChild(el("div", { class: "list" }, rows));
+    if (footer) wrap.appendChild(el("div", { class: "group-f", text: footer }));
+    return wrap;
+  }
+  /* Deutsch-arabischer Mischtext: die arabischen Stellen bekommen die
+     Mushaf-Schrift und ihre eigene Leserichtung */
+  var ARABIC_RUN = /[؀-ۿݐ-ݿﭐ-﷿ﹰ-﻿]+(?:[\s،\/]+[؀-ۿݐ-ݿﭐ-﷿ﹰ-﻿]+)*/g;
+  function mixed(text, tag, cls) {
+    var node = el(tag || "span", cls ? { class: cls } : null);
+    var s = String(text || ""), last = 0, m;
+    ARABIC_RUN.lastIndex = 0;
+    while ((m = ARABIC_RUN.exec(s)) !== null) {
+      if (m.index > last) node.appendChild(document.createTextNode(s.slice(last, m.index)));
+      node.appendChild(ar(m[0], "inline-ar"));
+      last = m.index + m[0].length;
+    }
+    if (last < s.length) node.appendChild(document.createTextNode(s.slice(last)));
+    return node;
+  }
+
+  function listRow(opts) {
+    var children = [];
+    if (opts.icon) children.push(el("span", { class: "lr-icon", style: opts.iconBg ? "background:" + opts.iconBg : "", text: opts.icon }));
+    children.push(el("div", { class: "lr-main" }, [
+      mixed(opts.title, "div", "lr-t"),
+      opts.sub ? mixed(opts.sub, "div", "lr-s") : null
+    ]));
+    if (opts.detail != null) children.push(el("span", { class: "lr-d", text: opts.detail }));
+    if (opts.right) children.push(opts.right);
+    if (opts.onclick) children.push(el("span", { class: "lr-chev", html: ICONS.chevron }));
+    return el(opts.onclick ? "button" : "div", { class: "lr" + (opts.cls ? " " + opts.cls : ""),
+      onclick: opts.onclick || null }, children);
+  }
+
+  /* Fortschrittsring */
+  function ring(frac, label) {
+    var r = 26, c = 2 * Math.PI * r, off = c * (1 - Math.max(0, Math.min(1, frac)));
+    return el("div", { class: "ring", html:
+      '<svg viewBox="0 0 64 64" width="64" height="64"><circle cx="32" cy="32" r="' + r + '" class="ring-bg"/>' +
+      '<circle cx="32" cy="32" r="' + r + '" class="ring-fg" stroke-dasharray="' + c.toFixed(1) +
+      '" stroke-dashoffset="' + off.toFixed(1) + '" transform="rotate(-90 32 32)"/></svg>' +
+      '<span>' + label + '</span>' });
+  }
+
+  /* ---------- Quran-Vokabelkarte ----------
+     Vorderseite: das Wort. Rückseite: Wort, Bedeutung und bei Verben
+     Vergangenheit, Präsens und Masdar. Mehr steht bewusst nicht drauf. */
+  function qcard(w, flipped, onFlip) {
+    var card = el("div", { class: "qcard" + (flipped ? " flipped" : ""), role: "button",
+      tabindex: "0", "aria-label": flipped ? "Karte" : "Karte umdrehen" });
+    if (onFlip) card.addEventListener("click", function () { if (!flipped) onFlip(); });
+    card.appendChild(ar(w.ar, "qc-ar"));
+    if (!flipped) {
+      card.appendChild(el("div", { class: "qc-hint", text: "Tippen zum Umdrehen" }));
+      return card;
+    }
+    card.appendChild(el("div", { class: "qc-de", text: w.de }));
+    if (w.type === "verb") card.appendChild(verbForms(w));
+    return card;
+  }
+  function verbForms(w) {
+    function cell(label, txt) {
+      return el("div", { class: "vfc" }, [ el("small", { text: label }), ar(txt || "—", "vfc-ar") ]);
+    }
+    return el("div", { class: "qc-forms" }, [
+      cell("Vergangenheit", w.past), cell("Präsens", w.present), cell("Masdar", w.masdar)
+    ]);
+  }
+
+  /* Detailblatt zu einem Quranwort (aus der Wortliste) */
+  function wordSheet(w) {
+    var learned = AR.qplan.isLearned(w.id);
+    AR.app.sheet(null, el("div", { class: "stack" }, [
+      qcard(w, true),
+      el("div", { class: "muted small center", text: (learned ? "✓ gelernt · " : "") +
+        w.count + "× im Quran · Rang " + w.rank })
+    ]));
   }
 
   /* Favoriten-Stern */
@@ -251,7 +350,7 @@ window.AR = window.AR || {};
       box.appendChild(el("button", { class: "btn btn-primary btn-lg block",
         onclick: function () { AR.app.promptInstall(); } }, "📲  Jetzt installieren"));
       box.appendChild(el("div", { class: "muted", style: "font-size:13px",
-        text: "Danach liegt „Arabisch“ als App auf dem Startbildschirm und öffnet im Vollbild – auch ohne Netz." }));
+        text: "Danach liegt „Quran“ als App auf dem Startbildschirm und öffnet im Vollbild – auch ohne Netz." }));
       return box;
     }
 
@@ -267,7 +366,7 @@ window.AR = window.AR || {};
       box.appendChild(step(3, 'Mit <b>„Installieren“</b> bestätigen.'));
     }
     box.appendChild(el("div", { class: "muted", style: "font-size:13px",
-      text: "Danach liegt „Arabisch“ als App auf dem Startbildschirm und öffnet im Vollbild – auch ohne Netz." }));
+      text: "Danach liegt „Quran“ als App auf dem Startbildschirm und öffnet im Vollbild – auch ohne Netz." }));
     return box;
   }
 
@@ -283,7 +382,9 @@ window.AR = window.AR || {};
 
   AR.ui = {
     el: el, clear: clear, append: append, ar: ar, toast: toast,
-    speakButton: speakButton, statusChip: statusChip, progressBar: progressBar,
+    statusChip: statusChip, progressBar: progressBar,
+    icon: icon, mixed: mixed, largeTitle: largeTitle, backBar: backBar, list: list, listRow: listRow,
+    ring: ring, qcard: qcard, verbForms: verbForms, wordSheet: wordSheet,
     arabicKeyboard: arabicKeyboard, insertAtCursor: insertAtCursor,
     starButton: starButton, installSteps: installSteps, doneScreen: doneScreen,
     goalSheet: goalSheet, reportButton: reportButton, reportSheet: reportSheet

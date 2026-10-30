@@ -95,7 +95,6 @@ AR.views = AR.views || {};
     b.checked = true;
     b.ok = b.placed.every(function (t, pos) { return t.i === pos; });
     store.grade("sent:" + b.s.nr, b.ok ? "good" : "again");
-    if (store.get("audio")) AR.audio.speak(b.s.fusha);
     render(main());
   }
 
@@ -108,7 +107,7 @@ AR.views = AR.views || {};
 
     var flash = el("div", { class: "flash-wrap" });
     var fl = el("div", { class: "flash" + (c.flipped ? " flipped" : "") });
-    fl.addEventListener("click", function () { if (!c.flipped) { c.flipped = true; render(main()); if (store.get("audio")) AR.audio.speak(s.fusha); } });
+    fl.addEventListener("click", function () { if (!c.flipped) { c.flipped = true; render(main()); } });
     var front = el("div", { class: "face front" }, [
       el("span", { class: "tag" }, el("span", { class: "chip", text: "Satz " + s.nr + "/" + ALL.length })),
       el("div", { class: "prompt-de", text: s.gesamt || s.de }),
@@ -119,7 +118,6 @@ AR.views = AR.views || {};
       store.get("showSpoken") && s.spoken ? el("div", { class: "row", style: "gap:8px;justify-content:center" }, [
         el("span", { class: "muted", style: "font-size:13px", text: "gesprochen:" }), ui.ar(s.spoken, "spoken")
       ]) : document.createComment("x"),
-      ui.speakButton(s.fusha),
       wordMap(s)
     ]);
     fl.appendChild(front); fl.appendChild(back);
@@ -218,7 +216,6 @@ AR.views = AR.views || {};
     var ok = key(o) === key(z.answer.ar);
     store.grade("sent:" + z.s.nr, ok ? "good" : "again");
     if (ok) ui.toast("Richtig! 🎉");
-    if (store.get("audio")) AR.audio.speak(z.s.fusha);
     render(main());
   }
   function variantBlock(z) {
@@ -235,7 +232,7 @@ AR.views = AR.views || {};
       var arSent = newWords.map(function (w) { return data.arText(w.ar); }).join(" ");
       box.appendChild(el("div", { class: "divider" }));
       box.appendChild(el("div", { class: "muted", style: "font-size:13px", text: "Variante – ein Wort ersetzt (" + repl.de + "):" }));
-      box.appendChild(el("div", { class: "row", style: "justify-content:center;gap:8px" }, [ ui.ar(arSent, "prompt-ar"), ui.speakButton(arSent) ]));
+      box.appendChild(el("div", { class: "row", style: "justify-content:center;gap:8px" }, [ ui.ar(arSent, "prompt-ar") ]));
     }
     return box;
   }
@@ -245,7 +242,6 @@ AR.views = AR.views || {};
       el("div", { class: "result-check", text: ok ? "✅" : "❌" }),
       el("div", { style: "font-weight:700", text: ok ? "Richtig!" : "Richtige Reihenfolge:" }),
       ui.ar(data.arText(s.fusha), "prompt-ar"),
-      ui.speakButton(s.fusha),
       wordMap(s)
     ]);
   }

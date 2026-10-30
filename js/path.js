@@ -20,10 +20,9 @@ window.AR = window.AR || {};
   };
   var ORDER = ["kurz", "normal", "viel"];
 
-  /* Zieltermine aus dem Konzept. */
+  /* Zieltermin aus dem Konzept. Der Quran hat seinen eigenen Tagesplan
+     (qplan.js) und läuft hier nicht mehr mit. */
   var GOALS = [
-    { id: "quran", label: "Quran bis Ramadan", short: "Ramadan",
-      target: 600, deadline: "2027-02-18", track: "quran" },
     { id: "speak", label: "Reden bis Sommer", short: "Sommer",
       target: 1500, deadline: "2027-06-01", track: "alltag" }
   ];
@@ -47,7 +46,6 @@ window.AR = window.AR || {};
     var p = pace();
     var now = Date.now();
     var alltag = AR.data.allCards();
-    var quran = AR.data.quranCards();
 
     function split(cards) {
       var due = [], fresh = [];
@@ -58,10 +56,10 @@ window.AR = window.AR || {};
       });
       return { due: due, fresh: fresh };
     }
-    var a = split(alltag), q = split(quran);
+    var a = split(alltag);
 
-    // Fällige: schwächste zuerst, beide Trakte gemischt
-    var reviews = a.due.concat(q.due).sort(function (x, y) {
+    // Fällige: schwächste zuerst
+    var reviews = a.due.sort(function (x, y) {
       var sx = AR.store._state.srs[x.id], sy = AR.store._state.srs[y.id];
       return (sx.box - sy.box) || (sy.wrong - sx.wrong);
     }).slice(0, p.reviews);
@@ -72,25 +70,14 @@ window.AR = window.AR || {};
     var freshCount = p.fresh;
     if (reviews.length === 0 && freshCount === 0) freshCount = 3;
 
-    // Neue Wörter: bis Ramadan liegt der Schwerpunkt auf dem Quran
-    var quranShare = daysLeft("quran") > 0 ? 0.7 : 0.3;
-    var nQuran = Math.round(freshCount * quranShare);
-    var nAlltag = freshCount - nQuran;
-    var fresh = q.fresh.slice(0, nQuran).concat(a.fresh.slice(0, nAlltag));
-    // Wenn ein Trakt leer ist, den anderen auffüllen
-    if (fresh.length < freshCount) {
-      var rest = freshCount - fresh.length;
-      fresh = fresh.concat(q.fresh.slice(nQuran, nQuran + rest))
-                   .concat(a.fresh.slice(nAlltag, nAlltag + rest))
-                   .slice(0, freshCount);
-    }
+    var fresh = a.fresh.slice(0, freshCount);
 
     return {
       pace: p,
       reviews: reviews,
       fresh: fresh,
       cards: reviews.concat(fresh),
-      dueTotal: a.due.length + q.due.length,
+      dueTotal: a.due.length,
       done: doneToday()
     };
   }
@@ -117,7 +104,7 @@ window.AR = window.AR || {};
   function goals() {
     var start = Date.parse(startDate());
     return GOALS.map(function (g) {
-      var cards = g.track === "quran" ? AR.data.quranCards() : AR.data.allCards();
+      var cards = AR.data.allCards();
       var known = 0;
       cards.forEach(function (c) { if (AR.store.status(c.id) === "known") known++; });
 

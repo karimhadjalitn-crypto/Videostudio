@@ -13,3 +13,6 @@ __pycache__/
 
 # Test-Screenshots
 shots_grade/
+
+# lokale Claude-Einstellungen (Dev-Server)
+.claude/

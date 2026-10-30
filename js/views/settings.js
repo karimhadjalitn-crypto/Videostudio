@@ -9,34 +9,49 @@ AR.views = AR.views || {};
 
   function render(main) {
     var view = el("div", { class: "view" });
-    view.appendChild(el("div", { class: "row", style: "justify-content:space-between" }, [
-      el("h2", { text: "Einstellungen" }),
-      el("button", { class: "link", onclick: function () { AR.app.go("home"); }, text: "Fertig" })
+    view.appendChild(el("div", { class: "back-bar" }, [
+      el("span", {}),
+      el("button", { class: "navlink strong", onclick: function () { AR.app.back(); }, text: "Fertig" })
     ]));
+    view.appendChild(ui.largeTitle("Einstellungen"));
+
+    /* Quran-Lernplan */
+    view.appendChild(el("div", { class: "section-title", text: "Quran-Lernplan" }));
+    var cq = el("div", { class: "card" });
+    cq.appendChild(el("div", { class: "setting" }, [
+      el("div", {}, [
+        el("div", { class: "s-l", text: "Neue Wörter pro Tag" }),
+        el("div", { class: "s-d", text: "Gilt ab sofort, auch für heute" })
+      ]),
+      stepper(AR.qplan.dailyNew(), 1, 30, function (n) { store.set("dailyNew", n); })
+    ]));
+    var dateIn = el("input", { type: "date", class: "date-in", value: store.get("qStart") || "" });
+    dateIn.addEventListener("change", function () {
+      if (dateIn.value) { store.set("qStart", dateIn.value); ui.toast("Startdatum gespeichert"); }
+    });
+    cq.appendChild(el("div", { class: "setting" }, [
+      el("div", {}, [
+        el("div", { class: "s-l", text: "Erster Lerntag" }),
+        el("div", { class: "s-d", text: "Ab diesem Tag gibt es täglich neue Wörter" })
+      ]),
+      dateIn
+    ]));
+    view.appendChild(cq);
 
     /* Darstellung */
     view.appendChild(el("div", { class: "section-title", text: "Darstellung" }));
     var card1 = el("div", { class: "card" });
     card1.appendChild(labelRow("Design", segControl("theme",
-      [["system", "System"], ["light", "Hell"], ["dark", "Dunkel"]])));
-    card1.appendChild(labelRow("Abfrage-Richtung", segControl("direction",
-      [["mix", "Gemischt"], ["de2ar", "DE→AR"], ["ar2de", "AR→DE"]])));
+      [["system", "Automatisch"], ["light", "Hell"], ["dark", "Dunkel"]])));
     view.appendChild(card1);
 
-    /* Karten */
-    view.appendChild(el("div", { class: "section-title", text: "Karten" }));
+    /* Karten im Alltagsteil */
+    view.appendChild(el("div", { class: "section-title", text: "Alltagsarabisch (unter „Mehr“)" }));
     var card2 = el("div", { class: "card" });
+    card2.appendChild(labelRow("Abfrage-Richtung", segControl("direction",
+      [["mix", "Gemischt"], ["de2ar", "DE→AR"], ["ar2de", "AR→DE"]])));
     card2.appendChild(toggleRow("Sprechform anzeigen", "„Nah an Fuṣḥā“ unter den Karten", "showSpoken"));
     card2.appendChild(toggleRow("Vokalzeichen (Harakat)", "Abschalten für Lese-Herausforderung", "showHarakat"));
-    // Der Hinweis gehört in die kleine Zeile darunter – als Teil der
-    // Überschrift wurde daraus ein dreizeiliger Titel, unter dem der
-    // Schalter aus der Flucht der anderen rutschte.
-    var audioNote = AR.audio.available()
-      ? (AR.audio.hasArabicVoice() ? "Tippe auf 🔊 zum Anhören"
-                                   : "Keine arabische Stimme auf diesem Gerät")
-      : "Auf diesem Gerät nicht verfügbar";
-    card2.appendChild(toggleRow("Audio-Aussprache", audioNote, "audio"));
-    if (AR.audio.available()) card2.appendChild(voiceRow());
     // Sitzungsgröße
     var sizeSel = el("select", {}, [10, 15, 20, 30, 50].map(function (n) {
       var o = el("option", { value: n, text: n + " Karten" }); if (store.get("sessionSize") === n) o.selected = true; return o;
@@ -124,10 +139,16 @@ AR.views = AR.views || {};
     card3.appendChild(imp);
     card3.appendChild(el("button", { class: "btn block", style: "color:var(--danger)",
       onclick: function () {
-        if (confirm("Wirklich den gesamten Lernfortschritt zurücksetzen? (Deine hinzugefügten Wörter bleiben erhalten.)")) {
+        if (confirm("Wirklich den Quran-Fortschritt zurücksetzen? Gelernte Wörter und Grammatik-Ergebnisse gehen verloren.")) {
+          store.resetQuran(); ui.toast("Quran-Fortschritt zurückgesetzt"); render(main);
+        }
+      } }, "Quran-Fortschritt zurücksetzen"));
+    card3.appendChild(el("button", { class: "btn block", style: "color:var(--danger)",
+      onclick: function () {
+        if (confirm("Wirklich den Fortschritt im Alltagsteil zurücksetzen? (Deine hinzugefügten Wörter bleiben erhalten.)")) {
           store.resetProgress(); ui.toast("Fortschritt zurückgesetzt"); render(main);
         }
-      } }, "Fortschritt zurücksetzen"));
+      } }, "Alltags-Fortschritt zurücksetzen"));
     view.appendChild(card3);
 
     /* Installation */
@@ -145,9 +166,12 @@ AR.views = AR.views || {};
     /* Über */
     var m = data.meta.counts || {};
     view.appendChild(el("div", { class: "section-title", text: "Über" }));
+    var qm = (window.QVOCAB && window.QVOCAB.meta) || {};
     view.appendChild(el("div", { class: "card muted", style: "font-size:13px" }, [
-      el("p", { text: "Arabisch lernen – Fuṣḥā & Sprechform." }),
-      el("p", { text: (m.vocab_total || 0) + " Vokabeln · " + (m.sentences || 0) + " Satzmuster · " +
+      el("p", { text: "Quran-Wortschatz: " + AR.qplan.words().length + " Wörter, sortiert nach Häufigkeit im Quran." }),
+      qm.sources ? el("p", { text: "Quellen: " + qm.sources }) : null,
+      el("p", { text: "Arabische Schrift: KFGQPC Uthmanic Script Hafs (King Fahd Glorious Quran Printing Complex)." }),
+      el("p", { text: "Alltagsteil: " + (m.vocab_total || 0) + " Vokabeln · " + (m.sentences || 0) + " Satzmuster · " +
         (m.idioms || 0) + " Redewendungen." }),
       el("p", { text: "Dein Fortschritt wird nur lokal auf diesem Gerät gespeichert." })
     ]));
@@ -171,50 +195,16 @@ AR.views = AR.views || {};
     });
     return seg;
   }
-  var TEST_PHRASE = "مَرْحَبًا"; // "Hallo" – neutraler Test-Satz für die Stimmen-Vorschau
-
-  function voiceRow() {
-    var sel = el("select", { id: "voiceSelect" });
-    function fill() {
-      AR.ui.clear(sel);
-      sel.appendChild(el("option", { value: "", text: "Automatisch (erste gefundene)" }));
-      var list = AR.audio.arabicVoices();
-      list.forEach(function (v) {
-        var o = el("option", { value: v.voiceURI, text: v.name + (v.lang ? " · " + v.lang : "") });
-        if (store.get("voiceURI") === v.voiceURI) o.selected = true;
-        sel.appendChild(o);
-      });
-      if (!list.length) {
-        sel.appendChild(el("option", { value: "", text: "Keine arabische Stimme gefunden", disabled: "disabled" }));
-      }
-    }
-    fill();
-    // Manche Geräte (v.a. iOS) laden Stimmen erst asynchron nach – dann neu befüllen.
-    AR.audio.onVoicesReady = fill;
-    sel.addEventListener("change", function () {
-      AR.audio.setVoice(sel.value);
-      AR.audio.speak(TEST_PHRASE);
-    });
-    // Eigene Zeile statt der label-links/control-rechts-.setting – Stimmennamen sind oft lang.
-    var row = el("div", { class: "setting", style: "flex-direction:column;align-items:stretch;gap:10px" }, [
-      el("div", {}, [
-        el("div", { class: "s-l", text: "Arabische Stimme" }),
-        el("div", { class: "s-d", text: "Falls mehrere auf deinem Gerät installiert sind" })
-      ]),
-      el("div", { class: "row", style: "gap:8px" }, [
-        el("div", { style: "flex:1;min-width:0" }, sel),
-        el("button", { class: "iconbtn", type: "button", "aria-label": "Stimme testen",
-          onclick: function () { AR.audio.speak(TEST_PHRASE); }, text: "🔊" })
-      ])
+  /* Plus/Minus-Regler wie der iOS-Stepper */
+  function stepper(value, min, max, onChange) {
+    var n = value;
+    var out = el("span", { class: "stepper-v", text: n });
+    function setN(v) { n = Math.max(min, Math.min(max, v)); out.textContent = n; onChange(n); }
+    return el("div", { class: "stepper" }, [
+      el("button", { type: "button", "aria-label": "Weniger", text: "−", onclick: function () { setN(n - 1); } }),
+      out,
+      el("button", { type: "button", "aria-label": "Mehr", text: "+", onclick: function () { setN(n + 1); } })
     ]);
-    // Ohne installierte Stimme nützt die Auswahl nichts – dann muss dastehen,
-    // wo man sie herbekommt. Das ist der Weg auf dem iPhone.
-    if (!AR.audio.arabicVoices().length) {
-      row.appendChild(el("div", { class: "s-d", style: "line-height:1.6" },
-        "Noch keine installiert? iPhone-Einstellungen › Bedienungshilfen › " +
-        "Gesprochene Inhalte › Stimmen › Arabisch. Danach diese App neu starten."));
-    }
-    return row;
   }
 
   function toggleRow(title, desc, key) {
@@ -230,7 +220,7 @@ AR.views = AR.views || {};
   function exportProgress() {
     var blob = new Blob([store.exportData()], { type: "application/json" });
     var url = URL.createObjectURL(blob);
-    var a = el("a", { href: url, download: "arabisch-fortschritt.json" });
+    var a = el("a", { href: url, download: "quran-wortschatz-fortschritt.json" });
     document.body.appendChild(a); a.click();
     setTimeout(function () { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
     ui.toast("Datei gespeichert");

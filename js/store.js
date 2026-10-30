@@ -12,8 +12,8 @@ window.AR = window.AR || {};
     direction: "mix",      // de2ar | ar2de | mix
     showSpoken: true,      // Sprechform anzeigen
     showHarakat: true,     // Vokalzeichen anzeigen
-    audio: true,           // Text-to-Speech
-    voiceURI: "",           // gewählte Stimme für die Aussprache ("" = automatisch)
+    dailyNew: 5,           // Quran: neue Wörter pro Tag
+    qStart: "2026-10-31",  // Quran: erster Lerntag
     sessionSize: 20,
     goal: 100,             // Lernziel: so viele Wörter sollen „gekonnt" werden
     pace: "normal",        // Tagesgröße: kurz | normal | viel
@@ -27,8 +27,11 @@ window.AR = window.AR || {};
     favorites: {},    // cardId -> true (markierte Wörter)
     issues: [],       // gemeldete Fehler: {card,de,fusha,text,ts}
     settings: Object.assign({}, DEFAULT_SETTINGS),
-    stats: { studyDates: {}, totalReviews: 0 }
+    stats: { studyDates: {}, totalReviews: 0 },
+    /* Quran-Wortschatz: eigener Fortschritt, getrennt vom Alltagsteil */
+    q: { days: {}, learned: {}, grammar: {} }
   };
+  function freshQ() { return { days: {}, learned: {}, grammar: {} }; }
 
   /* ---------- Laden / Speichern ---------- */
   function load() {
@@ -42,7 +45,10 @@ window.AR = window.AR || {};
         state.issues = d.issues || [];
         state.settings = Object.assign({}, DEFAULT_SETTINGS, d.settings || {});
         state.stats = Object.assign({ studyDates: {}, totalReviews: 0 }, d.stats || {});
+        state.q = Object.assign(freshQ(), d.q || {});
       }
+      // Stimme gibt es nicht mehr – alte Einstellungen nicht mitschleppen
+      delete state.settings.audio; delete state.settings.voiceURI;
     } catch (e) { console.warn("Konnte Fortschritt nicht laden:", e); }
     // Altlasten aus der Zeit, als jede angesehene Liste leere Eintraege anlegte
     if (compact()) save();
@@ -89,7 +95,7 @@ window.AR = window.AR || {};
     if (meta) {
       var dark = t === "dark" || (t === "system" &&
         window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
-      meta.setAttribute("content", dark ? "#141310" : "#faf6ef");
+      meta.setAttribute("content", dark ? "#000000" : "#f2f2f7");
     }
   }
 
@@ -325,14 +331,22 @@ window.AR = window.AR || {};
   function isFav(id) { return !!state.favorites[id]; }
   function favCount() { return Object.keys(state.favorites).length; }
 
+  /* Setzt nur den Alltagsteil zurück – der Quran-Fortschritt hat einen
+     eigenen Knopf, damit man nicht aus Versehen beides verliert. */
   function resetProgress() {
-    state.srs = {}; state.stats = { studyDates: {}, totalReviews: 0 };
+    for (var id in state.srs) if (id.indexOf("qv") !== 0) delete state.srs[id];
+    state.stats = { studyDates: {}, totalReviews: 0 };
+    saveNow();
+  }
+  function resetQuran() {
+    for (var id in state.srs) if (id.indexOf("qv") === 0) delete state.srs[id];
+    state.q = freshQ();
     saveNow();
   }
   function exportData() {
     return JSON.stringify({ srs: state.srs, userCards: state.userCards,
       favorites: state.favorites, settings: state.settings, stats: state.stats,
-      issues: state.issues }, null, 2);
+      issues: state.issues, q: state.q }, null, 2);
   }
   function importData(json) {
     var d = JSON.parse(json);
@@ -342,6 +356,7 @@ window.AR = window.AR || {};
     if (d.settings) state.settings = Object.assign({}, DEFAULT_SETTINGS, d.settings);
     if (d.stats) state.stats = d.stats;
     if (d.issues) state.issues = d.issues;
+    if (d.q) state.q = Object.assign(freshQ(), d.q);
     saveNow();
   }
 
@@ -360,7 +375,9 @@ window.AR = window.AR || {};
     reportIssue: reportIssue, issues: issues, deleteIssue: deleteIssue,
     clearIssues: clearIssues, issuesAsText: issuesAsText,
     stats: function () { return state.stats; },
-    resetProgress: resetProgress, exportData: exportData, importData: importData,
+    resetProgress: resetProgress, resetQuran: resetQuran,
+    exportData: exportData, importData: importData,
+    q: function () { return state.q; },
     peek: peek, compact: compact,
     _state: state
   };

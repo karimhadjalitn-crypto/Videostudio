@@ -12,8 +12,7 @@ AR.views = AR.views || {};
     var g = data.grammar || {};
     var rows = g.conjugation || [];
     var view = el("div", { class: "view" });
-    view.appendChild(el("button", { class: "link", style: "margin-bottom:10px",
-      onclick: function () { AR.app.go("home"); }, text: "‹ Zurück" }));
+    view.appendChild(ui.backBar("Zurück", function () { AR.app.back(); }));
     view.appendChild(el("h2", { text: "Verben konjugieren" }));
 
     var mv = g.model_verb || {};
@@ -22,8 +21,7 @@ AR.views = AR.views || {};
       el("div", { class: "verb-forms" }, [
         vf("Vergangenheit", mv.past), vf("Präsens", mv.present),
         vf("Zukunft", mv.future), vf("Befehlsform", mv.imperative)
-      ]),
-      ui.speakButton(mv.present || "")
+      ])
     ]));
 
     (g.notes || []).forEach(function (n) {
@@ -88,7 +86,7 @@ AR.views = AR.views || {};
           ])
         ]);
         var right = el("div", { class: "vr-r" }, [
-          ui.statusChip(c.id), ui.speakButton(c.fusha), ui.starButton(c.id)
+          ui.statusChip(c.id), ui.starButton(c.id)
         ]);
         row.appendChild(left); row.appendChild(right);
         listWrap.appendChild(row);
@@ -100,6 +98,6 @@ AR.views = AR.views || {};
     AR.ui.clear(main).appendChild(view);
   }
 
-  AR.views.grammar = { render: grammar };
+  AR.views.oldgrammar = { render: grammar };
   AR.views.browse = { render: browse };
 })(window.AR);

@@ -5,33 +5,39 @@ window.AR = window.AR || {};
 (function (AR) {
   "use strict";
 
-  var TAB_VIEWS = { home: 1, flashcards: 1, quiz: 1, sentences: 1, add: 1 };
-  var current = "home";
+  /* Welcher Tab gehört zu welcher Ansicht? Alles, was nicht zum
+     Quranteil gehört, läuft unter „Mehr". */
+  var TAB_OF = {
+    heute: "heute", lernen: "heute",
+    woerter: "woerter",
+    grammatik: "grammatik"
+  };
+  var current = "heute";
+  var history = [];          // für „Zurück" aus Einstellungen & Co.
   var installEvent = null;   // Angebot des Browsers, die App zu installieren
 
   var app = {
     currentDeck: "mine",
     browseDeckId: "mine",
-    quranTextId: null,
 
-    go: function (view) {
+    go: function (view, opts) {
+      if (view !== current && !(opts && opts.noHistory)) history.push(current);
+      if (history.length > 30) history.shift();
       current = view;
       var main = document.getElementById("main");
-      var v = AR.views[view] || (view === "deck" ? null : null);
       if (view === "deck") { AR.views.home.renderDeck(main, app.currentDeck); }
-      else if (view === "qurantext") { AR.views.quran.renderText(main, app.quranTextId); }
-      else if (view === "qurangrammar") { AR.views.quran.renderGrammar(main); }
       else if (AR.views[view]) { AR.views[view].render(main); }
-      else { AR.views.home.render(main); }
-      // Damit das Stylesheet je Ansicht anders layouten kann (auf dem iPad
-      // braucht eine Liste die volle Breite, eine Karteikarte nicht).
-      if (main) main.setAttribute("data-view", view);
+      else { current = "heute"; AR.views.heute.render(main); }
+      // Damit das Stylesheet je Ansicht anders layouten kann
+      if (main) main.setAttribute("data-view", current);
       // Ein Update, das während einer Lernrunde kam, greift jetzt
       if (updateWartet && darfNeuLaden()) { neuLaden(); return; }
-      updateTabs(view);
-      updateBadge();
+      updateTabs(current);
       window.scrollTo(0, 0);
-      if (main) main.scrollTop = 0;
+    },
+    back: function () {
+      var v = history.pop() || "heute";
+      app.go(v, { noHistory: true });
     },
 
     setDeck: function (id) {
@@ -41,7 +47,6 @@ window.AR = window.AR || {};
     },
     openDeck: function (id) { app.currentDeck = id; app.go("deck"); },
     browseDeck: function (id) { app.browseDeckId = id; app.go("browse"); },
-    openQuranText: function (id) { app.quranTextId = id; app.go("qurantext"); },
 
     isIOS: function () {
       return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
@@ -70,7 +75,7 @@ window.AR = window.AR || {};
         AR.ui.el("div", { class: "sheet-grip" }),
         title ? AR.ui.el("h3", { text: title, style: "margin:4px 0 12px" }) : null,
         node,
-        AR.ui.el("button", { class: "btn btn-ghost block", style: "margin-top:10px", onclick: closeSheet }, "Schließen")
+        AR.ui.el("button", { class: "btn btn-tinted block", style: "margin-top:14px", onclick: closeSheet }, "Schließen")
       ]);
       overlay.appendChild(sheet);
       document.body.appendChild(overlay);
@@ -79,49 +84,28 @@ window.AR = window.AR || {};
   function closeSheet() { var o = document.getElementById("overlay"); if (o) o.parentNode.removeChild(o); }
   app.closeSheet = closeSheet;
 
-  /* Die Zahl am Karten-Tab: was heute noch offen ist – dieselbe Zahl, die
-     „Heute" nennt. Vorher hing sie am zuletzt geöffneten Deck und sprang
-     beim Stöbern hin und her; als Hinweis auf offene Arbeit war sie damit
-     wertlos. */
-  function updateBadge() {
-    var badge = document.getElementById("dueBadge");
-    if (!badge) return;
-    try {
-      var offen = AR.path.todayPlan().cards.length;
-      if (offen > 0) { badge.textContent = offen > 99 ? "99+" : offen; badge.classList.remove("hidden"); }
-      else badge.classList.add("hidden");
-    } catch (e) { badge.classList.add("hidden"); }
-  }
-
   function updateTabs(view) {
-    var tabs = document.querySelectorAll(".tab");
-    Array.prototype.forEach.call(tabs, function (t) {
-      var v = t.getAttribute("data-view");
-      // Deck-Detail & Browser zählen zum Home-Tab
-      var match = v === view || (v === "home" && (view === "deck" || view === "browse" ||
-        view === "grammar" || view === "quran" || view === "qurantext" ||
-        view === "qurangrammar"));
-      t.classList.toggle("active", !!match);
+    // Einstellungen erreicht man von „Heute" und von „Mehr" – der Tab bleibt
+    if (view === "settings") return;
+    var tab = TAB_OF[view] || "mehr";
+    document.querySelectorAll(".tab").forEach(function (t) {
+      t.classList.toggle("active", t.getAttribute("data-view") === tab);
     });
   }
 
   function boot() {
     AR.store.load();
     AR.store.applyTheme();
-    AR.audio.init();
 
-    // Tab-Leiste
+    // Tab-Leiste: ein Tipp auf den aktiven Tab führt zu seiner Startseite
     document.querySelectorAll(".tab").forEach(function (t) {
       t.addEventListener("click", function () {
         var v = t.getAttribute("data-view");
-        if ((v === "flashcards" || v === "quiz")) { /* Deck beibehalten */ }
-        app.go(v);
+        if (v === "grammatik" && AR.views.grammatik.reset) AR.views.grammatik.reset();
+        history = [];
+        app.go(v, { noHistory: true });
       });
     });
-    var bs = document.getElementById("btnStats");
-    var bg = document.getElementById("btnSettings");
-    if (bs) bs.addEventListener("click", function () { app.go("stats"); });
-    if (bg) bg.addEventListener("click", function () { app.go("settings"); });
 
     // Globale Tastaturbedienung -> an aktuelle Ansicht weiterreichen
     document.addEventListener("keydown", function (e) {
@@ -135,41 +119,37 @@ window.AR = window.AR || {};
       if (mq.addEventListener) mq.addEventListener("change", function () { AR.store.applyTheme(); });
     }
 
-    // Bietet der Browser die Installation an, das Angebot aufheben und die
-    // Startseite neu zeichnen – dann steht dort ein echter Knopf statt einer
-    // Klickanleitung.
     window.addEventListener("beforeinstallprompt", function (e) {
       e.preventDefault();
       installEvent = e;
-      if (current === "home") app.go("home");
     });
     window.addEventListener("appinstalled", function () { installEvent = null; });
 
     // Service Worker (nur über http/https, nicht file://)
-    if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
+    // Auf localhost (Entwicklung) ohne Service Worker – sonst liefert er alte Dateien
+    if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0 &&
+        location.hostname !== "localhost") {
       navigator.serviceWorker.register("sw.js").catch(function () { /* offline optional */ });
       watchForUpdate();
     }
 
-    app.go("home");
+    // Neuer Tag, während die App offen im Hintergrund lag: Übersicht auffrischen
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "visible" && current === "heute") app.go("heute", { noHistory: true });
+    });
+
+    app.go("heute", { noHistory: true });
   }
 
   /* ---------- Neue Version übernehmen ----------
      Der Service Worker lädt eine neue Fassung im Hintergrund und übernimmt
-     sofort (skipWaiting + clients.claim). Die Seite, die gerade läuft, führt
-     aber weiter den alten Code aus — ohne das hier müsste man die App zweimal
-     öffnen, um die Neuerungen zu sehen.
-
-     Neu geladen wird erst, wenn es nicht stört: mitten in einer Lernrunde
-     wartet die App, bis die Runde verlassen wird. Der Lernfortschritt hängt
-     nicht daran, er steht nach jeder Bewertung im Speicher. */
+     sofort (skipWaiting + clients.claim). Neu geladen wird erst, wenn es
+     nicht stört: mitten in einer Lernrunde wartet die App. Der
+     Lernfortschritt hängt nicht daran, er steht nach jeder Antwort im
+     Speicher. */
   var updateWartet = false;
 
   function watchForUpdate() {
-    // Beim allerersten Besuch gibt es noch keinen Controller. Der erste
-    // Wechsel ist dann die Erstinstallation und kein Update – bei dem darf
-    // nicht neu geladen werden. Der Zuhörer hängt trotzdem von Anfang an
-    // dran, sonst würde ein Update in derselben Sitzung verpasst.
     var hatteController = !!navigator.serviceWorker.controller;
     navigator.serviceWorker.addEventListener("controllerchange", function () {
       if (!hatteController) { hatteController = true; return; }
@@ -180,10 +160,11 @@ window.AR = window.AR || {};
     });
   }
   function darfNeuLaden() {
+    if (current === "lernen" && AR.views.lernen.inSession()) return false;
+    if (current === "grammatik" && AR.views.grammatik.inSession()) return false;
     return current !== "flashcards" && current !== "quiz";
   }
   function neuLaden() {
-    // Erst den Fortschritt festschreiben, dann neu laden
     try { AR.store.saveNow(); } catch (e) {}
     location.reload();
   }

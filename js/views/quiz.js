@@ -8,7 +8,6 @@ AR.views = AR.views || {};
   var el = AR.ui.el, ui = AR.ui, store = AR.store, data = AR.data;
 
   var session = null;
-  var qmode = "see"; // see = Multiple Choice sehen | hear = Hörquiz
   function mainEl() { return document.getElementById("main"); }
 
   function start(deckId) {
@@ -30,12 +29,11 @@ AR.views = AR.views || {};
     session.answered = false; session.picked = null;
     if (session.remaining.length === 0) { session.current = null; return; }
     var c = session.remaining.shift();
-    // Im Hörquiz hört man Arabisch und wählt die deutsche Bedeutung
-    var dir = qmode === "hear" ? "ar2de" : data.resolveDirection();
+    var dir = data.resolveDirection();
     var correct = data.answerText(c, dir);
     var opts = data.distractors(c, dir, 3).concat([correct]);
     session.current = c; session.dir = dir; session.correct = correct;
-    session.options = data.shuffle(opts); session._spoke = null;
+    session.options = data.shuffle(opts);
   }
 
   function draw(main) {
@@ -52,37 +50,18 @@ AR.views = AR.views || {};
       el("span", { class: "progress-num muted", text: doneN + "/" + session.total })
     ]));
 
-    // Modus-Umschalter: Sehen / Hören
-    view.appendChild(el("div", { class: "seg", style: "margin:0 0 14px" }, [
-      segBtn("see", "👁 Sehen", main), segBtn("hear", "🔊 Hören", main)
-    ]));
+    view.appendChild(el("div", { style: "height:14px" }));
 
     if (!session.current) { view.appendChild(doneScreen()); AR.ui.clear(main).appendChild(view); return; }
 
-    var c = session.current, dir = session.dir, pcard, instr;
-    if (qmode === "hear") {
-      var play = el("button", { class: "btn btn-primary btn-lg", style: "min-width:190px;font-size:18px",
-        onclick: function () { AR.audio.speak(c.fusha); } }, "🔊  Anhören");
-      var inner = el("div", { class: "center stack", style: "align-items:center" }, [play]);
-      if (session.answered) {
-        inner.appendChild(ui.ar(data.cardAr(c), "prompt-ar"));
-        if (store.get("showSpoken") && c.spoken && data.stripHarakat(c.spoken) !== data.stripHarakat(c.fusha))
-          inner.appendChild(ui.ar(c.spoken, "spoken"));
-      } else {
-        inner.appendChild(el("div", { class: "muted", style: "font-size:13px", text: "Tippe zum Anhören" }));
-      }
-      pcard = el("div", { class: "card" }, inner);
-      instr = "Welches Wort hörst du?";
-      if (!session.answered && session._spoke !== c.id) { session._spoke = c.id; AR.audio.speak(c.fusha); }
-    } else {
-      var arPrompt = dir === "ar2de";
-      pcard = el("div", { class: "card" }, [
-        el("div", { class: "row wrap", style: "justify-content:center;gap:10px" }, [
-          el("div", { class: "q-prompt" + (arPrompt ? " ar" : ""), text: data.promptText(c, dir) })
-        ].concat(arPrompt ? [ui.speakButton(c.fusha)] : []))
-      ]);
-      instr = dir === "de2ar" ? "Wähle die arabische Übersetzung" : "Wähle die deutsche Bedeutung";
-    }
+    var c = session.current, dir = session.dir;
+    var arPrompt = dir === "ar2de";
+    var pcard = el("div", { class: "card" }, [
+      el("div", { class: "row wrap", style: "justify-content:center;gap:10px" }, [
+        el("div", { class: "q-prompt" + (arPrompt ? " ar" : ""), text: data.promptText(c, dir) })
+      ])
+    ]);
+    var instr = dir === "de2ar" ? "Wähle die arabische Übersetzung" : "Wähle die deutsche Bedeutung";
     view.appendChild(pcard);
     view.appendChild(el("div", { class: "muted center", style: "margin:10px 0", text: instr }));
 
@@ -108,15 +87,6 @@ AR.views = AR.views || {};
     AR.ui.clear(main).appendChild(view);
   }
 
-  function segBtn(id, label, main) {
-    return el("button", { class: qmode === id ? "active" : "", text: label,
-      onclick: function () {
-        if (id === qmode) return;
-        if (id === "hear" && !AR.audio.available()) { ui.toast("Audio auf diesem Gerät nicht verfügbar"); return; }
-        qmode = id; start(session.deckId); nextQ(); draw(main);
-      } });
-  }
-
   function pick(opt, main) {
     if (session.answered) return;
     session.answered = true;
@@ -125,7 +95,6 @@ AR.views = AR.views || {};
     store.grade(session.current.id, correct ? "good" : "again");
     if (correct) { session.right++; ui.toast("Richtig! 🎉"); }
     else { session.wrong++; }
-    if (store.get("audio")) AR.audio.speak(session.current.fusha);
     draw(main);
   }
 
@@ -139,7 +108,7 @@ AR.views = AR.views || {};
       buttons: [
         el("button", { class: "btn btn-primary block", onclick: function () { start(session.deckId); render(document.getElementById("main")); } }, "Nochmal"),
         el("button", { class: "btn block", onclick: function () { AR.app.go("flashcards"); } }, "Zu den Karten"),
-        el("button", { class: "btn btn-ghost block", onclick: function () { AR.app.go("home"); } }, "Startseite")
+        el("button", { class: "btn btn-ghost block", onclick: function () { AR.app.go("home"); } }, "Übersicht")
       ]
     });
   }

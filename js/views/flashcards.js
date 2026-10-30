@@ -105,7 +105,6 @@ AR.views = AR.views || {};
       front.appendChild(el("div", { class: "muted", text: typeLabel(c) }));
     } else {
       front.appendChild(ui.ar(data.cardAr(c), "prompt-ar"));
-      front.appendChild(ui.speakButton(c.fusha));
     }
     front.appendChild(el("div", { class: "tap-hint", text: "Tippen zum Umdrehen" }));
 
@@ -125,7 +124,7 @@ AR.views = AR.views || {};
     return flash;
   }
 
-  // Arabische Antwort (+ Verbformen, Sprechform, Audio)
+  // Arabische Antwort (+ Verbformen, Sprechform)
   function fillAnswer(c, small) {
     var box = el("div", { class: "stack", style: "align-items:center" });
     if (data.isVerb(c)) {
@@ -133,26 +132,6 @@ AR.views = AR.views || {};
       if (c.imperative) forms.push(vf("Befehlsform", c.imperative));
       box.appendChild(el("div", { class: "verb-forms" }, forms));
       if (c.prep || c.prepNote) box.appendChild(prepLine(c));
-      box.appendChild(el("div", { class: "answer-de", text: c.de, style: small ? "display:none" : "" }));
-    } else if (c.type === "quran") {
-      // Quranwörter immer voll vokalisiert, dazu Wurzel und Häufigkeit
-      box.appendChild(ui.ar(data.cardAr(c), small ? "prompt-ar" : "answer-ar"));
-      var meta = [];
-      if (c.root && c.root !== "—") {
-        meta.push(el("span", { class: "chip" }, [
-          el("span", { class: "muted", style: "font-size:11px", text: "Wurzel " }),
-          ui.ar(c.root)
-        ]));
-      }
-      if (c.freq) {
-        meta.push(el("span", { class: "chip", text: c.freq + "× im Quran" }));
-      }
-      if (c.also) {
-        meta.push(el("span", { class: "chip accent", text: "auch im Alltag" }));
-      }
-      if (meta.length) {
-        box.appendChild(el("div", { class: "row", style: "gap:6px;flex-wrap:wrap;justify-content:center" }, meta));
-      }
       box.appendChild(el("div", { class: "answer-de", text: c.de, style: small ? "display:none" : "" }));
     } else if (c.type === "adjective" && c.feminine) {
       box.appendChild(el("div", { class: "noun-forms" }, [
@@ -175,7 +154,6 @@ AR.views = AR.views || {};
     if (c.example) box.appendChild(el("div", { class: "muted", style: "font-size:13px;text-align:center", text: "z.B. " + c.example }));
     if (c.note) box.appendChild(noteLine(c.note));
     box.appendChild(el("div", { class: "row", style: "gap:10px;justify-content:center" }, [
-      ui.speakButton(c.fusha),
       ui.reportButton(c)
     ]));
     return box;
@@ -260,7 +238,7 @@ AR.views = AR.views || {};
     });
     var box = el("div", { class: "example" }, [
       el("div", { class: "row", style: "justify-content:center;gap:8px" }, [
-        el("span", { class: "ex-label", text: "Im Satz" }), AR.ui.speakButton(ex.fusha)
+        el("span", { class: "ex-label", text: "Im Satz" })
       ]),
       line,
       el("div", { class: "ex-de", text: ex.gesamt || ex.de })
@@ -274,7 +252,7 @@ AR.views = AR.views || {};
       conjunction: "Konjunktion", question: "Frage/Pronomen" }[c.type] || "";
   }
 
-  function flip(main) { session.flipped = true; draw(main); if (store.get("audio")) AR.audio.speak(session.current.fusha); }
+  function flip(main) { session.flipped = true; draw(main); }
 
   function gradeBtn(g, label, main) {
     var sub = store.previewInterval(session.current.id, g);
@@ -313,7 +291,7 @@ AR.views = AR.views || {};
           start(session.deckId); render(document.getElementById("main"));
         } }, "Weiter lernen"),
         el("button", { class: "btn block", onclick: function () { AR.app.go("quiz"); } }, "Zum Quiz"),
-        el("button", { class: "btn btn-ghost block", onclick: function () { AR.app.go("home"); } }, "Zur Startseite")
+        el("button", { class: "btn btn-ghost block", onclick: function () { AR.app.go("home"); } }, "Zur Übersicht")
       ]
     });
   }

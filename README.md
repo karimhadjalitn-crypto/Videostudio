@@ -1,4 +1,27 @@
-# Arabisch lernen 🕌
+# Quran-Wortschatz 📖
+
+Lern-App für die **Vokabeln des Quran** – jeden Tag ein paar neue Wörter, die
+häufigsten zuerst. Dazu die Grundgrammatik, die man zum Erkennen der Wörter braucht.
+
+## Quran-Teil (Tabs Heute · Wörter · Grammatik)
+
+- **~1000 Wörter**, nach Häufigkeit im Quran sortiert (Quranic Arabic Corpus),
+  in vier Stufen: sehr häufig (100×+), häufig (30–99×), mittel (10–29×), selten (unter 10×).
+- **Täglich 5 neue Wörter** (in den Einstellungen änderbar, ab 31.10.2026).
+  Ein verpasster Tag stapelt sich nicht. Wiederholen ist freiwillig.
+- **Karte:** Wort in uthmanischer Schreibweise wie im Mushaf, deutsche Bedeutung,
+  bei Verben Vergangenheit, Präsens und Masdar.
+- **Grammatik:** 24 kurze Lektionen (Präfixe & Suffixe, Verbkonjugation,
+  Nomen-Grundlagen) mit Quran-Beispielen und Übungen.
+- **Schrift:** KFGQPC Uthmanic Script Hafs (King Fahd Complex), in der App eingebettet.
+- Daten: `data/quran-vocab.js`, `data/quran-grammar.js`. Fortschritt nur lokal (localStorage).
+
+## Alltagsarabisch (Tab „Mehr")
+
+Der bisherige Teil der App bleibt unter „Mehr“ erreichbar (ohne Sprachausgabe).
+Die folgende Beschreibung gilt für diesen Teil.
+
+---
 
 Eine schlichte, übersichtliche Lern-App für Arabisch (**Fuṣḥā** und Sprechform „nah an Fuṣḥā"),
 aufgebaut aus deinem Lehrbuch und deiner eigenen Vokabelliste.
@@ -14,7 +37,6 @@ Wiederholungssystem · eigene Wörter hinzufügen · installierbar als App (offl
   große Ausbau vom September, alles zusammengeführt
   (288 Verben, 625 Nomen, 182 Adjektive, 28 Zahlen, 79 Wendungen,
   Präpositionen, Konjunktionen, Fragewörter).
-- **343 Quran-Vokabeln** in fünf Stufen, dazu 16 Texte Wort für Wort – eigener Tab.
 - **100 Satzmuster** mit Wort-für-Wort-Übersetzung.
 - **20 Redewendungen** und eine vollständige Verb-Konjugationstabelle.
 - Jede **Verb-Karte** zeigt **Vergangenheit + Präsens + Zukunft + Befehlsform** zusammen
@@ -25,10 +47,6 @@ Wiederholungssystem · eigene Wörter hinzufügen · installierbar als App (offl
 - Wo es einen Sonderfall gibt (Zahl-Kongruenz, Anrede an eine Frau, zweite
   Bedeutung), steht ein **kurzer Hinweis** unter der Antwort.
 - Wo möglich ein **Beispielsatz** auf der Karte, mit hervorgehobenem Wort (aus den 100 Satzmustern).
-- **Audio** über die Stimme des Geräts, mit Auswahl, falls mehrere arabische
-  Stimmen installiert sind. Ist keine da, steht in den Einstellungen, wo man
-  sie herbekommt (iPhone-Einstellungen › Bedienungshilfen › Gesprochene Inhalte
-  › Stimmen › Arabisch).
 
 ### Decks
 - Verben (288)

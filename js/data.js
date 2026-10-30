@@ -5,7 +5,7 @@ window.AR = window.AR || {};
 (function (AR) {
   "use strict";
 
-  var D = window.APPDATA || { vocab: [], sentences: [], idioms: [], grammar: {}, meta: {}, quran: null };
+  var D = window.APPDATA || { vocab: [], sentences: [], idioms: [], grammar: {}, meta: {} };
 
   var EMOJI = {
     "Verben": "🏃", "Familie und Menschen": "👪", "Haus und Alltag": "🏠",
@@ -60,68 +60,9 @@ window.AR = window.AR || {};
       cards: function () { return AR.path.todayPlan().cards; } };
     if (id === "weak") return { id: "weak", name: "Schwierige Wörter", emoji: "🔥", cards: weakCards };
     if (id === "fav") return { id: "fav", name: "Favoriten", emoji: "⭐", cards: favCards };
-    if (id && id.indexOf("quran") === 0) return quranDeck(id);
     var ds = decks();
     for (var i = 0; i < ds.length; i++) if (ds[i].id === id) return ds[i];
     return ds[0];
-  }
-
-  /* ---------- Quran ----------
-     Die Quranwörter werden als Karten im gewohnten Format bereitgestellt,
-     damit Karteikarten, Quiz und Fortschritt unverändert damit arbeiten.
-     Sie bleiben aber aus allCards() heraus: der Quran-Wortschatz soll den
-     Alltagswortschatz nicht verwässern, er ist ein eigener Bereich. */
-  var Q = D.quran || { words: [], texts: [], meta: {} };
-  var LEVEL_NAMES = {
-    1: "Die häufigsten Wörter",
-    2: "Nomen",
-    3: "Verben",
-    4: "Eigenschaften & Gottesnamen",
-    5: "Aus den Gebetstexten"
-  };
-
-  var quranCache = null;
-  function quranCards() {
-    if (quranCache) return quranCache;
-    quranCache = (Q.words || []).map(function (w) {
-      return {
-        id: w.id, de: w.de, fusha: w.ar, type: "quran",
-        category: "Quran – Stufe " + w.level,
-        level: w.level, root: w.root, freq: w.freq, also: w.also
-      };
-    });
-    return quranCache;
-  }
-  function quranLevels() {
-    var counts = {};
-    quranCards().forEach(function (c) { counts[c.level] = (counts[c.level] || 0) + 1; });
-    return Object.keys(counts).sort().map(function (lv) {
-      return { level: +lv, count: counts[lv], name: LEVEL_NAMES[lv] || ("Stufe " + lv) };
-    });
-  }
-  function quranDeck(id) {
-    var lv = id.indexOf(":") > 0 ? parseInt(id.split(":")[1], 10) : 0;
-    if (!lv) {
-      return { id: "quran", name: "Quran-Wortschatz", emoji: "📖",
-        cards: function () { return quranCards(); } };
-    }
-    return {
-      id: id, name: "Stufe " + lv + " – " + (LEVEL_NAMES[lv] || ""), emoji: "📖",
-      cards: function () {
-        return quranCards().filter(function (c) { return c.level === lv; });
-      }
-    };
-  }
-  function quranTexts() { return Q.texts || []; }
-  function quranTextById(id) {
-    var t = quranTexts();
-    for (var i = 0; i < t.length; i++) if (t[i].id === id) return t[i];
-    return null;
-  }
-  function quranWordById(id) {
-    var w = quranCards();
-    for (var i = 0; i < w.length; i++) if (w[i].id === id) return w[i];
-    return null;
   }
 
   // Karten mit Fehlern oder niedriger Box (schwach), stärkste Schwäche zuerst
@@ -150,18 +91,11 @@ window.AR = window.AR || {};
   function arText(s) {
     return AR.store.get("showHarakat") ? s : stripHarakat(s);
   }
-  /* Quran-Text immer vollständig vokalisiert – die Einstellung
-     „Harakat ausblenden" gilt bewusst nur für den Alltagswortschatz. */
-  function quranText(s) { return s; }
 
   function isVerb(c) { return c.type === "verb"; }
-  function isQuran(c) { return c.type === "quran"; }
 
-  /* Arabisch einer Karte: Quranwörter behalten ihre Vokalzeichen immer,
-     beim Alltagswortschatz entscheidet die Einstellung. */
   function cardAr(card, s) {
-    var txt = s || (card && card.fusha) || "";
-    return (card && card.type === "quran") ? txt : arText(txt);
+    return arText(s || (card && card.fusha) || "");
   }
 
   /* ---------- Befehlsform (Imperativ) aus dem Präsens ----------
@@ -311,9 +245,7 @@ window.AR = window.AR || {};
   /* Distraktoren fürs Quiz: 3 andere Antworten, möglichst gleiche Wortart/Kategorie */
   function distractors(card, dir, n) {
     n = n || 3;
-    // Falsche Antworten aus demselben Trakt ziehen: bei einer Quranvokabel
-    // waeren Alltagswoerter als Ablenker zu leicht zu erkennen.
-    var source = (card.type === "quran") ? quranCards() : allCards();
+    var source = allCards();
     // Karten mit demselben arabischen Wort fallen raus. حَتَّى steht z.B.
     // zweimal drin (als Vorwort und als Konjunktion) – als falsche Antwort
     // waere es in Wahrheit richtig.
@@ -389,11 +321,8 @@ window.AR = window.AR || {};
     meta: D.meta || {},
     allCards: allCards, byId: byId,
     decks: decks, deckById: deckById, weakCards: weakCards, favCards: favCards,
-    stripHarakat: stripHarakat, arText: arText, quranText: quranText,
-    isVerb: isVerb, isQuran: isQuran, cardAr: cardAr,
-    quran: Q, quranCards: quranCards, quranLevels: quranLevels,
-    quranTexts: quranTexts, quranTextById: quranTextById,
-    quranWordById: quranWordById,
+    stripHarakat: stripHarakat, arText: arText,
+    isVerb: isVerb, cardAr: cardAr,
     deriveImperative: deriveImperative,
     derivePausal: derivePausal, deriveFeminine: deriveFeminine,
     resolveDirection: resolveDirection, distractors: distractors,

@@ -19,7 +19,11 @@ AR.views = AR.views || {};
     var g = store.goalProgress(data.allCards());
     var streak = store.streak();
 
-    var view = el("div", { class: "view home" });
+    var outer = el("div", { class: "view" });
+    outer.appendChild(ui.backBar("Mehr", function () { AR.app.go("mehr"); }));
+    outer.appendChild(ui.largeTitle("Alltagsarabisch"));
+    var view = el("div", { class: "home" });
+    outer.appendChild(view);
     /* Zwei Spalten auf dem Tablet: links der Einstieg (Heute, Serie,
        Schnellzugriff), rechts Suche und Decks. Auf dem Handy stehen beide
        Blöcke wie bisher untereinander. */
@@ -60,12 +64,6 @@ AR.views = AR.views || {};
       ])
     ]));
 
-    /* Hinweis zum Installieren (einmal, ausblendbar). Gilt für jedes Gerät –
-       vorher nur fürs iPhone, auf Android stand gar nichts da. */
-    if (!AR.app.isStandalone() && !localStorage.getItem("installHintDismissed")) {
-      oben.appendChild(installHint());
-    }
-
     /* Schnellzugriff – der große Einstieg sitzt jetzt oben in „Heute“ */
     var quick = el("div", { class: "row", style: "gap:10px;margin-top:10px" }, [
       el("button", { class: "btn block", onclick: function () { AR.app.setDeck("mine"); AR.app.go("flashcards"); } }, "🃏 Karten"),
@@ -87,7 +85,7 @@ AR.views = AR.views || {};
     unten.appendChild(body);
     renderDefault(body, mine, mineCards, c);
 
-    AR.ui.clear(main).appendChild(view);
+    AR.ui.clear(main).appendChild(outer);
   }
 
   /* ---------- Heute ----------
@@ -144,7 +142,7 @@ AR.views = AR.views || {};
     var gbox = el("div", { class: "goal-box" });
     goals.forEach(function (g) {
       gbox.appendChild(el("button", { class: "goal-row", onclick: function () {
-        AR.app.go(g.id === "quran" ? "quran" : "stats");
+        AR.app.go("stats");
       } }, [
         el("div", { class: "row", style: "justify-content:space-between;gap:8px" }, [
           el("span", { style: "font-size:13px;font-weight:600", text: g.label }),
@@ -185,29 +183,9 @@ AR.views = AR.views || {};
     grid.appendChild(deckCard(data.deckById("all")));
     body.appendChild(grid);
 
-    /* Quran-Bereich – eigener Trakt, prominent über der Grammatik */
-    var qc = data.quranCards();
-    if (qc.length) {
-      var q = store.counts(qc);
-      var qpct = q.total ? Math.round(q.gekonnt / q.total * 100) : 0;
-      body.appendChild(el("div", { class: "section-title", text: "Quran" }));
-      body.appendChild(el("button", { class: "deck quran-entry", style: "width:100%",
-        onclick: function () { AR.app.go("quran"); } }, [
-        el("div", { class: "row", style: "justify-content:space-between" }, [
-          el("span", { class: "emoji", text: "📖" }),
-          el("span", { class: "badge", style: "background:rgba(255,255,255,.25);color:#fff",
-            text: q.total + " Wörter" })
-        ]),
-        el("div", { class: "name", text: "Quran verstehen" }),
-        ui.progressBar(qpct, ""),
-        el("div", { class: "sub", text: q.gekonnt + " gekonnt · " +
-          data.quranTexts().length + " Texte Wort für Wort" })
-      ]));
-    }
-
     body.appendChild(el("div", { class: "section-title", text: "Grammatik" }));
     body.appendChild(el("button", { class: "deck", style: "width:100%",
-      onclick: function () { AR.app.go("grammar"); } }, [
+      onclick: function () { AR.app.go("oldgrammar"); } }, [
       el("div", { class: "row" }, [
         el("span", { class: "emoji", text: "📖" }),
         el("div", {}, [
@@ -221,9 +199,7 @@ AR.views = AR.views || {};
   function renderResults(body, q) {
     AR.ui.clear(body);
     var ql = q.toLowerCase(), qbare = data.stripHarakat(q);
-    // Auch die Quranwörter durchsuchen. Sie sind ein eigener Bereich, aber
-    // wer ein Wort sucht, sucht das Wort – nicht den Bereich.
-    var res = data.allCards().concat(data.quranCards()).filter(function (card) {
+    var res = data.allCards().filter(function (card) {
       return card.de.toLowerCase().indexOf(ql) >= 0 ||
         data.stripHarakat(card.fusha).indexOf(qbare) >= 0 || card.fusha.indexOf(q) >= 0;
     }).slice(0, 60);
@@ -237,16 +213,14 @@ AR.views = AR.views || {};
       list.appendChild(el("div", { class: "row", style: "justify-content:space-between;gap:10px;border-bottom:1px solid var(--border);padding-bottom:8px" }, [
         el("div", { style: "min-width:0" }, [
           el("div", { class: "row", style: "gap:6px" }, [
-            el("span", { style: "font-weight:600", text: card.de }),
-            data.isQuran(card) ? el("span", { class: "chip gold",
-              style: "font-size:10px;padding:2px 7px", text: "Quran" }) : null
+            el("span", { style: "font-weight:600", text: card.de })
           ]),
           el("div", { class: "row", style: "gap:8px" }, [
             ui.ar(data.cardAr(card)),
             data.isVerb(card) ? ui.ar(data.arText(card.present), "") : document.createComment("x")
           ])
         ]),
-        el("div", { class: "row", style: "gap:2px" }, [ ui.speakButton(card.fusha), ui.starButton(card.id) ])
+        el("div", { class: "row", style: "gap:2px" }, [ ui.starButton(card.id) ])
       ]));
     });
     body.appendChild(list);
@@ -303,8 +277,7 @@ AR.views = AR.views || {};
     var pct = c.total ? Math.round(c.gekonnt / c.total * 100) : 0;
 
     var view = el("div", { class: "view" });
-    view.appendChild(el("button", { class: "link", style: "margin-bottom:10px",
-      onclick: function () { AR.app.go("home"); }, text: "‹ Zurück" }));
+    view.appendChild(ui.backBar("Übersicht", function () { AR.app.go("home"); }));
 
     view.appendChild(el("div", { class: "card stack" }, [
       el("div", { class: "row" }, [

@@ -1,16 +1,23 @@
 /* Service Worker – Offline-Cache für die Lern-App */
-var CACHE = "arabisch-lernen-v15";
+var CACHE = "quran-wortschatz-v1";
 var ASSETS = [
   "./",
   "index.html",
   "manifest.webmanifest",
   "css/styles.css",
+  "assets/fonts/kfgqpc-hafs.woff2",
   "data/appdata.js",
+  "data/quran-vocab.js",
+  "data/quran-grammar.js",
   "js/store.js",
   "js/data.js",
   "js/path.js",
-  "js/audio.js",
+  "js/qplan.js",
   "js/ui.js",
+  "js/views/heute.js",
+  "js/views/woerter.js",
+  "js/views/grammatik.js",
+  "js/views/mehr.js",
   "js/views/home.js",
   "js/views/flashcards.js",
   "js/views/quiz.js",
@@ -19,7 +26,6 @@ var ASSETS = [
   "js/views/stats.js",
   "js/views/settings.js",
   "js/views/extra.js",
-  "js/views/quran.js",
   "js/app.js",
   "assets/icons/icon.svg",
   "assets/icons/icon-192.png",
