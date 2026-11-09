@@ -48,7 +48,11 @@ self.addEventListener("install", function (e) {
 self.addEventListener("activate", function (e) {
   e.waitUntil(
     caches.keys().then(function (keys) {
-      return Promise.all(keys.map(function (k) { if (k !== CACHE) return caches.delete(k); }));
+      return Promise.all(keys.map(function (k) {
+        // Caches der anderen Apps auf derselben Domain (Tagesplan, Mizan) in Ruhe lassen
+        if (k === CACHE || k.indexOf("tagesplan-") === 0 || k.indexOf("mizan-") === 0) return;
+        return caches.delete(k);
+      }));
     }).then(function () { return self.clients.claim(); })
   );
 });
