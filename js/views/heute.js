@@ -94,7 +94,7 @@ AR.views = AR.views || {};
   }
 
   function progressCard() {
-    var learned = qp.learnedCount(), total = qp.words().length, cov = qp.coverage();
+    var learned = qp.learnedCount(), total = qp.allWords().length, cov = qp.coverage();
     var streak = qp.streak();
     var card = el("div", { class: "card stack" });
     card.appendChild(el("div", { class: "card-t", text: "Fortschritt" }));

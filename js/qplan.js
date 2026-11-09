@@ -1,8 +1,9 @@
 /* ============================================================
    qplan.js – Quran-Wortschatz: Tagesplan, Kategorien, Wiederholung
 
-   Jeden Tag kommen die nächsten N Wörter nach Häufigkeit dran
-   (N = Einstellung „Neue Wörter pro Tag", Standard 5). Ein verpasster
+   Jeden Tag kommen die nächsten N Wörter dran (N = Einstellung „Neue
+   Wörter pro Tag", Standard 10): zuerst die eigene Liste in ihrer
+   Reihenfolge, danach die übrigen nach Häufigkeit. Ein verpasster
    Tag stapelt sich nicht: Am nächsten Tag gibt es wieder N – die
    liegengebliebenen sind einfach die ersten davon, weil sie in der
    Häufigkeitsreihenfolge vorne stehen.
@@ -15,8 +16,13 @@ window.AR = window.AR || {};
   "use strict";
 
   var V = (window.QVOCAB && window.QVOCAB.words) || [];
+  /* Die eigene Liste (10er-Gruppen) kommt vor allen anderen Wörtern dran,
+     in ihrer Reihenfolge – auch Wörter, die schon gelernt wurden. Danach
+     geht es mit dem Häufigkeitswortschatz weiter. Doppelte sind gewollt. */
+  var L = (window.QLIST && window.QLIST.words) || [];
+  var SEQ = L.concat(V);
   var byIdMap = {};
-  V.forEach(function (w) { byIdMap[w.id] = w; });
+  SEQ.forEach(function (w) { byIdMap[w.id] = w; });
 
   /* Vier Häufigkeitsstufen nach Vorkommen im Quran */
   var CATS = [
@@ -33,6 +39,8 @@ window.AR = window.AR || {};
   }
 
   function words() { return V; }
+  function listWords() { return L; }
+  function allWords() { return SEQ; }
   function byId(id) { return byIdMap[id] || null; }
   function inCat(id) { return V.filter(function (w) { return catOf(w) === id; }); }
 
@@ -55,7 +63,7 @@ window.AR = window.AR || {};
 
   function dailyNew() {
     var n = parseInt(AR.store.get("dailyNew"), 10);
-    return isFinite(n) && n > 0 ? Math.min(n, 50) : 5;
+    return isFinite(n) && n > 0 ? Math.min(n, 50) : 10;
   }
   function isLearned(id) { return !!AR.store.q().learned[id]; }
 
@@ -73,8 +81,8 @@ window.AR = window.AR || {};
     if (list.length < n) {
       var have = {};
       list.forEach(function (id) { have[id] = true; });
-      for (var i = 0; i < V.length && list.length < n; i++) {
-        var w = V[i];
+      for (var i = 0; i < SEQ.length && list.length < n; i++) {
+        var w = SEQ[i];
         if (!have[w.id] && !isLearned(w.id)) { list.push(w.id); changed = true; }
       }
     } else if (list.length > n) {
@@ -110,7 +118,7 @@ window.AR = window.AR || {};
   }
 
   /* ---------- Freiwillige Wiederholung ---------- */
-  function learnedWords() { return V.filter(function (w) { return isLearned(w.id); }); }
+  function learnedWords() { return SEQ.filter(function (w) { return isLearned(w.id); }); }
   function dueWords() {
     var now = Date.now();
     return learnedWords().filter(function (w) {
@@ -147,7 +155,8 @@ window.AR = window.AR || {};
   }
 
   AR.qplan = {
-    CATS: CATS, catOf: catOf, words: words, byId: byId, inCat: inCat,
+    CATS: CATS, catOf: catOf, words: words, listWords: listWords, allWords: allWords,
+    byId: byId, inCat: inCat,
     dayKey: dayKey, started: started, startLabel: startLabel,
     dailyNew: dailyNew, today: today, isLearned: isLearned,
     markLearned: markLearned, markMissed: markMissed,

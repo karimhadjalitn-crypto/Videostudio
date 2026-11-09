@@ -12,7 +12,7 @@ window.AR = window.AR || {};
     direction: "mix",      // de2ar | ar2de | mix
     showSpoken: true,      // Sprechform anzeigen
     showHarakat: true,     // Vokalzeichen anzeigen
-    dailyNew: 5,           // Quran: neue Wörter pro Tag
+    dailyNew: 10,          // Quran: neue Wörter pro Tag
     qStart: "2026-10-31",  // Quran: erster Lerntag
     sessionSize: 20,
     goal: 100,             // Lernziel: so viele Wörter sollen „gekonnt" werden
@@ -49,6 +49,17 @@ window.AR = window.AR || {};
       }
       // Stimme gibt es nicht mehr – alte Einstellungen nicht mitschleppen
       delete state.settings.audio; delete state.settings.voiceURI;
+      // Umstellung auf die eigene Liste (einmalig): 10 Wörter am Tag, und der
+      // heutige Plan wird neu gebildet, damit er mit der Liste beginnt.
+      // Gelerntes und Wiederholungen bleiben erhalten.
+      if (raw && !state.q.listV1) {
+        state.settings.dailyNew = 10;
+        var now = new Date(), p = function (n) { return n < 10 ? "0" + n : "" + n; };
+        delete state.q.days[now.getFullYear() + "-" + p(now.getMonth() + 1) + "-" + p(now.getDate())];
+        state.q.listV1 = true;
+        save();
+      }
+      state.q.listV1 = true;
     } catch (e) { console.warn("Konnte Fortschritt nicht laden:", e); }
     // Altlasten aus der Zeit, als jede angesehene Liste leere Eintraege anlegte
     if (compact()) save();
@@ -331,16 +342,20 @@ window.AR = window.AR || {};
   function isFav(id) { return !!state.favorites[id]; }
   function favCount() { return Object.keys(state.favorites).length; }
 
+  // Quran-Karten: qv… (Häufigkeitswortschatz), ql… (eigene Liste)
+  function isQuranId(id) { return id.indexOf("qv") === 0 || id.indexOf("ql") === 0; }
+
   /* Setzt nur den Alltagsteil zurück – der Quran-Fortschritt hat einen
      eigenen Knopf, damit man nicht aus Versehen beides verliert. */
   function resetProgress() {
-    for (var id in state.srs) if (id.indexOf("qv") !== 0) delete state.srs[id];
+    for (var id in state.srs) if (!isQuranId(id)) delete state.srs[id];
     state.stats = { studyDates: {}, totalReviews: 0 };
     saveNow();
   }
   function resetQuran() {
-    for (var id in state.srs) if (id.indexOf("qv") === 0) delete state.srs[id];
+    for (var id in state.srs) if (isQuranId(id)) delete state.srs[id];
     state.q = freshQ();
+    state.q.listV1 = true;
     saveNow();
   }
   function exportData() {

@@ -1,5 +1,5 @@
 /* ============================================================
-   views/woerter.js – Quran-Wortschatz nach Häufigkeit
+   views/woerter.js – Eigene Liste und Quran-Wortschatz nach Häufigkeit
    ============================================================ */
 window.AR = window.AR || {};
 AR.views = AR.views || {};
@@ -7,20 +7,23 @@ AR.views = AR.views || {};
   "use strict";
   var el = AR.ui.el, ui = AR.ui, qp = AR.qplan, data = AR.data;
 
-  var cat = 0;        // 0 = alle, sonst 1–4
+  // "L" = eigene Liste, 0 = alle nach Häufigkeit, sonst Stufe 1–4
+  var cat = qp.listWords().length ? "L" : 0;
   var query = "";
 
   function render(main) {
     var view = el("div", { class: "view" });
-    view.appendChild(ui.largeTitle("Wörter", qp.words().length + " Wörter, nach Häufigkeit sortiert"));
+    view.appendChild(ui.largeTitle("Wörter", (qp.listWords().length ? qp.listWords().length + " aus deiner Liste · " : "") +
+      qp.words().length + " nach Häufigkeit"));
 
     var search = el("input", { type: "search", class: "searchfield", enterkeyhint: "search",
       placeholder: "Suchen – Deutsch oder Arabisch", value: query });
     view.appendChild(search);
 
     var chips = el("div", { class: "chip-scroll" });
-    [{ id: 0, name: "Alle" }].concat(qp.CATS).forEach(function (c) {
-      var n = c.id ? qp.inCat(c.id).length : qp.words().length;
+    var first = qp.listWords().length ? [{ id: "L", name: "Meine Liste" }] : [];
+    first.concat([{ id: 0, name: "Alle" }], qp.CATS).forEach(function (c) {
+      var n = c.id === "L" ? qp.listWords().length : c.id ? qp.inCat(c.id).length : qp.words().length;
       chips.appendChild(el("button", { class: "fchip" + (cat === c.id ? " on" : ""),
         onclick: function () { cat = c.id; render(main); } }, [
         c.name, el("span", { class: "fchip-n", text: n })
@@ -35,16 +38,17 @@ AR.views = AR.views || {};
 
     function draw() {
       AR.ui.clear(body);
-      var c = cat ? qp.CATS[cat - 1] : null;
-      var words = cat ? qp.inCat(cat) : qp.words();
+      var c = (cat && cat !== "L") ? qp.CATS[cat - 1] : null;
+      var words = cat === "L" ? qp.listWords() : cat ? qp.inCat(cat) : qp.words();
       var learned = words.filter(function (w) { return qp.isLearned(w.id); }).length;
-      info.textContent = (c ? c.range + " im Quran · " : "") + learned + " von " + words.length + " gelernt";
+      info.textContent = (cat === "L" ? "Wird zuerst gelernt, in dieser Reihenfolge · " : c ? c.range + " im Quran · " : "") +
+        learned + " von " + words.length + " gelernt";
 
       var q = query.trim().toLowerCase(), qb = arKeys(query.trim().replace(/^[ٱا]ل(?=..)/, ""))[0];
       if (q) {
         // Gesucht wird immer im ganzen Wortschatz, nicht nur in der gewählten Stufe
-        info.textContent = "Suche in allen " + qp.words().length + " Wörtern";
-        words = qp.words().filter(function (w) {
+        info.textContent = "Suche in allen Wörtern";
+        words = qp.allWords().filter(function (w) {
           if (w.de.toLowerCase().indexOf(q) >= 0) return true;
           if (!qb) return false;
           var k = arKeys(w.ar);
@@ -77,7 +81,7 @@ AR.views = AR.views || {};
       el("span", { class: "wr-dot" + (learned ? " ok" : "") }),
       el("div", { class: "lr-main" }, [
         el("div", { class: "lr-t", text: w.de }),
-        el("div", { class: "lr-s", text: w.count + "×" })
+        el("div", { class: "lr-s", text: w.list ? "Meine Liste · Gruppe " + w.group : w.count + "×" })
       ]),
       ui.ar(w.ar, "wr-ar")
     ]);

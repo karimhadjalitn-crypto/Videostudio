@@ -150,7 +150,7 @@ window.AR = window.AR || {};
     AR.app.sheet(null, el("div", { class: "stack" }, [
       qcard(w, true),
       el("div", { class: "muted small center", text: (learned ? "✓ gelernt · " : "") +
-        w.count + "× im Quran · Rang " + w.rank })
+        (w.list ? "Meine Liste · Gruppe " + w.group : w.count + "× im Quran · Rang " + w.rank) })
     ]));
   }
 

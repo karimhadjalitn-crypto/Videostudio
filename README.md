@@ -7,7 +7,9 @@ häufigsten zuerst. Dazu die Grundgrammatik, die man zum Erkennen der Wörter br
 
 - **~1000 Wörter**, nach Häufigkeit im Quran sortiert (Quranic Arabic Corpus),
   in vier Stufen: sehr häufig (100×+), häufig (30–99×), mittel (10–29×), selten (unter 10×).
-- **Täglich 5 neue Wörter** (in den Einstellungen änderbar, ab 31.10.2026).
+- **Täglich 10 neue Wörter** (in den Einstellungen änderbar). Zuerst kommt die
+  eigene Liste (`data/quran-list.js`, 110 Wörter in 10er-Gruppen) in ihrer
+  Reihenfolge, danach die übrigen Wörter nach Häufigkeit. Doppelte sind gewollt.
   Ein verpasster Tag stapelt sich nicht. Wiederholen ist freiwillig.
 - **Karte:** Wort in uthmanischer Schreibweise wie im Mushaf, deutsche Bedeutung,
   bei Verben Vergangenheit, Präsens und Masdar.

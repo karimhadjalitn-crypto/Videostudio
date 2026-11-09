@@ -1,5 +1,5 @@
 /* Service Worker – Offline-Cache für die Lern-App */
-var CACHE = "quran-wortschatz-v1";
+var CACHE = "quran-wortschatz-v2";
 var ASSETS = [
   "./",
   "index.html",
@@ -8,6 +8,7 @@ var ASSETS = [
   "assets/fonts/kfgqpc-hafs.woff2",
   "data/appdata.js",
   "data/quran-vocab.js",
+  "data/quran-list.js",
   "data/quran-grammar.js",
   "js/store.js",
   "js/data.js",
