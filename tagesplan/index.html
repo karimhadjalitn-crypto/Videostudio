@@ -131,6 +131,29 @@
     .task-note { color: var(--muted); font-size: 0.88rem; white-space: pre-wrap; overflow-wrap: anywhere; }
     .task-date { color: var(--warn); font-size: 0.8rem; font-weight: 600; }
     .task.done .task-title { text-decoration: line-through; color: var(--muted); }
+    .task-title.rep::after { content: " ↻"; color: var(--muted); font-size: 0.85em; } /* wiederkehrend */
+
+    /* ============ Wiederkehrende Aufgaben (Vorlagen) ============ */
+    .tpl-list { list-style: none; margin: 0 0 12px; padding: 0; max-height: 55vh; overflow-y: auto; }
+    .tpl-list button {
+      width: 100%; min-height: 52px; text-align: left; border: 0; border-bottom: 1px solid var(--line);
+      background: transparent; padding: 8px 2px; display: flex; flex-direction: column; justify-content: center;
+    }
+    .tpl-days { color: var(--muted); font-size: 0.85rem; }
+    .weekdays { display: flex; flex-wrap: wrap; gap: 6px; border: 0; padding: 0; margin: 12px 0; }
+    .weekdays legend { font-size: 0.85rem; font-weight: 600; color: var(--muted); margin-bottom: 4px; padding: 0; }
+    .weekdays { flex-wrap: nowrap; gap: 4px; }
+    .weekdays label { position: relative; flex: 1 1 0; min-width: 0; }
+    .weekdays input { position: absolute; opacity: 0; inset: 0; margin: 0; }
+    .weekdays span {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 100%; min-height: 44px; border-radius: 12px; border: 1px solid var(--line);
+      background: var(--bg); font-weight: 600;
+    }
+    .weekdays input:checked + span { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+    .weekdays input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .check-row { display: flex; align-items: center; gap: 10px; min-height: 44px; }
+    .check-row input { width: 22px; height: 22px; accent-color: var(--accent); }
 
     /* ============ Eingabe „Neue Aufgabe" ============ */
     .add { display: flex; gap: 8px; margin: 8px 0 4px; }
@@ -167,7 +190,7 @@
 
     /* ============ Dialoge ============ */
     dialog {
-      width: min(92vw, 440px); border: 0; border-radius: 18px; padding: 20px;
+      width: min(94vw, 440px); border: 0; border-radius: 18px; padding: 18px 16px;
       background: var(--surface); color: var(--ink);
     }
     dialog::backdrop { background: rgb(0 0 0 / 0.45); }
@@ -182,6 +205,8 @@
     .field textarea { min-height: 88px; resize: vertical; }
     .actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; margin-top: 16px; }
     .actions .spacer { flex: 1; }
+    /* „Löschen" bekommt eine eigene Zeile unten, damit nichts umbricht */
+    .actions .danger { order: 3; flex-basis: 100%; border-color: transparent; background: transparent; }
     .menu-list { display: grid; gap: 8px; }
     .menu-list .btn { width: 100%; }
     .small { font-size: 0.85rem; color: var(--muted); }
@@ -210,6 +235,8 @@
 <dialog id="editDialog">
   <form method="dialog">
     <h2>Aufgabe bearbeiten</h2>
+    <p class="small" id="editHint" hidden>↻ Wiederkehrende Aufgabe: Änderungen gelten nur für diesen Tag.
+      Für alle Tage: Menü → Wiederkehrende Aufgaben.</p>
     <label class="field"><span>Titel</span><input name="title" required maxlength="200" autocomplete="off"></label>
     <label class="field"><span>Notiz (optional)</span><textarea name="note" maxlength="1000"></textarea></label>
     <div class="actions">
@@ -237,7 +264,11 @@
 <!-- Dialog: Menü mit Export / Import -->
 <dialog id="menuDialog">
   <form method="dialog">
-    <h2>Sicherung</h2>
+    <h2>Menü</h2>
+    <div class="menu-list">
+      <button class="btn" type="button" id="templatesBtn">↻ Wiederkehrende Aufgaben</button>
+    </div>
+    <h2 style="margin-top:18px">Sicherung</h2>
     <p>Deine Aufgaben liegen nur auf diesem Gerät. Mach ab und zu ein Backup.</p>
     <div class="menu-list">
       <button class="btn" type="button" id="exportBtn">Backup exportieren (JSON)</button>
@@ -247,6 +278,47 @@
     <div class="actions"><button class="btn" value="close">Schließen</button></div>
   </form>
   <input type="file" id="importFile" accept="application/json,.json" hidden>
+</dialog>
+
+<!-- Dialog: Liste der wiederkehrenden Aufgaben -->
+<dialog id="templatesDialog">
+  <form method="dialog">
+    <h2>Wiederkehrende Aufgaben</h2>
+    <p>Antippen zum Ändern. Änderungen gelten für alle offenen Tage ab heute.</p>
+    <ul class="tpl-list" id="tplList"></ul>
+    <div class="actions">
+      <button class="btn" type="button" id="tplNewBtn">+ Neu</button>
+      <span class="spacer"></span>
+      <button class="btn" value="close">Schließen</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Dialog: eine wiederkehrende Aufgabe anlegen / ändern -->
+<dialog id="tplDialog">
+  <form method="dialog" id="tplForm">
+    <h2 id="tplTitle">Wiederkehrende Aufgabe</h2>
+    <label class="field"><span>Titel</span><input name="title" required maxlength="200" autocomplete="off"></label>
+    <label class="field"><span>Notiz (optional)</span><textarea name="note" maxlength="1000"></textarea></label>
+    <fieldset class="weekdays" id="tplDays">
+      <legend>An welchen Tagen?</legend>
+      <!-- value = JavaScript-Wochentag (0 = Sonntag) -->
+      <label><input type="checkbox" value="1"><span>Mo</span></label>
+      <label><input type="checkbox" value="2"><span>Di</span></label>
+      <label><input type="checkbox" value="3"><span>Mi</span></label>
+      <label><input type="checkbox" value="4"><span>Do</span></label>
+      <label><input type="checkbox" value="5"><span>Fr</span></label>
+      <label><input type="checkbox" value="6"><span>Sa</span></label>
+      <label><input type="checkbox" value="0"><span>So</span></label>
+    </fieldset>
+    <label class="check-row"><input type="checkbox" name="fixed"> Fester Termin (steht im Tag oben)</label>
+    <div class="actions">
+      <button class="btn danger" value="delete" formnovalidate id="tplDeleteBtn">Löschen</button>
+      <span class="spacer"></span>
+      <button class="btn" value="cancel" formnovalidate>Abbrechen</button>
+      <button class="btn primary" value="save">Speichern</button>
+    </div>
+  </form>
 </dialog>
 
 <script>
@@ -264,6 +336,38 @@ const DAYS_PER_PAGE = 14;
 
 // Name des Eintrags im localStorage. Nicht ändern, sonst sind die Daten „weg".
 const STORAGE_KEY = "tagesplan.v1";
+
+// Wochentage wie in JavaScript: 0 = Sonntag, 1 = Montag, … 6 = Samstag
+const SO = 0, MO = 1, DI = 2, MI = 3, DO = 4, FR = 5, SA = 6;
+const TAEGLICH = [MO, DI, MI, DO, FR, SA, SO];
+
+// Deine Startvorlagen. Sie werden NUR beim allerersten Öffnen übernommen.
+// Danach änderst du sie in der App (Menü → Wiederkehrende Aufgaben).
+// fixed: true = fester Termin (steht im Tag ganz oben).
+const START_VORLAGEN = [
+  // --- Feste Termine ---
+  { title: "Mit meiner Frau",                 note: "ganzer Tag",                      days: [MO], fixed: true },
+  { title: "Mit meiner Frau",                 note: "bis ca. 15–16 Uhr",               days: [DI], fixed: true },
+  { title: "Mit meiner Frau",                 note: "abends",                          days: [SA], fixed: true },
+  { title: "Arbeit",                          note: "bis ca. 15 Uhr",                  days: [MI, DO], fixed: true },
+  { title: "Arbeit",                          note: "bis 13:30 Uhr",                   days: [FR], fixed: true },
+  { title: "Jumuʿa",                          note: "ab 13:30, zurück ca. 15 Uhr",     days: [FR], fixed: true },
+  { title: "Quran in der Moschee",            note: "nach der Arbeit bis Ishaa",       days: [MI], fixed: true },
+  { title: "Vortrag in der Moschee",          note: "abends, ca. 2 Std. + Weg",        days: [FR], fixed: true },
+  { title: "Quran-Unterricht in der Moschee", note: "ca. 10–16 Uhr + Weg",             days: [SO], fixed: true },
+  // --- Pro Woche ---
+  { title: "Quran-Unterricht mit meiner Frau", note: "",                               days: [MO, DI, SA] },
+  { title: "Aqidah-Vortrag",                  note: "Mo/Di auch gemeinsam möglich",    days: [MO, DI, SA] },
+  { title: "Sport",                           note: "1,5–2 Std. + Weg",                days: [DI, DO, SA, SO] },
+  { title: "Uni lernen",                      note: "90 Min.",                         days: [DO, FR, SA] },
+  { title: "Hifz – auswendig lernen",         note: "am besten nach Fajr",             days: [MI, FR, SO] },
+  { title: "Buch lesen",                      note: "",                                days: [MO, MI, SA] },
+  // --- Täglich ---
+  { title: "Quran lesen",                     note: "abends",                          days: TAEGLICH },
+  { title: "Quran wiederholen",               note: "am besten nach Fajr",             days: TAEGLICH },
+  { title: "Theorie-Prüfung lernen",          note: "30–45 Min.",                      days: TAEGLICH },
+  { title: "Arabisch lernen",                 note: "30–45 Min.",                      days: TAEGLICH }
+];
 
 
 /* ================================================================
@@ -303,34 +407,67 @@ function shortDate(key) { return fmtDow.format(fromKey(key)).replace(".", "") + 
    SPEICHER (localStorage)
    Eine Aufgabe sieht so aus:
    { id: "abc", date: "2026-11-09", title: "Einkaufen", note: "", done: false }
+   Kopien einer Vorlage haben zusätzlich:
+   templateId: "xyz"         – zu welcher Vorlage sie gehört
+   origDate: "2026-11-09"    – für welchen Tag sie ursprünglich erzeugt wurde
+
+   Eine Vorlage (wiederkehrende Aufgabe) sieht so aus:
+   { id, title, note, days: [1, 3], fixed: false, skip: ["2026-11-16"] }
+   skip = Tage, an denen du die Kopie gelöscht hast (wird nicht neu erzeugt).
    ================================================================ */
 
-let tasks = loadTasks();
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+let tasks = [];
+let templates = [];
 
 function isValidTask(t) {
   return t && typeof t.title === "string" && t.title.trim() !== "" &&
-         typeof t.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(t.date);
+         typeof t.date === "string" && DATE_RE.test(t.date);
 }
 // Bringt eine (evtl. importierte) Aufgabe in eine saubere Form.
 function cleanTask(t) {
-  return {
+  const task = {
     id: typeof t.id === "string" && t.id ? t.id : newId(),
     date: t.date,
     title: t.title.trim(),
     note: typeof t.note === "string" ? t.note.trim() : "",
     done: t.done === true
   };
+  if (typeof t.templateId === "string" && t.templateId) {
+    task.templateId = t.templateId;
+    task.origDate = typeof t.origDate === "string" && DATE_RE.test(t.origDate) ? t.origDate : t.date;
+  }
+  return task;
 }
-function loadTasks() {
-  try {
-    const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
-    if (data && Array.isArray(data.tasks)) return data.tasks.filter(isValidTask).map(cleanTask);
-  } catch (e) { console.error(e); }
-  return [];
+function isValidTemplate(v) {
+  return v && typeof v.title === "string" && v.title.trim() !== "" && Array.isArray(v.days);
 }
-function saveTasks() {
+function cleanTemplate(v) {
+  const days = [...new Set(v.days.filter(d => Number.isInteger(d) && d >= 0 && d <= 6))];
+  return {
+    id: typeof v.id === "string" && v.id ? v.id : newId(),
+    title: v.title.trim(),
+    note: typeof v.note === "string" ? v.note.trim() : "",
+    days,
+    fixed: v.fixed === true,
+    skip: Array.isArray(v.skip) ? v.skip.filter(s => typeof s === "string" && DATE_RE.test(s)) : []
+  };
+}
+
+// Lädt alles. Beim allerersten Öffnen (noch keine Vorlagen gespeichert)
+// werden die START_VORLAGEN übernommen.
+function loadData() {
+  let data = null;
+  try { data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); }
+  catch (e) { console.error(e); }
+  tasks = data && Array.isArray(data.tasks) ? data.tasks.filter(isValidTask).map(cleanTask) : [];
+  templates = data && Array.isArray(data.templates)
+    ? data.templates.filter(isValidTemplate).map(cleanTemplate)
+    : START_VORLAGEN.map(cleanTemplate);
+}
+function saveData() {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 1, tasks }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 2, tasks, templates }));
   } catch (e) {
     alert("Speichern hat nicht geklappt. Ist der Speicher voll oder privates Surfen aktiv?");
   }
@@ -339,14 +476,95 @@ function newId() { return Date.now().toString(36) + Math.random().toString(36).s
 
 
 /* ================================================================
+   WIEDERKEHRENDE AUFGABEN (Vorlagen)
+   Für jeden Tag von heute bis zum Vortag des Ramadan bekommt jede passende
+   Vorlage eine eigene Kopie. Die Kopie ist danach eine ganz normale Aufgabe.
+   ================================================================ */
+
+function templateById(id) { return templates.find(v => v.id === id); }
+function isDailyTemplate(v) { return v && v.days.length === 7; }
+function isDailyTask(t) { return !!t.templateId && isDailyTemplate(templateById(t.templateId)); }
+
+const WD_NAMES = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+const WD_ORDER = [MO, DI, MI, DO, FR, SA, SO];   // Anzeige-Reihenfolge
+function daysLabel(days) {
+  if (days.length === 7) return "täglich";
+  return WD_ORDER.filter(d => days.includes(d)).map(d => WD_NAMES[d]).join(", ");
+}
+
+// Legt fehlende Kopien an (ab heute). Gibt die Anzahl neuer Kopien zurück.
+function generateRecurring() {
+  const last = addDays(RAMADAN_START, -1);
+  const have = new Set(tasks.filter(t => t.templateId).map(t => t.templateId + "|" + t.origDate));
+  let added = 0;
+  for (let d = todayKey(); d <= last; d = addDays(d, 1)) {
+    const wd = fromKey(d).getDay();
+    for (const v of templates) {
+      if (!v.days.includes(wd) || v.skip.includes(d) || have.has(v.id + "|" + d)) continue;
+      tasks.push({ id: newId(), date: d, title: v.title, note: v.note, done: false,
+                   templateId: v.id, origDate: d });
+      added++;
+    }
+  }
+  return added;
+}
+
+// Vorlage anlegen (id = null) oder ändern. Änderungen gelten für alle
+// offenen Kopien ab heute; erledigte und vergangene bleiben, wie sie sind.
+function saveTemplate(id, title, note, days, fixed) {
+  const today = todayKey();
+  title = title.trim(); note = note.trim();
+  let v = templateById(id);
+  if (!v) {
+    v = { id: newId(), title, note, days, fixed, skip: [] };
+    templates.push(v);
+  } else {
+    Object.assign(v, { title, note, days, fixed });
+    tasks = tasks.filter(t => {
+      if (t.templateId !== v.id || t.done || t.date < today) return true;
+      // Unverschobene Kopien an Wochentagen, die nicht mehr dabei sind, entfernen.
+      if (t.date === t.origDate && !days.includes(fromKey(t.date).getDay())) return false;
+      t.title = title; t.note = note;
+      return true;
+    });
+  }
+  generateRecurring();
+  commit();
+}
+// Vorlage löschen: offene Kopien ab heute verschwinden, der Rest bleibt.
+function deleteTemplate(id) {
+  const today = todayKey();
+  tasks = tasks.filter(t => !(t.templateId === id && !t.done && t.date >= today));
+  templates = templates.filter(v => v.id !== id);
+  commit();
+}
+
+
+/* ================================================================
    AKTIONEN – jede Änderung speichert und zeichnet neu
    ================================================================ */
 
-function commit() { saveTasks(); render(); }
+function commit() { saveData(); render(); }
 
 function findTask(id) { return tasks.find(t => t.id === id); }
-function tasksOn(date) { return tasks.filter(t => t.date === date); }
-function openTasksOn(date) { return tasksOn(date).filter(t => !t.done); }
+
+// Reihenfolge im Tag: feste Termine · eigene Aufgaben · wöchentliche · tägliche
+function rank(t) {
+  if (!t.templateId) return 1;
+  const v = templateById(t.templateId);
+  if (v && v.fixed) return 0;
+  return isDailyTemplate(v) ? 3 : 2;
+}
+function tasksOn(date) {
+  const order = (t) => templates.findIndex(v => v.id === t.templateId);
+  return tasks
+    .map((t, i) => ({ t, i }))
+    .filter(x => x.t.date === date)
+    .sort((a, b) => rank(a.t) - rank(b.t) || order(a.t) - order(b.t) || a.i - b.i)
+    .map(x => x.t);
+}
+// Was „Tag verschieben" mitnimmt: alles Offene außer den täglichen Aufgaben.
+function movableOpenTasks(date) { return tasksOn(date).filter(t => !t.done && !isDailyTask(t)); }
 
 function addTask(date, title) {
   title = title.trim();
@@ -363,16 +581,21 @@ function updateTask(id, title, note) {
   if (t && title.trim()) { t.title = title.trim(); t.note = note.trim(); commit(); }
 }
 function deleteTask(id) {
-  tasks = tasks.filter(t => t.id !== id);
+  const t = findTask(id);
+  // Gelöschte Kopie merken, damit sie nicht wieder erzeugt wird.
+  const v = t && t.templateId && templateById(t.templateId);
+  if (v && !v.skip.includes(t.origDate)) v.skip.push(t.origDate);
+  tasks = tasks.filter(x => x.id !== id);
   commit();
 }
 function moveTask(id, date) {
   const t = findTask(id);
   if (t) { t.date = date; commit(); }
 }
-// Alle offenen Aufgaben eines Tages auf einen anderen Tag (erledigte bleiben stehen).
+// Offene Aufgaben eines Tages auf einen anderen Tag
+// (erledigte und tägliche bleiben stehen).
 function moveOpenTasks(fromDate, toDate) {
-  openTasksOn(fromDate).forEach(t => { t.date = toDate; });
+  movableOpenTasks(fromDate).forEach(t => { t.date = toDate; });
   commit();
 }
 // Überfällige (offen + vor heute) auf heute holen.
@@ -383,7 +606,8 @@ function moveOverdueToToday() {
 }
 function overdueTasks() {
   const today = todayKey();
-  return tasks.filter(t => !t.done && t.date < today)
+  // Wiederkehrende zählen nicht als überfällig – sonst stapeln sie sich hier.
+  return tasks.filter(t => !t.done && t.date < today && !t.templateId)
               .sort((a, b) => a.date.localeCompare(b.date));
 }
 
@@ -422,7 +646,7 @@ function taskRow(t, showDate) {
                   "aria-label": "Erledigt: " + t.title, "data-action": "toggle", "data-id": t.id }),
     h("button", { class: "task-body", "data-action": "edit", "data-id": t.id },
       showDate ? h("span", { class: "task-date", text: shortDate(t.date) }) : null,
-      h("span", { class: "task-title", text: t.title }),
+      h("span", { class: "task-title" + (t.templateId ? " rep" : ""), text: t.title }),
       t.note ? h("span", { class: "task-note", text: t.note }) : null
     ),
     move
@@ -432,7 +656,7 @@ function taskRow(t, showDate) {
 // Inhalt eines Tages: Aufgabenliste + Eingabefeld + „Offene verschieben…"
 function dayContent(date) {
   const list = tasksOn(date);
-  const open = list.filter(t => !t.done).length;
+  const open = movableOpenTasks(date).length;
   return [
     list.length
       ? h("ul", { class: "tasks" }, list.map(t => taskRow(t, false)))
@@ -497,8 +721,12 @@ function renderUpcoming(today) {
     const open = list.filter(t => !t.done);
     const d = fromKey(date);
 
+    // Vorschau: Termine und besondere Aufgaben, die täglichen nur als Zahl.
+    const special = list.filter(t => !isDailyTask(t)).map(t => t.title);
+    const daily = list.length - special.length;
+    if (daily) special.push("+ " + daily + " täglich");
     const preview = list.length
-      ? h("span", { class: "day-preview has", text: list.map(t => t.title).join(" · ") })
+      ? h("span", { class: "day-preview has", text: special.join(" · ") })
       : h("span", { class: "day-preview", text: "frei" });
     const badge = open.length ? h("span", { class: "badge", text: String(open.length) }) : null;
     const summary = h("summary", {},
@@ -559,6 +787,7 @@ function openEdit(id) {
   const f = editDialog.querySelector("form");
   f.elements.title.value = t.title;
   f.elements.note.value = t.note;
+  document.getElementById("editHint").hidden = !t.templateId;
   editDialog.returnValue = "";   // alten Wert vergessen (z. B. nach Schließen mit Esc)
   editDialog.showModal();
 }
@@ -595,6 +824,80 @@ function suggestAfter(date) {
 
 
 /* ================================================================
+   DIALOGE: WIEDERKEHRENDE AUFGABEN
+   ================================================================ */
+
+const templatesDialog = document.getElementById("templatesDialog");
+const tplDialog = document.getElementById("tplDialog");
+const tplForm = document.getElementById("tplForm");
+let editingTplId = null;
+
+function renderTemplateList() {
+  document.getElementById("tplList").replaceChildren(...templates.map(v =>
+    h("li", {},
+      h("button", { type: "button", "data-tpl": v.id },
+        h("span", { text: v.title + (v.note ? " – " + v.note : "") }),
+        h("span", { class: "tpl-days", text: daysLabel(v.days) + (v.fixed ? " · Termin" : "") })
+      )
+    )
+  ));
+}
+function openTemplates() {
+  renderTemplateList();
+  templatesDialog.showModal();
+}
+function openTemplate(id) {
+  const v = templateById(id);
+  editingTplId = v ? v.id : null;
+  document.getElementById("tplTitle").textContent = v ? "Wiederkehrende Aufgabe ändern" : "Neue wiederkehrende Aufgabe";
+  document.getElementById("tplDeleteBtn").hidden = !v;
+  tplForm.elements.title.value = v ? v.title : "";
+  tplForm.elements.note.value = v ? v.note : "";
+  tplForm.elements.fixed.checked = v ? v.fixed : false;
+  tplForm.querySelectorAll("#tplDays input").forEach(cb => {
+    cb.checked = v ? v.days.includes(Number(cb.value)) : false;
+  });
+  tplDialog.returnValue = "";
+  tplDialog.showModal();
+}
+function checkedDays() {
+  return [...tplForm.querySelectorAll("#tplDays input:checked")].map(cb => Number(cb.value));
+}
+
+document.getElementById("tplList").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-tpl]");
+  if (b) openTemplate(b.dataset.tpl);
+});
+document.getElementById("tplNewBtn").addEventListener("click", () => openTemplate(null));
+document.getElementById("templatesBtn").addEventListener("click", () => {
+  menuDialog.close();
+  openTemplates();
+});
+
+// Speichern nur mit mindestens einem Wochentag.
+tplForm.addEventListener("submit", (e) => {
+  if (e.submitter && e.submitter.value === "save" && checkedDays().length === 0) {
+    e.preventDefault();
+    alert("Bitte mindestens einen Wochentag wählen.");
+  }
+});
+tplDialog.addEventListener("close", () => {
+  const f = tplForm.elements;
+  if (tplDialog.returnValue === "save") {
+    saveTemplate(editingTplId, f.title.value, f.note.value, checkedDays(), f.fixed.checked);
+  }
+  if (tplDialog.returnValue === "delete") {
+    const v = templateById(editingTplId);
+    if (v && confirm("„" + v.title + "“ löschen?\nOffene Einträge ab heute verschwinden, Erledigtes bleibt.")) {
+      deleteTemplate(v.id);
+    }
+  }
+  editingTplId = null;
+  renderTemplateList();
+});
+
+
+/* ================================================================
    KLICKS & EINGABEN (ein zentraler Listener für alle Knöpfe)
    ================================================================ */
 
@@ -613,9 +916,10 @@ document.addEventListener("click", (e) => {
     }
     case "move-day": {
       const from = btn.dataset.date;
-      const n = openTasksOn(from).length;
+      const n = movableOpenTasks(from).length;
       openMove("Tag verschieben",
-               (n === 1 ? "Die offene Aufgabe" : "Alle " + n + " offenen Aufgaben") + " von " + longDate(from) + " auf:",
+               (n === 1 ? "Die offene Aufgabe" : "Alle " + n + " offenen Aufgaben") + " von " + longDate(from) +
+               " auf (tägliche Aufgaben bleiben am Tag):",
                suggestAfter(from), (date) => moveOpenTasks(from, date));
       break;
     }
@@ -649,12 +953,14 @@ document.addEventListener("visibilitychange", () => {
 
 document.getElementById("menuBtn").addEventListener("click", () => {
   document.getElementById("menuInfo").textContent =
-    tasks.length + " Aufgaben gespeichert · Ramadan-Beginn: " + fmtFull.format(fromKey(RAMADAN_START));
+    tasks.length + " Einträge, " + templates.length + " wiederkehrende gespeichert · Ramadan-Beginn: " +
+    fmtFull.format(fromKey(RAMADAN_START));
   menuDialog.showModal();
 });
 
 document.getElementById("exportBtn").addEventListener("click", async () => {
-  const json = JSON.stringify({ app: "tagesplan", version: 1, exported: new Date().toISOString(), tasks }, null, 2);
+  const json = JSON.stringify({ app: "tagesplan", version: 2, exported: new Date().toISOString(),
+                                tasks, templates }, null, 2);
   const name = "tagesplan-backup-" + todayKey() + ".json";
   const file = new File([json], name, { type: "application/json" });
 
@@ -677,18 +983,21 @@ importFile.addEventListener("change", async () => {
   const file = importFile.files[0];
   importFile.value = "";      // damit dieselbe Datei erneut gewählt werden kann
   if (!file) return;
-  let imported;
+  let imported, importedTpl = null;
   try {
     const data = JSON.parse(await file.text());
     if (!data || !Array.isArray(data.tasks)) throw new Error("kein tasks-Feld");
     imported = data.tasks.filter(isValidTask).map(cleanTask);
+    if (Array.isArray(data.templates)) importedTpl = data.templates.filter(isValidTemplate).map(cleanTemplate);
   } catch (e) {
     alert("Diese Datei ist kein gültiges Tagesplan-Backup.");
     return;
   }
-  if (!confirm("Backup mit " + imported.length + " Aufgaben laden?\nDie aktuellen " + tasks.length +
-               " Aufgaben werden dabei ersetzt.")) return;
+  if (!confirm("Backup mit " + imported.length + " Einträgen laden?\nDer aktuelle Stand (" + tasks.length +
+               " Einträge) wird dabei ersetzt.")) return;
   tasks = imported;
+  if (importedTpl) templates = importedTpl;   // ältere Backups ohne Vorlagen: Vorlagen bleiben
+  generateRecurring();
   commit();
   menuDialog.close();
 });
@@ -698,6 +1007,9 @@ importFile.addEventListener("change", async () => {
    START
    ================================================================ */
 
+loadData();
+generateRecurring();   // fehlende Kopien bis zum Ramadan anlegen
+saveData();
 render();
 
 // Offline-Fähigkeit: Service Worker registrieren (nur über http(s), nicht file://).
