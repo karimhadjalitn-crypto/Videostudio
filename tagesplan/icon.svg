@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Vollflächiger Hintergrund, damit das Icon auch „maskable" funktioniert -->
+  <rect width="512" height="512" fill="#2f6b4f"/>
+  <!-- Kalenderblatt (innerhalb der sicheren Zone) -->
+  <rect x="136" y="150" width="240" height="226" rx="30" fill="#fffdf8"/>
+  <rect x="136" y="150" width="240" height="62" rx="30" fill="#e2ede5"/>
+  <rect x="136" y="186" width="240" height="26" fill="#e2ede5"/>
+  <rect x="186" y="126" width="22" height="58" rx="11" fill="#fffdf8"/>
+  <rect x="304" y="126" width="22" height="58" rx="11" fill="#fffdf8"/>
+  <!-- Haken -->
+  <path d="M200 296 l38 38 l78 -88" fill="none" stroke="#2f6b4f" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

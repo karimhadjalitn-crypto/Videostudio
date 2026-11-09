@@ -89,6 +89,10 @@ Die App ist eine reine Webseite (kein Server, keine Anmeldung). Dein Fortschritt
 
 **Die App läuft hier:** https://karimhadjalitn-crypto.github.io/Videostudio/
 
+**Tagesplan (eigene App):** https://karimhadjalitn-crypto.github.io/Videostudio/tagesplan/ –
+grober Tagesplan bis zum Ramadan mit wiederkehrenden Aufgaben, Verschieben und JSON-Backup.
+Alles steckt in `tagesplan/index.html`; Ramadan-Datum und Startvorlagen stehen oben im Script.
+
 **Als App aufs iPhone/iPad (empfohlen):**
 1. Den Link in **Safari** öffnen.
 2. Unten auf das **Teilen-Symbol** tippen → **„Zum Home-Bildschirm“** → **„Hinzufügen“**.
