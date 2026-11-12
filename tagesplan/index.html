@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Tagesplan</title>
-  <meta name="description" content="Grober Tagesplan bis zum Ramadan – Aufgaben pro Tag, verschiebbar, offline.">
+  <meta name="description" content="Persönlicher Tagesplan bis zum Ramadan – Heute, Woche, Plan. Offline nutzbar.">
 
   <!-- PWA / Startbildschirm -->
   <link rel="manifest" href="manifest.webmanifest">
@@ -14,309 +14,405 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Tagesplan">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="theme-color" content="#f4f1ea" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#141714" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#F5F0E6" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0D1425" media="(prefers-color-scheme: dark)">
 
   <style>
     /* ============================================================
-       FARBEN – hell und dunkel. Hier kannst du das Aussehen ändern.
+       FARBEN – Creme mit dezentem Navy. Hell und dunkel.
+       Hier änderst du das Aussehen. Kontrast aller Text-Paare ≥ 4,5:1.
        ============================================================ */
     :root {
       color-scheme: light dark;
-      --bg: #f4f1ea;          /* Seitenhintergrund */
-      --surface: #fffdf8;     /* Karten */
-      --ink: #1f2421;         /* Text */
-      --muted: #676d67;       /* Nebentext */
-      --line: #e2ddd2;        /* Trennlinien */
-      --accent: #2f6b4f;      /* Grün: Haken, Knöpfe */
-      --accent-ink: #ffffff;  /* Text auf Grün */
-      --accent-soft: #e2ede5; /* helles Grün: Heute-Markierung */
-      --warn: #9a4a25;        /* Überfällig / Löschen */
-      --warn-soft: #f6e5da;
-      --radius: 14px;
+      --bg: #F5F0E6;          /* Seitenhintergrund (Creme) */
+      --surface: #FFFCF6;     /* Karten und Listen (helles Creme) */
+      --ink: #16213A;         /* Haupttext (sehr dunkles Navy) */
+      --muted: #566078;       /* Nebentext */
+      --sep: #E1D8C7;        /* Trennlinien */
+      --off: #C9BFAC;         /* ausgeschalteter Schalter */
+      --accent: #1F3C72;      /* Navy: Knöpfe, Haken, Auswahl */
+      --accent-ink: #FFFCF6;  /* Text auf Navy */
+      --tint: rgb(31 60 114 / .09);   /* zarte Navy-Fläche */
+      --bar-bg: rgb(22 33 58 / .12);  /* Hintergrund der Balken */
+      --rust: #9A4B22;        /* nur für „voll" und Löschen */
+      --glass: rgb(245 240 230 / .9); /* Tab-Leiste */
+      --radius: 12px;
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, system-ui, sans-serif;
     }
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg: #141714;
-        --surface: #1d211e;
-        --ink: #ecebe6;
-        --muted: #9ca29c;
-        --line: #2f3530;
-        --accent: #7cc39c;
-        --accent-ink: #0f1a13;
-        --accent-soft: #213529;
-        --warn: #e8a07c;
-        --warn-soft: #3a281f;
+        --bg: #0D1425;
+        --surface: #162038;
+        --ink: #F3ECDC;
+        --muted: #A0ABC4;
+        --sep: #26314B;
+        --off: #3A4663;
+        --accent: #A8C0F2;
+        --accent-ink: #0D1425;
+        --tint: rgb(168 192 242 / .13);
+        --bar-bg: rgb(243 236 220 / .16);
+        --rust: #F0A47C;
+        --glass: rgb(13 20 37 / .9);
       }
     }
 
     /* ============ Grundlayout ============ */
     * { box-sizing: border-box; }
-    html { -webkit-text-size-adjust: 100%; }
+    /* Auf iPhone/iPad folgt die Schrift der Systemeinstellung „Textgröße" (Dynamic Type). */
+    html { font: 106.25%/1.4 var(--font); -webkit-text-size-adjust: 100%; }
+    @supports (font: -apple-system-body) { html { font: -apple-system-body; font-family: var(--font); line-height: 1.4; } }
     body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--ink);
-      font: 17px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      /* Abstand zu Notch und Home-Leiste im Standalone-Modus */
-      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      margin: 0; background: var(--bg); color: var(--ink);
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
       -webkit-tap-highlight-color: transparent;
     }
-    main { max-width: 640px; margin: 0 auto; padding: 12px 16px 48px; }
+    main { max-width: 640px; margin: 0 auto; padding: 4px 16px calc(96px + env(safe-area-inset-bottom)); }
     button, input, textarea { font: inherit; color: inherit; }
     button { cursor: pointer; }
-    h1, h2, h3 { margin: 0; }
+    h1, h2, h3, p { margin: 0; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
-    /* ============ Kopfzeile ============ */
-    .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0 16px; }
-    .top h1 { font-size: 1.6rem; letter-spacing: -0.02em; }
-    .countdown { color: var(--muted); font-size: 0.95rem; margin-top: 2px; }
+    /* ============ Kopf (großer Titel wie bei Apple) ============ */
+    .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 10px 0 14px; }
+    .head h1 { font-size: 2rem; line-height: 1.15; font-weight: 700; letter-spacing: -.02em; }
+    .sub { color: var(--muted); font-size: .94rem; margin-top: 2px; }
+    .sub.accent { color: var(--accent); font-weight: 600; }
+    .round-btn {
+      flex: none; width: 44px; height: 44px; border: 0; border-radius: 50%;
+      background: var(--tint); color: var(--accent); display: grid; place-items: center;
+    }
+    .round-btn svg { width: 22px; height: 22px; }
+    .round-btn:active { opacity: .6; }
 
-    /* ============ Allgemeine Knöpfe (mind. 44px hoch) ============ */
-    .icon-btn {
-      min-width: 44px; min-height: 44px;
-      display: inline-flex; align-items: center; justify-content: center;
-      border: 0; background: transparent; border-radius: 12px; color: var(--muted);
+    /* ============ Karten und Listen (eingerückte Gruppen) ============ */
+    .card, .list { background: var(--surface); border-radius: var(--radius); box-shadow: 0 0 0 1px rgb(22 33 58 / .04); }
+    .card { padding: 14px 16px; margin-bottom: 8px; }
+    .list { list-style: none; margin: 0; padding: 0; overflow: hidden; }
+    .list > li { position: relative; min-height: 52px; display: flex; align-items: center; }
+    .list > li + li::before { content: ""; position: absolute; top: 0; left: 52px; right: 0; border-top: 1px solid var(--sep); }
+    .sec-title {
+      display: flex; justify-content: space-between; gap: 8px; margin: 22px 16px 6px;
+      font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--muted);
     }
-    .icon-btn:active { background: var(--line); }
-    .icon-btn svg { width: 22px; height: 22px; }
-    .btn {
-      min-height: 44px; padding: 0 18px; border-radius: 12px;
-      border: 1px solid var(--line); background: var(--surface); font-weight: 600;
-    }
-    .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
-    .btn.danger { color: var(--warn); }
-    .link-btn {
-      min-height: 44px; border: 0; background: transparent; color: var(--accent);
-      font-weight: 600; padding: 0 4px;
-    }
+    .sec-title span { text-transform: none; letter-spacing: 0; font-weight: 500; }
+    .empty { color: var(--muted); padding: 12px 16px; }
+    .link-btn { min-height: 44px; border: 0; background: none; color: var(--accent); font-weight: 600; padding: 0 16px; }
 
-    /* ============ Karten / Abschnitte ============ */
-    .card {
-      background: var(--surface); border: 1px solid var(--line);
-      border-radius: var(--radius); padding: 14px 14px 10px; margin-bottom: 16px;
-    }
-    .eyebrow { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
-    .today { border: 2px solid var(--accent); background: linear-gradient(var(--accent-soft), var(--surface) 90px); }
-    .today .eyebrow { color: var(--accent); }
-    .today h2 { font-size: 1.45rem; margin: 2px 0 8px; letter-spacing: -0.01em; }
-    .overdue { border-color: var(--warn); background: var(--warn-soft); }
-    .overdue .eyebrow { color: var(--warn); }
-    .section-title { font-size: 1.05rem; margin: 24px 0 8px; }
-    .empty { color: var(--muted); margin: 6px 0; }
-    .card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    /* ============ Tageslast ============ */
+    .load-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .load-label { font-weight: 600; }
+    .pill { font-size: .8rem; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: var(--tint); color: var(--accent); }
+    .pill.voll { background: rgb(154 75 34 / .12); color: var(--rust); }
+    @media (prefers-color-scheme: dark) { .pill.voll { background: rgb(240 164 124 / .16); } }
+    .bar { height: 8px; border-radius: 4px; background: var(--bar-bg); overflow: hidden; }
+    .bar i { display: block; height: 100%; border-radius: 4px; background: var(--accent); transition: width .3s; }
+    .voll .bar i, .mini.voll i { background: var(--rust); }
+    .load-sub { margin-top: 8px; color: var(--muted); font-size: .88rem; }
+    .mini { flex: none; width: 44px; height: 6px; border-radius: 3px; background: var(--bar-bg); overflow: hidden; }
+    .mini i { display: block; height: 100%; background: var(--accent); }
+
+    /* ============ Noch offen von früher ============ */
+    .overdue-head { display: flex; justify-content: space-between; align-items: center; margin: 22px 0 6px 16px; }
+    .overdue-head .sec-title { margin: 0; }
+    .overdue-head .link-btn { padding-right: 4px; }
 
     /* ============ Aufgabenzeile ============ */
-    .tasks { list-style: none; margin: 0; padding: 0; }
-    .task { display: flex; align-items: flex-start; gap: 4px; border-bottom: 1px solid var(--line); }
-    .task:last-child { border-bottom: 0; }
-    .check {
-      flex: none; width: 44px; height: 44px; border: 0; background: transparent;
-      display: inline-flex; align-items: center; justify-content: center;
+    .task.fixed { box-shadow: inset 3px 0 0 var(--accent); }
+    .check { flex: none; width: 48px; height: 48px; border: 0; background: none; display: grid; place-items: center; }
+    .check::before {
+      content: ""; width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--muted);
+      transition: background .15s, border-color .15s, transform .15s;
     }
-    .check::before {      /* der sichtbare Kreis */
-      content: ""; width: 24px; height: 24px; border-radius: 50%;
-      border: 2px solid var(--muted); box-sizing: border-box;
-    }
+    .check:active::before { transform: scale(.9); }
     .check[aria-checked="true"]::before {
       border-color: var(--accent);
-      background: var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 12.5l4 4 8-9' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/16px no-repeat;
+      background: var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 12.5l4 4 8-9' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/16px no-repeat;
     }
-    .task-body {
-      flex: 1; min-width: 0; min-height: 44px; text-align: left;
-      border: 0; background: transparent; padding: 10px 0;
-      display: flex; flex-direction: column; justify-content: center;
+    @media (prefers-color-scheme: dark) {
+      .check[aria-checked="true"]::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 12.5l4 4 8-9' fill='none' stroke='%230D1425' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
     }
+    .task-body { flex: 1; min-width: 0; min-height: 52px; border: 0; background: none; text-align: left; padding: 8px 0; display: flex; flex-direction: column; justify-content: center; }
     .task-title { overflow-wrap: anywhere; }
-    .task-note { color: var(--muted); font-size: 0.88rem; white-space: pre-wrap; overflow-wrap: anywhere; }
-    .task-date { color: var(--warn); font-size: 0.8rem; font-weight: 600; }
-    .task.done .task-title { text-decoration: line-through; color: var(--muted); }
-    .task-title.rep::after { content: " ↻"; color: var(--muted); font-size: 0.85em; } /* wiederkehrend */
+    .task-title.rep::after { content: " ↻"; color: var(--muted); font-size: .85em; }
+    .task-meta { color: var(--muted); font-size: .85rem; overflow-wrap: anywhere; }
+    .task-date { color: var(--rust); font-size: .8rem; font-weight: 600; }
+    .task.done .task-title { color: var(--muted); text-decoration: line-through; text-decoration-thickness: 1px; }
+    .icon-btn { flex: none; width: 44px; height: 44px; border: 0; background: none; color: var(--muted); display: grid; place-items: center; border-radius: 10px; }
+    .icon-btn svg { width: 20px; height: 20px; }
+    .icon-btn:active { background: var(--tint); }
 
-    /* ============ Wiederkehrende Aufgaben (Vorlagen) ============ */
-    .tpl-list { list-style: none; margin: 0 0 12px; padding: 0; max-height: 55vh; overflow-y: auto; }
-    .tpl-list button {
-      width: 100%; min-height: 52px; text-align: left; border: 0; border-bottom: 1px solid var(--line);
-      background: transparent; padding: 8px 2px; display: flex; flex-direction: column; justify-content: center;
-    }
-    .tpl-days { color: var(--muted); font-size: 0.85rem; }
-    .weekdays { display: flex; flex-wrap: wrap; gap: 6px; border: 0; padding: 0; margin: 12px 0; }
-    .weekdays legend { font-size: 0.85rem; font-weight: 600; color: var(--muted); margin-bottom: 4px; padding: 0; }
-    .weekdays { flex-wrap: nowrap; gap: 4px; }
-    .weekdays label { position: relative; flex: 1 1 0; min-width: 0; }
-    .weekdays input { position: absolute; opacity: 0; inset: 0; margin: 0; }
-    .weekdays span {
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 100%; min-height: 44px; border-radius: 12px; border: 1px solid var(--line);
-      background: var(--bg); font-weight: 600;
-    }
-    .weekdays input:checked + span { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
-    .weekdays input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .check-row { display: flex; align-items: center; gap: 10px; min-height: 44px; }
-    .check-row input { width: 22px; height: 22px; accent-color: var(--accent); }
+    /* ============ Neue Aufgabe (Zeile am Ende jedes Abschnitts) ============ */
+    .add-row form { display: flex; align-items: center; width: 100%; }
+    .plus { flex: none; width: 48px; height: 48px; display: grid; place-items: center; }
+    .plus span { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; }
+    .plus svg { width: 12px; height: 12px; }
+    .add-row input { flex: 1; min-width: 0; min-height: 48px; border: 0; background: none; padding: 0 12px 0 0; outline-offset: -2px; }
+    .add-row input::placeholder { color: var(--accent); opacity: .85; }
 
-    /* ============ Eingabe „Neue Aufgabe" ============ */
-    .add { display: flex; gap: 8px; margin: 8px 0 4px; }
-    .add input {
-      flex: 1; min-width: 0; min-height: 44px; padding: 0 12px;
-      border: 1px solid var(--line); border-radius: 12px; background: var(--bg);
-    }
-    .add button { flex: none; width: 44px; height: 44px; border-radius: 12px; border: 0;
-      background: var(--accent); color: var(--accent-ink); font-size: 1.5rem; line-height: 1; }
+    /* ============ Woche ============ */
+    .weeknav { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; }
+    .weeknav .label { flex: 1; text-align: center; font-weight: 600; }
+    .goal { display: flex; align-items: center; gap: 12px; padding: 10px 16px; width: 100%; }
+    .goal-name { flex: 1; min-width: 0; }
+    .dots { display: flex; gap: 5px; }
+    .dot { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--muted); }
+    .dot.on { background: var(--accent); border-color: var(--accent); }
+    .goal-count { flex: none; min-width: 64px; text-align: right; color: var(--muted); font-size: .9rem; font-variant-numeric: tabular-nums; }
+    .goal.complete .goal-count { color: var(--accent); font-weight: 600; }
 
-    /* ============ Liste der nächsten Tage ============ */
-    .days { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
-    .day { border-bottom: 1px solid var(--line); }
-    .day:last-child { border-bottom: 0; }
-    .day > summary {
-      list-style: none; display: flex; align-items: center; gap: 12px;
-      min-height: 56px; padding: 6px 14px; cursor: pointer;
-    }
-    .day > summary::-webkit-details-marker { display: none; }
-    .day-date { flex: none; width: 58px; line-height: 1.15; }
-    .day-dow { font-weight: 700; }
-    .day-num { color: var(--muted); font-size: 0.85rem; }
-    .day.weekend .day-dow { color: var(--accent); }
-    .day-preview { flex: 1; min-width: 0; color: var(--muted); font-size: 0.92rem;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .days { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }   /* minmax: lange Vorschau darf die Seite nicht verbreitern */
+    details.day { min-width: 0; background: var(--surface); border-radius: var(--radius); box-shadow: 0 0 0 1px rgb(22 33 58 / .04); }
+    details.day > summary { list-style: none; display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 16px; cursor: pointer; }
+    details.day > summary::-webkit-details-marker { display: none; }
+    .day-date { flex: none; width: 64px; line-height: 1.15; }
+    .day-dow { font-weight: 600; }
+    .day-num { color: var(--muted); font-size: .85rem; }
+    .day.today .day-dow { color: var(--accent); }
+    .day.past { opacity: .72; }
+    .day-mid { flex: 1; min-width: 0; }
+    .day-preview { color: var(--muted); font-size: .9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .day-preview.has { color: var(--ink); }
-    .badge { flex: none; min-width: 26px; height: 26px; padding: 0 8px; border-radius: 13px;
-      background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 0.85rem;
-      display: inline-flex; align-items: center; justify-content: center; }
-    .chev { flex: none; width: 18px; height: 18px; color: var(--muted); transition: transform .15s; }
-    .day[open] .chev { transform: rotate(90deg); }
-    .day-body { padding: 0 14px 10px; }
-    .more { display: block; width: 100%; margin-top: 12px; }
+    .chev { flex: none; width: 16px; height: 16px; color: var(--muted); transition: transform .15s; }
+    details[open] > summary .chev { transform: rotate(90deg); }
+    .day-body { padding: 0 12px 12px; }
+    .day-body .sec-title { margin-left: 4px; margin-right: 4px; margin-top: 10px; }
+    .day-body .list { background: var(--bg); box-shadow: none; }
+    .day-body .add-row input::placeholder { opacity: 1; }
 
-    /* ============ Dialoge ============ */
-    dialog {
-      width: min(94vw, 440px); border: 0; border-radius: 18px; padding: 18px 16px;
-      background: var(--surface); color: var(--ink);
+    /* ============ Plan ============ */
+    .row-btn { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 8px 16px; border: 0; background: none; text-align: left; }
+    .row-main { flex: 1; min-width: 0; }
+    .row-main small { display: block; color: var(--muted); font-size: .85rem; }
+    .row-aside { flex: none; color: var(--muted); font-size: .9rem; text-align: right; }
+    .row-aside.soon { color: var(--accent); font-weight: 600; }
+    .past-row { opacity: .6; }
+    .more { display: block; width: 100%; margin-top: 8px; border: 0; border-radius: var(--radius); background: var(--tint); color: var(--accent); font-weight: 600; min-height: 48px; }
+    .hifz-count { margin: 8px 0 12px; color: var(--muted); font-size: .88rem; }
+    .hifz-row .check { margin-left: -4px; }
+    .hifz-row .verses { flex: none; padding-right: 16px; color: var(--muted); font-size: .85rem; }
+    .hifz-row.done .row-main { color: var(--muted); }
+
+    /* ============ Tab-Leiste ============ */
+    .tabbar {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+      padding: 4px 8px calc(4px + env(safe-area-inset-bottom));
+      background: var(--glass); border-top: 1px solid var(--sep);
+      -webkit-backdrop-filter: blur(24px) saturate(1.4); backdrop-filter: blur(24px) saturate(1.4);
     }
-    dialog::backdrop { background: rgb(0 0 0 / 0.45); }
-    dialog h2 { font-size: 1.2rem; margin-bottom: 6px; }
-    dialog p { margin: 0 0 12px; color: var(--muted); }
-    .field { display: block; margin: 12px 0; }
-    .field span { display: block; font-size: 0.85rem; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
-    .field input, .field textarea {
-      width: 100%; min-height: 44px; padding: 10px 12px;
-      border: 1px solid var(--line); border-radius: 12px; background: var(--bg);
+    @media (prefers-reduced-transparency: reduce) { .tabbar { background: var(--bg); -webkit-backdrop-filter: none; backdrop-filter: none; } }
+    .tabs { display: flex; max-width: 640px; margin: 0 auto; }
+    .tab { flex: 1; min-height: 52px; border: 0; background: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: .72rem; font-weight: 500; }
+    .tab svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .tab[aria-selected="true"] { color: var(--accent); font-weight: 600; }
+    .tab[aria-selected="true"] svg .sh { fill: currentColor; fill-opacity: .2; stroke-width: 2; }
+
+    /* ============ Sheets (von unten, wie bei Apple) ============ */
+    dialog.sheet {
+      position: fixed; inset: auto 0 0 0; margin: 0 auto; width: min(100%, 560px); max-width: none; max-height: 92dvh;
+      padding: 0; border: 0; border-radius: 14px 14px 0 0; background: var(--bg); color: var(--ink); overflow: hidden;
     }
-    .field textarea { min-height: 88px; resize: vertical; }
-    .actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; margin-top: 16px; }
-    .actions .spacer { flex: 1; }
-    /* „Löschen" bekommt eine eigene Zeile unten, damit nichts umbricht */
-    .actions .danger { order: 3; flex-basis: 100%; border-color: transparent; background: transparent; }
-    .menu-list { display: grid; gap: 8px; }
-    .menu-list .btn { width: 100%; }
-    .small { font-size: 0.85rem; color: var(--muted); }
+    dialog.sheet[open] { display: flex; flex-direction: column; animation: sheet-up .3s cubic-bezier(.2,.8,.2,1); }
+    dialog.sheet::backdrop { background: rgb(8 12 24 / .45); animation: fade .3s; }
+    @keyframes sheet-up { from { transform: translateY(100%); } }
+    @keyframes fade { from { opacity: 0; } }
+    dialog.sheet form { display: flex; flex-direction: column; min-height: 0; max-height: 92dvh; }
+    .grabber { flex: none; width: 36px; height: 5px; border-radius: 3px; background: var(--off); margin: 8px auto 0; }
+    .sheet-bar { flex: none; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 4px 8px 6px; }
+    .sheet-bar h2 { font-size: 1.05rem; font-weight: 600; text-align: center; }
+    .bar-btn { min-height: 44px; min-width: 44px; padding: 0 8px; border: 0; background: none; color: var(--accent); font-size: 1.05rem; justify-self: start; }
+    .bar-btn.strong { font-weight: 700; justify-self: end; }
+    .sheet-body { flex: 1; overflow-y: auto; padding: 4px 16px calc(24px + env(safe-area-inset-bottom)); }
+    .sheet-note { color: var(--muted); font-size: .9rem; margin: 0 4px 12px; }
+    .group { background: var(--surface); border-radius: var(--radius); margin-bottom: 16px; overflow: hidden; }
+    .group > * + * { border-top: 1px solid var(--sep); }
+    .frow { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; padding: 6px 16px; }
+    .frow > span:first-child { flex: none; }
+    .frow input[type=text], .frow input:not([type]) { flex: 1; min-width: 0; border: 0; background: none; padding: 10px 0; }
+    .field-text { display: block; width: 100%; min-height: 52px; padding: 14px 16px; border: 0; background: none; }
+    textarea.field-text { min-height: 84px; resize: vertical; }
+    .pill-input { border: 0; border-radius: 9px; background: var(--tint); padding: 9px 12px; min-height: 44px; }
+    input[type=number].pill-input { width: 84px; text-align: right; }
+    .seg-row { padding: 6px 12px; }
+    .seg { display: flex; gap: 2px; padding: 2px; border-radius: 9px; background: var(--tint); }
+    .seg label { position: relative; flex: 1; }
+    .seg input { position: absolute; inset: 0; opacity: 0; margin: 0; }
+    .seg span { display: flex; align-items: center; justify-content: center; min-height: 44px; border-radius: 7px; font-weight: 600; font-size: .92rem; }
+    .seg input:checked + span { background: var(--surface); box-shadow: 0 1px 3px rgb(0 0 0 / .18); }
+    .seg input:focus-visible + span { outline: 2px solid var(--accent); }
+    .weekdays { display: flex; gap: 4px; border: 0; margin: 0; padding: 8px 12px; min-width: 0; }
+    .weekdays legend { padding: 0; }
+    .weekdays label { position: relative; flex: 1; min-width: 0; }
+    .weekdays input { position: absolute; inset: 0; opacity: 0; margin: 0; }
+    .weekdays span { display: flex; align-items: center; justify-content: center; min-height: 44px; border-radius: 10px; background: var(--tint); font-weight: 600; }
+    .weekdays input:checked + span { background: var(--accent); color: var(--accent-ink); }
+    .weekdays input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .switch { appearance: none; -webkit-appearance: none; flex: none; position: relative; width: 51px; height: 31px; margin: 0; border-radius: 16px; background: var(--off); transition: background .2s; }
+    .switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgb(0 0 0 / .25); transition: transform .2s; }
+    .switch:checked { background: var(--accent); }
+    .switch:checked::after { transform: translateX(20px); }
+    .danger-btn { display: block; width: 100%; min-height: 52px; border: 0; background: none; color: var(--rust); font-weight: 600; }
+    .is-deadline .task-only { display: none; }
+    .menu-row { width: 100%; }
+    .tpl-group { margin: 16px 4px 6px; }
+    .tpl-days { display: block; color: var(--muted); font-size: .85rem; }
+    .pick { gap: 12px; }
+    .pick .tag { color: var(--accent); font-weight: 600; font-size: .8rem; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
   </style>
 </head>
 <body>
-<main>
-  <header class="top">
-    <div>
-      <h1>Tagesplan</h1>
-      <div class="countdown" id="countdown"></div>
-    </div>
-    <button class="icon-btn" id="menuBtn" aria-label="Menü: Sicherung">
-      <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+<main id="view"></main>
+
+<!-- Tab-Leiste: Heute / Woche / Plan -->
+<nav class="tabbar" aria-label="Bereiche">
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" data-tab="heute" aria-selected="true">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="sh" cx="12" cy="12" r="4.3"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/></svg>
+      Heute
     </button>
-  </header>
+    <button class="tab" role="tab" data-tab="woche" aria-selected="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect class="sh" x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+      Woche
+    </button>
+    <button class="tab" role="tab" data-tab="plan" aria-selected="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path class="sh" d="M5.5 5h11.5l-2.2 3.8 2.2 3.7H5.5z"/><path d="M5.5 21V4"/></svg>
+      Plan
+    </button>
+  </div>
+</nav>
 
-  <!-- Wird per JavaScript gefüllt -->
-  <section id="overdue"></section>
-  <section id="today"></section>
-  <h2 class="section-title">Nächste Tage</h2>
-  <section id="upcoming"></section>
-</main>
-
-<!-- Dialog: Aufgabe bearbeiten -->
-<dialog id="editDialog">
-  <form method="dialog">
-    <h2>Aufgabe bearbeiten</h2>
-    <p class="small" id="editHint" hidden>↻ Wiederkehrende Aufgabe: Änderungen gelten nur für diesen Tag.
-      Für alle Tage: Menü → Wiederkehrende Aufgaben.</p>
-    <label class="field"><span>Titel</span><input name="title" required maxlength="200" autocomplete="off"></label>
-    <label class="field"><span>Notiz (optional)</span><textarea name="note" maxlength="1000"></textarea></label>
-    <div class="actions">
-      <button class="btn danger" value="delete" formnovalidate>Löschen</button>
-      <span class="spacer"></span>
-      <button class="btn" value="cancel" formnovalidate>Abbrechen</button>
-      <button class="btn primary" value="save">Speichern</button>
+<!-- Sheet: Aufgabe bearbeiten / neue Frist -->
+<dialog class="sheet" id="editDialog">
+  <form method="dialog" id="editForm">
+    <div class="grabber"></div>
+    <div class="sheet-bar">
+      <button type="button" class="bar-btn" data-close="cancel">Abbrechen</button>
+      <h2 id="editTitle">Aufgabe</h2>
+      <button class="bar-btn strong" value="save">Fertig</button>
+    </div>
+    <div class="sheet-body">
+      <p class="sheet-note" id="editHint" hidden>↻ Wiederkehrend: Änderungen gelten nur für diesen Tag. Für alle Tage: Menü → Wiederkehrende Aufgaben.</p>
+      <div class="group">
+        <input class="field-text" name="title" placeholder="Titel" required maxlength="200" autocomplete="off" aria-label="Titel">
+        <textarea class="field-text" name="note" placeholder="Notiz (optional)" maxlength="1000" aria-label="Notiz"></textarea>
+      </div>
+      <div class="group">
+        <div class="seg-row task-only">
+          <div class="seg" role="radiogroup" aria-label="Abschnitt">
+            <label><input type="radio" name="section" value="morgen"><span>Morgen</span></label>
+            <label><input type="radio" name="section" value="tag"><span>Tag</span></label>
+            <label><input type="radio" name="section" value="abend"><span>Abend</span></label>
+          </div>
+        </div>
+        <label class="frow task-only"><span>Dauer (Min.)</span><input class="pill-input" type="number" name="mins" min="0" max="1440" step="5" inputmode="numeric"></label>
+        <label class="frow"><span>Datum</span><input class="pill-input" type="date" name="date" required></label>
+        <label class="frow task-only"><span>Fester Termin</span><input class="switch" type="checkbox" name="fixed" role="switch"></label>
+      </div>
+      <div class="group" id="editDeleteGroup"><button type="button" class="danger-btn" data-close="delete" id="editDeleteBtn">Löschen</button></div>
     </div>
   </form>
 </dialog>
 
-<!-- Dialog: Verschieben (für eine Aufgabe oder alle offenen eines Tages) -->
-<dialog id="moveDialog">
+<!-- Sheet: Verschieben -->
+<dialog class="sheet" id="moveDialog">
   <form method="dialog">
-    <h2 id="moveTitle">Verschieben</h2>
-    <p id="moveText"></p>
-    <label class="field"><span>Neuer Tag</span><input type="date" name="date" required></label>
-    <div class="actions">
-      <button class="btn" value="cancel" formnovalidate>Abbrechen</button>
-      <button class="btn primary" value="ok">Verschieben</button>
+    <div class="grabber"></div>
+    <div class="sheet-bar">
+      <button type="button" class="bar-btn" data-close="cancel">Abbrechen</button>
+      <h2 id="moveTitle">Verschieben</h2>
+      <button class="bar-btn strong" value="ok">Fertig</button>
+    </div>
+    <div class="sheet-body">
+      <p class="sheet-note" id="moveText"></p>
+      <div class="group"><label class="frow"><span>Neuer Tag</span><input class="pill-input" type="date" name="date" required></label></div>
+      <h3 class="sec-title" style="margin-top:4px">Auslastung der nächsten Tage</h3>
+      <ul class="list" id="moveDays"></ul>
     </div>
   </form>
 </dialog>
 
-<!-- Dialog: Menü mit Export / Import -->
-<dialog id="menuDialog">
+<!-- Sheet: Menü -->
+<dialog class="sheet" id="menuDialog">
   <form method="dialog">
-    <h2>Menü</h2>
-    <div class="menu-list">
-      <button class="btn" type="button" id="templatesBtn">↻ Wiederkehrende Aufgaben</button>
+    <div class="grabber"></div>
+    <div class="sheet-bar">
+      <span></span><h2>Menü</h2>
+      <button class="bar-btn strong" value="close">Fertig</button>
     </div>
-    <h2 style="margin-top:18px">Sicherung</h2>
-    <p>Deine Aufgaben liegen nur auf diesem Gerät. Mach ab und zu ein Backup.</p>
-    <div class="menu-list">
-      <button class="btn" type="button" id="exportBtn">Backup exportieren (JSON)</button>
-      <button class="btn" type="button" id="importBtn">Backup importieren …</button>
+    <div class="sheet-body">
+      <ul class="list">
+        <li><button type="button" class="row-btn" id="templatesBtn"><span class="row-main">Wiederkehrende Aufgaben</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button></li>
+      </ul>
+      <h3 class="sec-title">Sicherung</h3>
+      <ul class="list">
+        <li><button type="button" class="row-btn" id="exportBtn"><span class="row-main">Backup exportieren (JSON)</span></button></li>
+        <li><button type="button" class="row-btn" id="importBtn"><span class="row-main">Backup importieren …</span></button></li>
+      </ul>
+      <p class="sheet-note" id="menuInfo" style="margin-top:12px"></p>
     </div>
-    <p class="small" id="menuInfo" style="margin-top:14px"></p>
-    <div class="actions"><button class="btn" value="close">Schließen</button></div>
   </form>
   <input type="file" id="importFile" accept="application/json,.json" hidden>
 </dialog>
 
-<!-- Dialog: Liste der wiederkehrenden Aufgaben -->
-<dialog id="templatesDialog">
+<!-- Sheet: Liste der wiederkehrenden Aufgaben -->
+<dialog class="sheet" id="templatesDialog">
   <form method="dialog">
-    <h2>Wiederkehrende Aufgaben</h2>
-    <p>Antippen zum Ändern. Änderungen gelten für alle offenen Tage ab heute.</p>
-    <ul class="tpl-list" id="tplList"></ul>
-    <div class="actions">
-      <button class="btn" type="button" id="tplNewBtn">+ Neu</button>
-      <span class="spacer"></span>
-      <button class="btn" value="close">Schließen</button>
+    <div class="grabber"></div>
+    <div class="sheet-bar">
+      <button type="button" class="bar-btn" id="tplNewBtn">Neu</button>
+      <h2>Wiederkehrend</h2>
+      <button class="bar-btn strong" value="close">Fertig</button>
     </div>
+    <div class="sheet-body" id="tplList"></div>
   </form>
 </dialog>
 
-<!-- Dialog: eine wiederkehrende Aufgabe anlegen / ändern -->
-<dialog id="tplDialog">
+<!-- Sheet: eine wiederkehrende Aufgabe ändern -->
+<dialog class="sheet" id="tplDialog">
   <form method="dialog" id="tplForm">
-    <h2 id="tplTitle">Wiederkehrende Aufgabe</h2>
-    <label class="field"><span>Titel</span><input name="title" required maxlength="200" autocomplete="off"></label>
-    <label class="field"><span>Notiz (optional)</span><textarea name="note" maxlength="1000"></textarea></label>
-    <fieldset class="weekdays" id="tplDays">
-      <legend>An welchen Tagen?</legend>
-      <!-- value = JavaScript-Wochentag (0 = Sonntag) -->
-      <label><input type="checkbox" value="1"><span>Mo</span></label>
-      <label><input type="checkbox" value="2"><span>Di</span></label>
-      <label><input type="checkbox" value="3"><span>Mi</span></label>
-      <label><input type="checkbox" value="4"><span>Do</span></label>
-      <label><input type="checkbox" value="5"><span>Fr</span></label>
-      <label><input type="checkbox" value="6"><span>Sa</span></label>
-      <label><input type="checkbox" value="0"><span>So</span></label>
-    </fieldset>
-    <label class="check-row"><input type="checkbox" name="fixed"> Fester Termin (steht im Tag oben)</label>
-    <div class="actions">
-      <button class="btn danger" value="delete" formnovalidate id="tplDeleteBtn">Löschen</button>
-      <span class="spacer"></span>
-      <button class="btn" value="cancel" formnovalidate>Abbrechen</button>
-      <button class="btn primary" value="save">Speichern</button>
+    <div class="grabber"></div>
+    <div class="sheet-bar">
+      <button type="button" class="bar-btn" data-close="cancel">Abbrechen</button>
+      <h2 id="tplTitle">Wiederkehrend</h2>
+      <button class="bar-btn strong" value="save">Fertig</button>
+    </div>
+    <div class="sheet-body">
+      <p class="sheet-note">Änderungen gelten für alle offenen Tage ab heute.</p>
+      <div class="group">
+        <input class="field-text" name="title" placeholder="Titel" required maxlength="200" autocomplete="off" aria-label="Titel">
+        <textarea class="field-text" name="note" placeholder="Notiz (optional)" maxlength="1000" aria-label="Notiz"></textarea>
+      </div>
+      <div class="group">
+        <fieldset class="weekdays" id="tplDays">
+          <legend class="vh">An welchen Tagen?</legend>
+          <label><input type="checkbox" value="1"><span>Mo</span></label>
+          <label><input type="checkbox" value="2"><span>Di</span></label>
+          <label><input type="checkbox" value="3"><span>Mi</span></label>
+          <label><input type="checkbox" value="4"><span>Do</span></label>
+          <label><input type="checkbox" value="5"><span>Fr</span></label>
+          <label><input type="checkbox" value="6"><span>Sa</span></label>
+          <label><input type="checkbox" value="0"><span>So</span></label>
+        </fieldset>
+        <div class="seg-row">
+          <div class="seg" role="radiogroup" aria-label="Abschnitt">
+            <label><input type="radio" name="section" value="morgen"><span>Morgen</span></label>
+            <label><input type="radio" name="section" value="tag"><span>Tag</span></label>
+            <label><input type="radio" name="section" value="abend"><span>Abend</span></label>
+          </div>
+        </div>
+        <label class="frow"><span>Dauer (Min.)</span><input class="pill-input" type="number" name="mins" min="0" max="1440" step="5" inputmode="numeric"></label>
+        <label class="frow"><span>Fester Termin</span><input class="switch" type="checkbox" name="fixed" role="switch"></label>
+      </div>
+      <div class="group">
+        <label class="frow"><span>Gültig ab</span><input class="pill-input" type="date" name="from"></label>
+        <label class="frow"><span>Gültig bis</span><input class="pill-input" type="date" name="until"></label>
+      </div>
+      <p class="sheet-note">Gültig ab/bis leer lassen = immer (bis Ramadan).</p>
+      <div class="group" id="tplDeleteGroup"><button type="button" class="danger-btn" data-close="delete">Löschen</button></div>
     </div>
   </form>
 </dialog>
@@ -331,42 +427,87 @@
 // Erster Tag des Ramadan (Jahr-Monat-Tag). Die Tagesliste läuft bis zum Vortag.
 const RAMADAN_START = "2027-02-08";
 
-// Wie viele Tage die Liste „Nächste Tage" auf einmal zeigt.
+// Wie viele Tage „Nächste Tage" im Reiter Plan auf einmal zeigt.
 const DAYS_PER_PAGE = 14;
+
+// Ab so vielen Minuten Termine + Aufgaben gilt ein Tag als „voll" (12 Std.).
+const VOLLER_TAG_MIN = 12 * 60;
+// Unter diesem Anteil von „voll" gilt ein Tag als „luftig".
+const LUFTIG_ANTEIL = 0.6;
+
+// Dauer (Min.), die eine schnell eingetippte neue Aufgabe bekommt.
+const STANDARD_DAUER = 30;
 
 // Name des Eintrags im localStorage. Nicht ändern, sonst sind die Daten „weg".
 const STORAGE_KEY = "tagesplan.v1";
+const BACKUP_KEY = "tagesplan.v1.backup-v2";   // Sicherheitskopie vor dem Umstellen auf Version 3
+const DATA_VERSION = 3;
+
+// Die drei Tagesabschnitte.
+const ABSCHNITTE = [
+  { id: "morgen", name: "Morgen" },
+  { id: "tag",    name: "Tag" },
+  { id: "abend",  name: "Abend" }
+];
+const SECTION_IDS = ABSCHNITTE.map(a => a.id);
 
 // Wochentage wie in JavaScript: 0 = Sonntag, 1 = Montag, … 6 = Samstag
 const SO = 0, MO = 1, DI = 2, MI = 3, DO = 4, FR = 5, SA = 6;
 const TAEGLICH = [MO, DI, MI, DO, FR, SA, SO];
 
-// Deine Startvorlagen. Sie werden NUR beim allerersten Öffnen übernommen.
+// Deine Startvorlagen. Sie werden NUR beim ersten Öffnen übernommen.
 // Danach änderst du sie in der App (Menü → Wiederkehrende Aufgaben).
-// fixed: true = fester Termin (steht im Tag ganz oben).
+//   fixed: true  = fester Termin (steht im Abschnitt zuerst, Navy-Streifen)
+//   mins         = Dauer in Minuten inkl. Weg (30 Min. pro Richtung); 0 = zählt nicht zur Tageslast
+//   from/until   = nur in diesem Zeitraum gültig (Lernphasen vor Prüfungen)
 const START_VORLAGEN = [
   // --- Feste Termine ---
-  { title: "Mit meiner Frau",                 note: "ganzer Tag",                      days: [MO], fixed: true },
-  { title: "Mit meiner Frau",                 note: "bis ca. 15–16 Uhr",               days: [DI], fixed: true },
-  { title: "Mit meiner Frau",                 note: "abends",                          days: [SA], fixed: true },
-  { title: "Arbeit",                          note: "bis ca. 15 Uhr",                  days: [MI, DO], fixed: true },
-  { title: "Arbeit",                          note: "bis 13:30 Uhr",                   days: [FR], fixed: true },
-  { title: "Jumuʿa",                          note: "ab 13:30, zurück ca. 15 Uhr",     days: [FR], fixed: true },
-  { title: "Quran in der Moschee",            note: "nach der Arbeit bis Ishaa",       days: [MI], fixed: true },
-  { title: "Vortrag in der Moschee",          note: "abends, ca. 2 Std. + Weg",        days: [FR], fixed: true },
-  { title: "Quran-Unterricht in der Moschee", note: "ca. 10–16 Uhr + Weg",             days: [SO], fixed: true },
-  // --- Pro Woche ---
-  { title: "Quran-Unterricht mit meiner Frau", note: "",                               days: [MO, DI, SA] },
-  { title: "Aqidah-Vortrag",                  note: "Mo/Di auch gemeinsam möglich",    days: [MO, DI, SA] },
-  { title: "Sport",                           note: "1,5–2 Std. + Weg",                days: [DI, DO, SA, SO] },
-  { title: "Uni lernen",                      note: "90 Min.",                         days: [DO, FR, SA] },
-  { title: "Hifz – auswendig lernen",         note: "am besten nach Fajr",             days: [MI, FR, SO] },
-  { title: "Buch lesen",                      note: "",                                days: [MO, MI, SA] },
+  { title: "Mit meiner Frau",                  note: "ganzer Tag",                           days: [MO],     fixed: true, section: "tag",   mins: 0 },
+  { title: "Mit meiner Frau",                  note: "bis ca. 15:30 Uhr",                    days: [DI],     fixed: true, section: "tag",   mins: 0 },
+  { title: "Mit meiner Frau",                  note: "abends",                               days: [SA],     fixed: true, section: "abend", mins: 0 },
+  { title: "Arbeit",                           note: "bis ca. 15 Uhr · inkl. Weg",           days: [MI, DO], fixed: true, section: "tag",   mins: 480 },
+  { title: "Arbeit",                           note: "bis 13:30 Uhr · inkl. Weg",            days: [FR],     fixed: true, section: "tag",   mins: 360 },
+  { title: "Jumuʿa",                           note: "ab 13:30, zurück ca. 15 Uhr",          days: [FR],     fixed: true, section: "tag",   mins: 90 },
+  { title: "Quran in der Moschee",             note: "nach der Arbeit bis Ishaa · inkl. Weg", days: [MI],    fixed: true, section: "abend", mins: 180 },
+  { title: "Vortrag in der Moschee",           note: "ca. 2 Std. + Weg",                     days: [FR],     fixed: true, section: "abend", mins: 180 },
+  { title: "Quran-Unterricht in der Moschee",  note: "ca. 10–16 Uhr + Weg",                  days: [SO],     fixed: true, section: "tag",   mins: 420 },
+  // --- Pro Woche (Zähler in „Woche") ---
+  { title: "Quran-Unterricht mit meiner Frau", note: "",                                     days: [MO, DI, SA],     section: "tag",    mins: 45 },
+  { title: "Aqidah-Vortrag",                   note: "bei der Arbeit nebenbei",              days: [MI, DO, FR],     section: "tag",    mins: 0 },
+  { title: "Sport",                            note: "inkl. Weg",                            days: [DI, DO, SA, SO], section: "abend",  mins: 180 },
+  { title: "Uni lernen",                       note: "",                                     days: [DO, FR, SA],     section: "tag",    mins: 90 },
+  // 4. Uni-Einheit montags in den 10 Tagen vor den Klausuren (5., 19., 27. Januar)
+  { title: "Uni lernen",                       note: "Klausurphase",                         days: [MO],             section: "tag",    mins: 90, from: "2026-12-26", until: "2027-01-26" },
+  { title: "Hifz – auswendig lernen",          note: "am besten nach Fajr",                  days: [MI, FR, SO],     section: "morgen", mins: 45 },
+  { title: "Buch lesen",                       note: "",                                     days: [MO, MI, SA],     section: "abend",  mins: 30 },
   // --- Täglich ---
-  { title: "Quran lesen",                     note: "abends",                          days: TAEGLICH },
-  { title: "Quran wiederholen",               note: "am besten nach Fajr",             days: TAEGLICH },
-  { title: "Theorie-Prüfung lernen",          note: "30–45 Min.",                      days: TAEGLICH },
-  { title: "Arabisch lernen",                 note: "30–45 Min.",                      days: TAEGLICH }
+  { title: "Quran lesen",                      note: "",                                     days: TAEGLICH, section: "abend",  mins: 30 },
+  { title: "Quran wiederholen",                note: "am besten nach Fajr",                  days: TAEGLICH, section: "morgen", mins: 20 },
+  { title: "Arabisch lernen",                  note: "",                                     days: TAEGLICH, section: "tag",    mins: 45 },
+  // Theorie-Prüfung am 1. Dezember: normal bis 23.11., dann Endspurt, am 30.11. nur Wiederholen
+  { title: "Theorie-Prüfung lernen",           note: "",                                     days: TAEGLICH, section: "tag",    mins: 45, until: "2026-11-23" },
+  { title: "Theorie – Endspurt",               note: "60–90 Min.",                           days: TAEGLICH, section: "tag",    mins: 90, from: "2026-11-24", until: "2026-11-29" },
+  { title: "Theorie – nur wiederholen",        note: "nichts Neues mehr",                    days: TAEGLICH, section: "tag",    mins: 45, from: "2026-11-30", until: "2026-11-30" }
+];
+
+// Feste Fristen (erscheinen im Reiter Plan mit Countdown und im jeweiligen Tag).
+const START_FRISTEN = [
+  { title: "Theorie-Prüfung", date: "2026-12-01" },
+  { title: "Klausur 1",       date: "2027-01-05" },   // Fach später per Antippen umbenennen
+  { title: "Klausur 2",       date: "2027-01-19" },
+  { title: "Klausur 3",       date: "2027-01-27" }
+];
+
+// Hifz-Ziel: rückwärts von Nuh (71) bis At-Taghābun (64). Verse pro Sure fürs Balkenverhältnis.
+const HIFZ_ZIEL = [
+  { n: 71, name: "Nuh",         verses: 28 },
+  { n: 70, name: "Al-Maʿārij",  verses: 44 },
+  { n: 69, name: "Al-Ḥāqqa",    verses: 52 },
+  { n: 68, name: "Al-Qalam",    verses: 52 },
+  { n: 67, name: "Al-Mulk",     verses: 30 },
+  { n: 66, name: "At-Taḥrīm",   verses: 12 },
+  { n: 65, name: "Aṭ-Ṭalāq",    verses: 12 },
+  { n: 64, name: "At-Taghābun", verses: 18 }
 ];
 
 
@@ -393,36 +534,59 @@ function addDays(key, n) {
 function todayKey() { return toKey(new Date()); }
 function daysBetween(a, b) { return Math.round((fromKey(b) - fromKey(a)) / 86400000); }
 function isWeekend(key) { const wd = fromKey(key).getDay(); return wd === 0 || wd === 6; }
+function weekStartOf(key) { return addDays(key, -((fromKey(key).getDay() + 6) % 7)); }   // Montag
 
-const fmtLong   = new Intl.DateTimeFormat("de-DE", { weekday: "long", day: "numeric", month: "long" });
-const fmtFull   = new Intl.DateTimeFormat("de-DE", { day: "numeric", month: "long", year: "numeric" });
-const fmtDow    = new Intl.DateTimeFormat("de-DE", { weekday: "short" });
-const fmtDayMon = new Intl.DateTimeFormat("de-DE", { day: "numeric", month: "short" });
+const fmtFull    = new Intl.DateTimeFormat("de-DE", { day: "numeric", month: "long", year: "numeric" });
+const fmtWeekday = new Intl.DateTimeFormat("de-DE", { weekday: "long" });
+const fmtDow     = new Intl.DateTimeFormat("de-DE", { weekday: "short" });
+const fmtDayMon  = new Intl.DateTimeFormat("de-DE", { day: "numeric", month: "short" });
+const fmtMonth   = new Intl.DateTimeFormat("de-DE", { month: "long" });
+const fmtDayLong = new Intl.DateTimeFormat("de-DE", { day: "numeric", month: "long" });
 
-function longDate(key)  { return fmtLong.format(fromKey(key)); }
-function shortDate(key) { return fmtDow.format(fromKey(key)).replace(".", "") + ", " + fmtDayMon.format(fromKey(key)); }
+function dow(key)       { return fmtDow.format(fromKey(key)).replace(".", ""); }
+function shortDate(key) { return dow(key) + ", " + fmtDayMon.format(fromKey(key)); }
+function longDate(key)  { return fmtWeekday.format(fromKey(key)) + ", " + fmtFull.format(fromKey(key)); }
+function inDays(date, today) {
+  const n = daysBetween(today, date);
+  return n === 0 ? "heute" : n === 1 ? "morgen" : n === -1 ? "gestern" : n > 1 ? "in " + n + " Tagen" : "vorbei";
+}
+// Minuten als „1 Std. 30 Min."
+function fmtMin(m) {
+  if (!m) return "0 Min.";
+  const h = Math.floor(m / 60), r = m % 60;
+  return h === 0 ? r + " Min." : h + " Std." + (r ? " " + r + " Min." : "");
+}
+function weekLabel(ws) {
+  const a = fromKey(ws), b = fromKey(addDays(ws, 6));
+  if (a.getMonth() === b.getMonth()) return a.getDate() + ".–" + b.getDate() + ". " + fmtMonth.format(b) + " " + b.getFullYear();
+  return fmtDayMon.format(a) + " – " + fmtDayMon.format(b) + " " + b.getFullYear();
+}
 
 
 /* ================================================================
    SPEICHER (localStorage)
-   Eine Aufgabe sieht so aus:
-   { id: "abc", date: "2026-11-09", title: "Einkaufen", note: "", done: false }
+   Eine Aufgabe:
+   { id, date: "2026-11-09", title, note, done, section: "morgen"|"tag"|"abend",
+     mins: 45, fixed: false, deadline: false }
    Kopien einer Vorlage haben zusätzlich:
-   templateId: "xyz"         – zu welcher Vorlage sie gehört
-   origDate: "2026-11-09"    – für welchen Tag sie ursprünglich erzeugt wurde
+   templateId – zu welcher Vorlage sie gehören,  origDate – für welchen Tag erzeugt
 
-   Eine Vorlage (wiederkehrende Aufgabe) sieht so aus:
-   { id, title, note, days: [1, 3], fixed: false, skip: ["2026-11-16"] }
+   Eine Vorlage (wiederkehrend):
+   { id, title, note, days: [1, 3], fixed, section, mins, from, until, skip: ["2026-11-16"] }
    skip = Tage, an denen du die Kopie gelöscht hast (wird nicht neu erzeugt).
    ================================================================ */
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 let tasks = [];
 let templates = [];
+let hifzDone = [];        // Nummern der Suren, die du schon kannst (aus HIFZ_ZIEL)
+
+function newId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function cleanMins(m) { m = Math.round(Number(m)); return Number.isFinite(m) && m > 0 ? Math.min(m, 1440) : 0; }
+function dateOrEmpty(s) { return typeof s === "string" && DATE_RE.test(s) ? s : ""; }
 
 function isValidTask(t) {
-  return t && typeof t.title === "string" && t.title.trim() !== "" &&
-         typeof t.date === "string" && DATE_RE.test(t.date);
+  return t && typeof t.title === "string" && t.title.trim() !== "" && typeof t.date === "string" && DATE_RE.test(t.date);
 }
 // Bringt eine (evtl. importierte) Aufgabe in eine saubere Form.
 function cleanTask(t) {
@@ -431,11 +595,15 @@ function cleanTask(t) {
     date: t.date,
     title: t.title.trim(),
     note: typeof t.note === "string" ? t.note.trim() : "",
-    done: t.done === true
+    done: t.done === true,
+    section: SECTION_IDS.includes(t.section) ? t.section : "tag",
+    mins: cleanMins(t.mins),
+    fixed: t.fixed === true,
+    deadline: t.deadline === true
   };
   if (typeof t.templateId === "string" && t.templateId) {
     task.templateId = t.templateId;
-    task.origDate = typeof t.origDate === "string" && DATE_RE.test(t.origDate) ? t.origDate : t.date;
+    task.origDate = dateOrEmpty(t.origDate) || t.date;
   }
   return task;
 }
@@ -443,36 +611,90 @@ function isValidTemplate(v) {
   return v && typeof v.title === "string" && v.title.trim() !== "" && Array.isArray(v.days);
 }
 function cleanTemplate(v) {
-  const days = [...new Set(v.days.filter(d => Number.isInteger(d) && d >= 0 && d <= 6))];
   return {
     id: typeof v.id === "string" && v.id ? v.id : newId(),
     title: v.title.trim(),
     note: typeof v.note === "string" ? v.note.trim() : "",
-    days,
+    days: [...new Set(v.days.filter(d => Number.isInteger(d) && d >= 0 && d <= 6))],
     fixed: v.fixed === true,
+    section: SECTION_IDS.includes(v.section) ? v.section : "tag",
+    mins: cleanMins(v.mins),
+    from: dateOrEmpty(v.from),
+    until: dateOrEmpty(v.until),
     skip: Array.isArray(v.skip) ? v.skip.filter(s => typeof s === "string" && DATE_RE.test(s)) : []
   };
 }
-
-// Lädt alles. Beim allerersten Öffnen (noch keine Vorlagen gespeichert)
-// werden die START_VORLAGEN übernommen.
-function loadData() {
-  let data = null;
-  try { data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); }
-  catch (e) { console.error(e); }
-  tasks = data && Array.isArray(data.tasks) ? data.tasks.filter(isValidTask).map(cleanTask) : [];
-  templates = data && Array.isArray(data.templates)
-    ? data.templates.filter(isValidTemplate).map(cleanTemplate)
-    : START_VORLAGEN.map(cleanTemplate);
+function cleanHifz(list) {
+  const valid = HIFZ_ZIEL.map(s => s.n);
+  return Array.isArray(list) ? [...new Set(list.filter(n => valid.includes(n)))] : [];
 }
+
+// Legt die festen Fristen an (nur beim ersten Öffnen bzw. beim Umstellen auf Version 3).
+function seedFristen() {
+  for (const f of START_FRISTEN) {
+    if (tasks.some(t => t.deadline && t.title === f.title && t.date === f.date)) continue;
+    tasks.push(cleanTask({ date: f.date, title: f.title, deadline: true, fixed: true, section: "tag", mins: 0 }));
+  }
+}
+
+// Lädt alles. Ältere Daten (Version 2) werden auf den neuen Plan umgestellt.
+function loadData() {
+  let raw = null, data = null;
+  try { raw = localStorage.getItem(STORAGE_KEY); data = JSON.parse(raw || "null"); }
+  catch (e) { console.error(e); }
+
+  if (!data) {                        // allererster Start
+    tasks = [];
+    templates = START_VORLAGEN.map(cleanTemplate);
+    hifzDone = [];
+    seedFristen();
+    return;
+  }
+  tasks = Array.isArray(data.tasks) ? data.tasks.filter(isValidTask).map(cleanTask) : [];
+  templates = Array.isArray(data.templates) ? data.templates.filter(isValidTemplate).map(cleanTemplate)
+                                            : START_VORLAGEN.map(cleanTemplate);
+  hifzDone = cleanHifz(data.hifzDone);
+  if (!(data.version >= DATA_VERSION)) migrateToV3(raw);
+}
+
+// Version 2 → 3: Der Wochenplan wird durch die neue Fassung ersetzt (Vorlagen mit gleichem Titel).
+// Behalten werden: eigene Aufgaben, eigene Vorlagen, alles Erledigte und selbst Verschobene.
+// Vorher wird der alte Stand einmalig als Sicherheitskopie abgelegt.
+function migrateToV3(raw) {
+  try { if (raw && !localStorage.getItem(BACKUP_KEY)) localStorage.setItem(BACKUP_KEY, raw); } catch (e) { /* egal */ }
+  const today = todayKey();
+  const fresh = START_VORLAGEN.map(cleanTemplate);
+  const seedTitles = new Set(fresh.map(v => v.title.toLowerCase()));
+  const oldById = new Map(templates.map(v => [v.id, v]));
+  const replaced = new Set(templates.filter(v => seedTitles.has(v.title.toLowerCase())).map(v => v.id));
+  const findNew = (title, date) =>
+    fresh.find(v => v.title.toLowerCase() === title.toLowerCase() && v.days.includes(fromKey(date).getDay()));
+
+  tasks = tasks.filter(t => {
+    if (!t.templateId) return true;
+    if (!replaced.has(t.templateId)) {                  // eigene Vorlage: Kopie bleibt
+      const own = templateById(t.templateId);
+      if (own) { t.fixed = own.fixed; t.section = own.section; t.mins = own.mins; }
+      return true;
+    }
+    const moved = t.date !== t.origDate;
+    if (!t.done && t.date >= today && !moved) return false;   // wird neu erzeugt
+    const nv = findNew(oldById.get(t.templateId).title, t.origDate);
+    if (nv) Object.assign(t, { templateId: nv.id, section: nv.section, mins: nv.mins, fixed: nv.fixed });
+    else { delete t.templateId; delete t.origDate; }          // bleibt als normale Aufgabe
+    return true;
+  });
+  templates = templates.filter(v => !replaced.has(v.id)).concat(fresh);
+  seedFristen();
+}
+
 function saveData() {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 2, tasks, templates }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: DATA_VERSION, tasks, templates, hifzDone }));
   } catch (e) {
     alert("Speichern hat nicht geklappt. Ist der Speicher voll oder privates Surfen aktiv?");
   }
 }
-function newId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
 
 
 /* ================================================================
@@ -482,49 +704,49 @@ function newId() { return Date.now().toString(36) + Math.random().toString(36).s
    ================================================================ */
 
 function templateById(id) { return templates.find(v => v.id === id); }
-function isDailyTemplate(v) { return v && v.days.length === 7; }
+function isDailyTemplate(v) { return !!v && v.days.length === 7; }
 function isDailyTask(t) { return !!t.templateId && isDailyTemplate(templateById(t.templateId)); }
+function templateActiveOn(v, date) {
+  return v.days.includes(fromKey(date).getDay()) && !(v.from && date < v.from) && !(v.until && date > v.until);
+}
 
 const WD_NAMES = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
-const WD_ORDER = [MO, DI, MI, DO, FR, SA, SO];   // Anzeige-Reihenfolge
+const WD_ORDER = [MO, DI, MI, DO, FR, SA, SO];
 function daysLabel(days) {
   if (days.length === 7) return "täglich";
   return WD_ORDER.filter(d => days.includes(d)).map(d => WD_NAMES[d]).join(", ");
 }
 
-// Legt fehlende Kopien an (ab heute). Gibt die Anzahl neuer Kopien zurück.
+// Legt fehlende Kopien an (ab heute).
 function generateRecurring() {
   const last = addDays(RAMADAN_START, -1);
   const have = new Set(tasks.filter(t => t.templateId).map(t => t.templateId + "|" + t.origDate));
-  let added = 0;
   for (let d = todayKey(); d <= last; d = addDays(d, 1)) {
-    const wd = fromKey(d).getDay();
     for (const v of templates) {
-      if (!v.days.includes(wd) || v.skip.includes(d) || have.has(v.id + "|" + d)) continue;
-      tasks.push({ id: newId(), date: d, title: v.title, note: v.note, done: false,
-                   templateId: v.id, origDate: d });
-      added++;
+      if (!templateActiveOn(v, d) || v.skip.includes(d) || have.has(v.id + "|" + d)) continue;
+      tasks.push({ id: newId(), date: d, title: v.title, note: v.note, done: false, section: v.section,
+                   mins: v.mins, fixed: v.fixed, deadline: false, templateId: v.id, origDate: d });
     }
   }
-  return added;
 }
 
-// Vorlage anlegen (id = null) oder ändern. Änderungen gelten für alle
-// offenen Kopien ab heute; erledigte und vergangene bleiben, wie sie sind.
-function saveTemplate(id, title, note, days, fixed) {
+// Vorlage anlegen (id = null) oder ändern. Änderungen gelten für alle offenen
+// Kopien ab heute; Erledigtes und Vergangenes bleibt, wie es ist.
+function saveTemplate(id, f) {
   const today = todayKey();
-  title = title.trim(); note = note.trim();
+  const c = { title: f.title.trim(), note: f.note.trim(), days: f.days, fixed: f.fixed, section: f.section,
+              mins: cleanMins(f.mins), from: dateOrEmpty(f.from), until: dateOrEmpty(f.until) };
   let v = templateById(id);
   if (!v) {
-    v = { id: newId(), title, note, days, fixed, skip: [] };
+    v = cleanTemplate(c);          // gleiche Aufbereitung wie beim Laden und Import
     templates.push(v);
   } else {
-    Object.assign(v, { title, note, days, fixed });
+    Object.assign(v, c);
     tasks = tasks.filter(t => {
       if (t.templateId !== v.id || t.done || t.date < today) return true;
-      // Unverschobene Kopien an Wochentagen, die nicht mehr dabei sind, entfernen.
-      if (t.date === t.origDate && !days.includes(fromKey(t.date).getDay())) return false;
-      t.title = title; t.note = note;
+      // Unverschobene Kopien außerhalb von Tagen/Zeitraum entfernen.
+      if (t.date === t.origDate && !templateActiveOn(v, t.date)) return false;
+      Object.assign(t, { title: v.title, note: v.note, section: v.section, mins: v.mins, fixed: v.fixed });
       return true;
     });
   }
@@ -548,37 +770,44 @@ function commit() { saveData(); render(); }
 
 function findTask(id) { return tasks.find(t => t.id === id); }
 
-// Reihenfolge im Tag: feste Termine · eigene Aufgaben · wöchentliche · tägliche
+// Reihenfolge im Tag: Abschnitt · feste Termine · eigene · wöchentliche · tägliche
 function rank(t) {
+  if (t.fixed) return 0;
   if (!t.templateId) return 1;
-  const v = templateById(t.templateId);
-  if (v && v.fixed) return 0;
-  return isDailyTemplate(v) ? 3 : 2;
+  return isDailyTemplate(templateById(t.templateId)) ? 3 : 2;
 }
 function tasksOn(date) {
-  const order = (t) => templates.findIndex(v => v.id === t.templateId);
+  const tIdx = (t) => templates.findIndex(v => v.id === t.templateId);
   return tasks
     .map((t, i) => ({ t, i }))
     .filter(x => x.t.date === date)
-    .sort((a, b) => rank(a.t) - rank(b.t) || order(a.t) - order(b.t) || a.i - b.i)
+    .sort((a, b) => SECTION_IDS.indexOf(a.t.section) - SECTION_IDS.indexOf(b.t.section)
+                 || rank(a.t) - rank(b.t) || tIdx(a.t) - tIdx(b.t) || a.i - b.i)
     .map(x => x.t);
 }
-// Was „Tag verschieben" mitnimmt: alles Offene außer den täglichen Aufgaben.
+// Was „Offene verschieben" mitnimmt: alles Offene außer den täglichen Aufgaben.
 function movableOpenTasks(date) { return tasksOn(date).filter(t => !t.done && !isDailyTask(t)); }
 
-function addTask(date, title) {
+function addTask(date, section, title) {
   title = title.trim();
   if (!title) return;
-  tasks.push({ id: newId(), date, title, note: "", done: false });
+  tasks.push(cleanTask({ date, title, section, mins: STANDARD_DAUER }));
+  commit();
+}
+function createTask(f) {
+  tasks.push(cleanTask(f));
   commit();
 }
 function toggleTask(id) {
   const t = findTask(id);
   if (t) { t.done = !t.done; commit(); }
 }
-function updateTask(id, title, note) {
+function updateTask(id, f) {
   const t = findTask(id);
-  if (t && title.trim()) { t.title = title.trim(); t.note = note.trim(); commit(); }
+  if (!t || !f.title.trim()) return;
+  Object.assign(t, { title: f.title.trim(), note: f.note.trim(), section: f.section, mins: cleanMins(f.mins),
+                     date: f.date, fixed: f.fixed });
+  commit();
 }
 function deleteTask(id) {
   const t = findTask(id);
@@ -592,23 +821,69 @@ function moveTask(id, date) {
   const t = findTask(id);
   if (t) { t.date = date; commit(); }
 }
-// Offene Aufgaben eines Tages auf einen anderen Tag
-// (erledigte und tägliche bleiben stehen).
+// Offene Aufgaben eines Tages auf einen anderen Tag (erledigte und tägliche bleiben stehen).
 function moveOpenTasks(fromDate, toDate) {
   movableOpenTasks(fromDate).forEach(t => { t.date = toDate; });
   commit();
 }
-// Überfällige (offen + vor heute) auf heute holen.
+// Überfällige einmalige Aufgaben (offen, vor heute) auf heute holen.
+// Wiederkehrende, Termine und Fristen zählen nicht: sie würden sich nur stapeln.
+function overdueTasks() {
+  const today = todayKey();
+  return tasks.filter(t => !t.done && t.date < today && !t.templateId && !t.fixed && !t.deadline)
+              .sort((a, b) => a.date.localeCompare(b.date));
+}
 function moveOverdueToToday() {
   const today = todayKey();
   overdueTasks().forEach(t => { t.date = today; });
   commit();
 }
-function overdueTasks() {
-  const today = todayKey();
-  // Wiederkehrende zählen nicht als überfällig – sonst stapeln sie sich hier.
-  return tasks.filter(t => !t.done && t.date < today && !t.templateId)
-              .sort((a, b) => a.date.localeCompare(b.date));
+function toggleHifz(n) {
+  hifzDone = hifzDone.includes(n) ? hifzDone.filter(x => x !== n) : hifzDone.concat(n);
+  commit();
+}
+
+
+/* ================================================================
+   AUSWERTUNG: Tageslast und Wochenziele
+   ================================================================ */
+
+function dayMinutes(date) { return tasksOn(date).reduce((s, t) => s + (t.mins || 0), 0); }
+function loadInfo(min) {
+  const f = min / VOLLER_TAG_MIN;
+  return f >= 1 ? { key: "voll", label: "voll" } : f >= LUFTIG_ANTEIL ? { key: "gut", label: "gut gefüllt" }
+                                                                      : { key: "luftig", label: "luftig" };
+}
+function loadPct(min) { return Math.min(100, Math.round(min / VOLLER_TAG_MIN * 100)); }
+
+// Frühester Tag, für den es Kopien gibt. Davor weiß die App nichts (z. B. Tage vor der Installation).
+function dataStart() {
+  let min = todayKey();
+  for (const t of tasks) if (t.templateId && t.origDate < min) min = t.origDate;
+  return min;
+}
+
+// Wochenziele: Soll aus den Vorlagen (gleiche Titel zusammen), erledigt aus den Kopien der Woche.
+function weeklyGoals(weekStart) {
+  const days = [0, 1, 2, 3, 4, 5, 6].map(i => addDays(weekStart, i));
+  const groups = new Map();
+  const start = dataStart();
+  for (const v of templates) {
+    if (v.fixed || isDailyTemplate(v)) continue;
+    for (const d of days) {
+      if (d < start || !templateActiveOn(v, d)) continue;
+      const g = groups.get(v.title) || { title: v.title, goal: 0, done: 0 };
+      g.goal++;
+      groups.set(v.title, g);
+    }
+  }
+  for (const t of tasks) {
+    if (!t.templateId || !t.done || t.origDate < weekStart || t.origDate > days[6]) continue;
+    const v = templateById(t.templateId);
+    const g = v && groups.get(v.title);
+    if (g) g.done++;
+  }
+  return [...groups.values()].map(g => Object.assign(g, { done: Math.min(g.done, g.goal) }));
 }
 
 
@@ -628,219 +903,408 @@ function h(tag, attrs, ...children) {
   for (const c of children.flat()) if (c != null && c !== false) el.append(c);
   return el;
 }
+function withHTML(el, html) { el.innerHTML = html; return el; }
 
-const ICON_MOVE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="13" height="15" rx="2"/><path d="M3 10h13M7 3v4M12 3v4M15 15h6M18 12l3 3-3 3"/></svg>';
-const ICON_CHEV = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+const ICON_MORE = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5.5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="18.5" cy="12" r="1.9"/></svg>';
+const ICON_MOVE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="13" height="15" rx="2"/><path d="M3 10h13M7 3v4M12 3v4M15 15h6M18 12l3 3-3 3"/></svg>';
+const ICON_CHEV = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+const ICON_PLUS = '<span><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 1.5v9M1.5 6h9"/></svg></span>';
+const ICON_LEFT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>';
+const ICON_RIGHT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
 
-let shownDays = DAYS_PER_PAGE;   // wie viele kommende Tage sichtbar sind
-const openDays = new Set();      // welche Tage in der Liste aufgeklappt sind
-let renderedFor = null;          // für welchen „heute" zuletzt gezeichnet wurde
+let view = "heute";                      // heute | woche | plan
+let weekStart = weekStartOf(todayKey()); // welche Woche der Reiter „Woche" zeigt
+let shownDays = DAYS_PER_PAGE;           // wie viele kommende Tage der Plan zeigt
+const openDays = new Set();              // aufgeklappte Tage im Reiter „Woche"
+let renderedFor = null;                  // für welchen „heute" zuletzt gezeichnet wurde
 
-// Eine Aufgabenzeile: [Haken] [Titel/Notiz – antippen = bearbeiten] [Verschieben]
+function pageHead(title, sub, extra) {
+  const menu = withHTML(h("button", { class: "round-btn", "data-action": "menu", "aria-label": "Menü" }), ICON_MORE);
+  return h("header", { class: "head" },
+    h("div", {}, h("h1", { text: title }), sub ? h("p", { class: "sub", text: sub }) : null, extra),
+    menu);
+}
+
+// Eine Aufgabenzeile: [Haken] [Titel/Details – antippen = bearbeiten] [Verschieben]
 function taskRow(t, showDate) {
-  const move = h("button", { class: "icon-btn", "data-action": "move", "data-id": t.id,
-                             "aria-label": "Verschieben: " + t.title });
-  move.innerHTML = ICON_MOVE;
-  return h("li", { class: "task" + (t.done ? " done" : "") },
+  const meta = [t.mins ? fmtMin(t.mins) : null, t.note || null].filter(Boolean).join(" · ");
+  const move = withHTML(h("button", { class: "icon-btn", "data-action": "move", "data-id": t.id,
+                                      "aria-label": "Verschieben: " + t.title }), ICON_MOVE);
+  return h("li", { class: "task" + (t.done ? " done" : "") + (t.fixed ? " fixed" : "") },
     h("button", { class: "check", role: "checkbox", "aria-checked": String(t.done),
                   "aria-label": "Erledigt: " + t.title, "data-action": "toggle", "data-id": t.id }),
     h("button", { class: "task-body", "data-action": "edit", "data-id": t.id },
       showDate ? h("span", { class: "task-date", text: shortDate(t.date) }) : null,
       h("span", { class: "task-title" + (t.templateId ? " rep" : ""), text: t.title }),
-      t.note ? h("span", { class: "task-note", text: t.note }) : null
+      meta ? h("span", { class: "task-meta", text: meta }) : null
     ),
     move
   );
 }
 
-// Inhalt eines Tages: Aufgabenliste + Eingabefeld + „Offene verschieben…"
-function dayContent(date) {
-  const list = tasksOn(date);
-  const open = movableOpenTasks(date).length;
-  return [
-    list.length
-      ? h("ul", { class: "tasks" }, list.map(t => taskRow(t, false)))
-      : h("p", { class: "empty", text: "Noch nichts geplant." }),
-    h("form", { class: "add", "data-date": date },
-      h("input", { name: "title", placeholder: "Neue Aufgabe …", autocomplete: "off",
-                   enterkeyhint: "done", "aria-label": "Neue Aufgabe für " + longDate(date) }),
-      h("button", { type: "submit", "aria-label": "Hinzufügen", text: "+" })
-    ),
-    open > 0
-      ? h("button", { class: "link-btn", "data-action": "move-day", "data-date": date,
-                      text: open === 1 ? "Offene Aufgabe verschieben …" : "Alle " + open + " offenen verschieben …" })
-      : null
-  ];
-}
-
-function renderHeader(today) {
-  const n = daysBetween(today, RAMADAN_START);
-  let text = "";
-  if (n > 1) text = "Noch " + n + " Tage bis Ramadan";
-  else if (n === 1) text = "Morgen beginnt Ramadan";
-  else if (n === 0) text = "Heute beginnt Ramadan";
-  document.getElementById("countdown").textContent = text;
-}
-
-function renderOverdue() {
-  const box = document.getElementById("overdue");
-  const list = overdueTasks();
-  box.replaceChildren();
-  if (!list.length) return;
-  box.append(h("div", { class: "card overdue" },
-    h("div", { class: "card-head" },
-      h("span", { class: "eyebrow", text: "Noch offen von früher (" + list.length + ")" }),
-      h("button", { class: "link-btn", "data-action": "overdue-today", text: "Alle auf heute" })
-    ),
-    h("ul", { class: "tasks" }, list.map(t => taskRow(t, true)))
-  ));
-}
-
-function renderToday(today) {
-  document.getElementById("today").replaceChildren(
-    h("div", { class: "card today" },
-      h("span", { class: "eyebrow", text: "Heute" }),
-      h("h2", { text: longDate(today) }),
-      dayContent(today)
+// Zeile „Neue Aufgabe" am Ende eines Abschnitts
+function addRow(date, section) {
+  return h("li", { class: "add-row" },
+    h("form", { class: "add", "data-date": date, "data-section": section },
+      withHTML(h("span", { class: "plus", "aria-hidden": "true" }), ICON_PLUS),
+      h("input", { name: "title", placeholder: "Neue Aufgabe", autocomplete: "off", enterkeyhint: "done",
+                   "aria-label": "Neue Aufgabe, Abschnitt " + ABSCHNITTE.find(a => a.id === section).name }),
+      h("button", { type: "submit", class: "vh", text: "Hinzufügen" })
     )
   );
 }
 
-function renderUpcoming(today) {
-  // Letzter Tag: Vortag des Ramadan – oder weiter, falls dort schon Aufgaben liegen.
+// Inhalt eines Tages: drei Abschnitte + „Offene verschieben …"
+function dayContent(date) {
+  const list = tasksOn(date);
+  const open = movableOpenTasks(date).length;
+  const out = [];
+  for (const s of ABSCHNITTE) {
+    const items = list.filter(t => t.section === s.id);
+    const mins = items.reduce((sum, t) => sum + (t.mins || 0), 0);
+    out.push(
+      h("h2", { class: "sec-title" }, s.name, mins ? h("span", { text: fmtMin(mins) }) : null),
+      h("ul", { class: "list" }, items.map(t => taskRow(t, false)), addRow(date, s.id))
+    );
+  }
+  if (open > 0) {
+    out.push(h("button", { class: "link-btn", "data-action": "move-day", "data-date": date,
+                           text: open === 1 ? "Offene Aufgabe verschieben …" : "Alle " + open + " offenen verschieben …" }));
+  }
+  return out;
+}
+
+// Karte „Tageslast"
+function loadCard(date) {
+  const list = tasksOn(date);
+  const min = dayMinutes(date);
+  const info = loadInfo(min);
+  const done = list.filter(t => t.done).length;
+  return h("section", { class: "card " + info.key, "aria-label": "Tageslast" },
+    h("div", { class: "load-top" },
+      h("span", { class: "load-label", text: "Tageslast" }),
+      h("span", { class: "pill " + info.key, text: info.label })),
+    h("div", { class: "bar", role: "img", "aria-label": loadPct(min) + " Prozent von " + fmtMin(VOLLER_TAG_MIN) },
+      h("i", { style: "width:" + loadPct(min) + "%" })),
+    h("p", { class: "load-sub", text: fmtMin(min) + " geplant · " + done + " von " + list.length + " erledigt" })
+  );
+}
+
+function nextFrist(today) {
+  return tasks.filter(t => t.deadline && t.date >= today).sort((a, b) => a.date.localeCompare(b.date))[0];
+}
+function ramadanText(today) {
+  const n = daysBetween(today, RAMADAN_START);
+  return n > 1 ? "Noch " + n + " Tage bis Ramadan" : n === 1 ? "Morgen beginnt Ramadan" : n === 0 ? "Heute beginnt Ramadan" : "";
+}
+
+/* ---------- Reiter „Heute" ---------- */
+function viewHeute(today) {
+  const nf = nextFrist(today);
+  const out = [
+    pageHead(fmtWeekday.format(fromKey(today)),
+             [fmtDayLong.format(fromKey(today)), ramadanText(today)].filter(Boolean).join(" · "),
+             nf ? h("p", { class: "sub accent", text: nf.title + " · " + inDays(nf.date, today) }) : null),
+    loadCard(today)
+  ];
+  const od = overdueTasks();
+  if (od.length) {
+    out.push(
+      h("div", { class: "overdue-head" },
+        h("h2", { class: "sec-title", text: "Noch offen von früher (" + od.length + ")" }),
+        h("button", { class: "link-btn", "data-action": "overdue-today", text: "Alle auf heute" })),
+      h("ul", { class: "list" }, od.map(t => taskRow(t, true)))
+    );
+  }
+  return out.concat(dayContent(today));
+}
+
+/* ---------- Reiter „Woche" ---------- */
+function viewWoche(today) {
+  const minWeek = weekStartOf(addDays(today, -28));
+  const maxWeek = weekStartOf(addDays(RAMADAN_START, -1));
+  const navBtn = (action, icon, label, disabled) =>
+    withHTML(h("button", { class: "round-btn", "data-action": action, "aria-label": label, disabled: disabled }), icon);
+
+  const out = [
+    pageHead("Woche", weekLabel(weekStart)),
+    h("div", { class: "weeknav" },
+      navBtn("week-prev", ICON_LEFT, "Vorige Woche", weekStart <= minWeek),
+      weekStart === weekStartOf(today)
+        ? h("span", { class: "label", text: "Diese Woche" })
+        : h("button", { class: "link-btn label", "data-action": "week-today", text: "Zu dieser Woche" }),
+      navBtn("week-next", ICON_RIGHT, "Nächste Woche", weekStart >= maxWeek))
+  ];
+
+  const goals = weeklyGoals(weekStart);
+  if (goals.length) {
+    out.push(h("h2", { class: "sec-title", text: "Wochenziele" }),
+      h("ul", { class: "list" }, goals.map(g => {
+        const dots = [];
+        for (let i = 0; i < g.goal; i++) dots.push(h("span", { class: "dot" + (i < g.done ? " on" : "") }));
+        return h("li", { },
+          h("div", { class: "goal" + (g.done >= g.goal ? " complete" : ""), role: "group",
+                     "aria-label": g.title + ": " + g.done + " von " + g.goal + " erledigt" },
+            h("span", { class: "goal-name", text: g.title }),
+            h("span", { class: "dots", "aria-hidden": "true" }, dots),
+            h("span", { class: "goal-count", "aria-hidden": "true", text: g.done + " von " + g.goal })));
+      })));
+  }
+
+  out.push(h("h2", { class: "sec-title", text: "Tage" }));
+  const rows = [];
+  for (let i = 0; i < 7; i++) {
+    const date = addDays(weekStart, i);
+    const list = tasksOn(date);
+    const min = dayMinutes(date);
+    const info = loadInfo(min);
+    const unknown = date < today && list.length === 0;   // vor heute: die App hat dort nichts geplant
+    const details = h("details", {
+      class: "day" + (date === today ? " today" : "") + (date < today ? " past" : ""),
+      open: openDays.has(date), "data-date": date },
+      h("summary", {},
+        h("span", { class: "day-date" },
+          h("div", { class: "day-dow", text: dow(date) }),
+          h("div", { class: "day-num", text: fmtDayMon.format(fromKey(date)) })),
+        h("span", { class: "day-mid" },
+          h("div", { class: "day-preview" + (list.length ? " has" : ""), text: unknown ? "Keine Einträge" : dayPreview(list) }),
+          unknown ? null : h("div", { class: "day-preview", text: fmtMin(min) + " · " + info.label })),
+        unknown ? null : h("span", { class: "mini " + info.key, role: "img", "aria-label": "Tageslast: " + info.label },
+          h("i", { style: "width:" + loadPct(min) + "%" })),
+        withHTML(h("span", {}), ICON_CHEV).firstChild),
+      h("div", { class: "day-body" }, dayContent(date)));
+    details.addEventListener("toggle", () => { details.open ? openDays.add(date) : openDays.delete(date); });
+    rows.push(details);
+  }
+  out.push(h("div", { class: "days" }, rows));
+  return out;
+}
+
+// Vorschau eines Tages: Termine und Besonderes, tägliche Aufgaben nur als Zahl.
+function dayPreview(list) {
+  const special = list.filter(t => !isDailyTask(t)).map(t => t.title);
+  const daily = list.length - special.length;
+  if (daily) special.push("+ " + daily + " täglich");
+  return list.length ? special.join(" · ") : "frei";
+}
+
+/* ---------- Reiter „Plan" ---------- */
+function viewPlan(today) {
+  const out = [pageHead("Plan", ramadanText(today))];
+
+  // Fristen
+  const fristen = tasks.filter(t => t.deadline).sort((a, b) => a.date.localeCompare(b.date));
+  out.push(h("h2", { class: "sec-title", text: "Fristen" }),
+    h("ul", { class: "list" },
+      fristen.map(t => h("li", { class: t.date < today ? "past-row" : "" },
+        h("button", { class: "row-btn", "data-action": "edit", "data-id": t.id },
+          h("span", { class: "row-main" }, t.title, h("small", { text: longDate(t.date) })),
+          h("span", { class: "row-aside" + (daysBetween(today, t.date) >= 0 && daysBetween(today, t.date) <= 21 ? " soon" : ""),
+                      text: inDays(t.date, today) })))),
+      h("li", {}, h("button", { class: "row-btn", "data-action": "add-frist" },
+        withHTML(h("span", { class: "plus", "aria-hidden": "true", style: "width:auto;height:auto;margin-right:4px" }), ICON_PLUS),
+        h("span", { class: "row-main", style: "color:var(--accent)", text: "Frist hinzufügen" })))));
+
+  // Hifz-Ziel
+  const total = HIFZ_ZIEL.reduce((s, x) => s + x.verses, 0);
+  const got = HIFZ_ZIEL.filter(x => hifzDone.includes(x.n)).reduce((s, x) => s + x.verses, 0);
+  const last = HIFZ_ZIEL[HIFZ_ZIEL.length - 1];
+  const current = HIFZ_ZIEL.find(x => !hifzDone.includes(x.n));
+  out.push(h("h2", { class: "sec-title", text: "Hifz bis Ramadan" }),
+    h("section", { class: "card" },
+      h("div", { class: "load-top" },
+        h("span", { class: "load-label", text: "Ziel: " + last.name + " (" + last.n + ")" }),
+        h("span", { class: "pill", text: current ? "Jetzt: " + current.name : "geschafft" })),
+      h("div", { class: "bar", role: "img", "aria-label": got + " von " + total + " Versen" },
+        h("i", { style: "width:" + Math.round(got / total * 100) + "%" })),
+      h("p", { class: "hifz-count", text: got + " von " + total + " Versen · " + hifzDone.length + " von " + HIFZ_ZIEL.length + " Suren" }),
+      h("ul", { class: "list", style: "background:var(--bg);box-shadow:none;margin:0 -4px" },
+        HIFZ_ZIEL.map(x => {
+          const done = hifzDone.includes(x.n);
+          return h("li", { class: "hifz-row" + (done ? " done" : "") },
+            h("button", { class: "check", role: "checkbox", "aria-checked": String(done),
+                          "aria-label": x.name + " kann ich", "data-action": "hifz", "data-n": String(x.n) }),
+            h("span", { class: "row-main", text: x.name + " (" + x.n + ")" }),
+            h("span", { class: "verses", text: x.verses + " Verse" }));
+        }))));
+
+  // Nächste Tage
   let lastDay = addDays(RAMADAN_START, -1);
   for (const t of tasks) if (t.date > lastDay) lastDay = t.date;
   if (lastDay < addDays(today, DAYS_PER_PAGE)) lastDay = addDays(today, DAYS_PER_PAGE);
-
-  const total = daysBetween(today, lastDay);           // Tage nach heute
-  const count = Math.min(shownDays, total);
+  const totalDays = daysBetween(today, lastDay);
+  const count = Math.min(shownDays, totalDays);
   const rows = [];
   for (let i = 1; i <= count; i++) {
     const date = addDays(today, i);
     const list = tasksOn(date);
-    const open = list.filter(t => !t.done);
-    const d = fromKey(date);
-
-    // Vorschau: Termine und besondere Aufgaben, die täglichen nur als Zahl.
-    const special = list.filter(t => !isDailyTask(t)).map(t => t.title);
-    const daily = list.length - special.length;
-    if (daily) special.push("+ " + daily + " täglich");
-    const preview = list.length
-      ? h("span", { class: "day-preview has", text: special.join(" · ") })
-      : h("span", { class: "day-preview", text: "frei" });
-    const badge = open.length ? h("span", { class: "badge", text: String(open.length) }) : null;
-    const summary = h("summary", {},
-      h("span", { class: "day-date" },
-        h("div", { class: "day-dow", text: fmtDow.format(d).replace(".", "") }),
-        h("div", { class: "day-num", text: fmtDayMon.format(d) })
-      ),
-      preview, badge
-    );
-    summary.insertAdjacentHTML("beforeend", ICON_CHEV);
-
-    const details = h("details", { class: "day" + (isWeekend(date) ? " weekend" : ""),
-                                   open: openDays.has(date), "data-date": date },
-      summary,
-      h("div", { class: "day-body" }, dayContent(date))
-    );
-    // Auf-/Zuklappen merken, damit es beim Neuzeichnen erhalten bleibt.
-    details.addEventListener("toggle", () => {
-      details.open ? openDays.add(date) : openDays.delete(date);
-    });
-    rows.push(details);
+    const min = dayMinutes(date);
+    const info = loadInfo(min);
+    rows.push(h("li", {},
+      h("button", { class: "row-btn", "data-action": "goto", "data-date": date },
+        h("span", { class: "day-date" }, h("div", { class: "day-dow", style: isWeekend(date) ? "color:var(--accent)" : null, text: dow(date) }),
+                                         h("div", { class: "day-num", text: fmtDayMon.format(fromKey(date)) })),
+        h("span", { class: "day-mid", style: "flex:1;min-width:0" },
+          h("div", { class: "day-preview" + (list.length ? " has" : ""), text: dayPreview(list) })),
+        h("span", { class: "mini " + info.key, role: "img", "aria-label": "Tageslast: " + info.label },
+          h("i", { style: "width:" + loadPct(min) + "%" })),
+        withHTML(h("span", {}), ICON_CHEV).firstChild)));
   }
-
-  const box = document.getElementById("upcoming");
-  box.replaceChildren(h("div", { class: "days" }, rows));
-  if (count < total) {
-    const rest = Math.min(DAYS_PER_PAGE, total - count);
-    box.append(h("button", { class: "btn more", "data-action": "more",
-                             text: "Weitere " + rest + " Tage (bis " + fmtFull.format(fromKey(lastDay)) + ")" }));
+  out.push(h("h2", { class: "sec-title", text: "Nächste Tage" }), h("ul", { class: "list" }, rows));
+  if (count < totalDays) {
+    const rest = Math.min(DAYS_PER_PAGE, totalDays - count);
+    out.push(h("button", { class: "more", "data-action": "more",
+                           text: "Weitere " + rest + " Tage (bis " + fmtFull.format(fromKey(lastDay)) + ")" }));
   }
+  return out;
 }
 
 function render() {
   const today = todayKey();
   renderedFor = today;
-  renderHeader(today);
-  renderOverdue();
-  renderToday(today);
-  renderUpcoming(today);
+  const nodes = view === "woche" ? viewWoche(today) : view === "plan" ? viewPlan(today) : viewHeute(today);
+  document.getElementById("view").replaceChildren(...nodes);
+  document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === view)));
+}
+function setView(v) {
+  view = v;
+  window.scrollTo(0, 0);
+  render();
+}
+// Aus dem Plan in die passende Woche springen und den Tag aufklappen.
+function goToDay(date) {
+  weekStart = weekStartOf(date);
+  openDays.add(date);
+  setView("woche");
+  const el = document.querySelector('details[data-date="' + date + '"]');
+  if (el) el.scrollIntoView({ block: "start" });
 }
 
 
 /* ================================================================
-   DIALOGE
+   SHEETS (Dialoge von unten)
    ================================================================ */
 
 const editDialog = document.getElementById("editDialog");
+const editForm = document.getElementById("editForm");
 const moveDialog = document.getElementById("moveDialog");
 const menuDialog = document.getElementById("menuDialog");
+const templatesDialog = document.getElementById("templatesDialog");
+const tplDialog = document.getElementById("tplDialog");
+const tplForm = document.getElementById("tplForm");
 
-let editingId = null;
-let pendingMove = null;   // Funktion, die nach „Verschieben" mit dem Datum aufgerufen wird
+// Knöpfe mit data-close schließen ihr Sheet; Tippen neben das Sheet auch.
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-close]");
+  if (b) b.closest("dialog").close(b.dataset.close);
+});
+document.querySelectorAll("dialog.sheet").forEach(d => d.addEventListener("click", (e) => {
+  if (e.target === d) d.close("cancel");
+}));
 
-function openEdit(id) {
-  const t = findTask(id);
-  if (!t) return;
-  editingId = id;
-  const f = editDialog.querySelector("form");
-  f.elements.title.value = t.title;
-  f.elements.note.value = t.note;
-  document.getElementById("editHint").hidden = !t.templateId;
-  editDialog.returnValue = "";   // alten Wert vergessen (z. B. nach Schließen mit Esc)
+/* ---------- Aufgabe bearbeiten / neue Frist ---------- */
+let editCtx = null;   // { id (oder null bei neu), deadline }
+
+function openEdit(id, preset) {
+  const t = id ? findTask(id) : null;
+  if (id && !t) return;
+  const deadline = t ? t.deadline : !!(preset && preset.deadline);
+  editCtx = { id: t ? t.id : null, deadline };
+  const f = editForm.elements;
+  f.title.value = t ? t.title : "";
+  f.note.value = t ? t.note : "";
+  f.section.value = t ? t.section : "tag";
+  f.mins.value = t ? (t.mins || "") : "";
+  f.date.value = t ? t.date : todayKey();
+  f.fixed.checked = t ? t.fixed : false;
+  editForm.classList.toggle("is-deadline", deadline);
+  document.getElementById("editTitle").textContent = !t ? "Neue Frist" : deadline ? "Frist" : "Aufgabe";
+  document.getElementById("editHint").hidden = !(t && t.templateId);
+  document.getElementById("editDeleteGroup").hidden = !t;
+  editDialog.returnValue = "";
   editDialog.showModal();
 }
 editDialog.addEventListener("close", () => {
-  const f = editDialog.querySelector("form");
-  const t = findTask(editingId);
-  if (!t) return;
-  if (editDialog.returnValue === "save") updateTask(t.id, f.elements.title.value, f.elements.note.value);
-  if (editDialog.returnValue === "delete" && confirm("„" + t.title + "“ wirklich löschen?")) deleteTask(t.id);
-  editingId = null;
+  const ctx = editCtx;
+  editCtx = null;
+  if (!ctx) return;
+  const f = editForm.elements;
+  if (editDialog.returnValue === "save") {
+    const fields = { title: f.title.value, note: f.note.value, date: f.date.value,
+                     section: ctx.deadline ? "tag" : f.section.value, mins: ctx.deadline ? 0 : f.mins.value,
+                     fixed: ctx.deadline ? true : f.fixed.checked };
+    if (ctx.id) updateTask(ctx.id, fields);
+    else createTask(Object.assign(fields, { deadline: ctx.deadline }));
+  } else if (editDialog.returnValue === "delete") {
+    const t = findTask(ctx.id);
+    if (t && confirm("„" + t.title + "“ wirklich löschen?")) deleteTask(t.id);
+  }
 });
 
-function openMove(title, text, suggested, onDate) {
+/* ---------- Verschieben (mit Auslastung der nächsten Tage) ---------- */
+let pendingMove = null;   // Funktion, die nach „Fertig" mit dem Datum aufgerufen wird
+
+function openMove(title, text, fromDate, onDate) {
+  const today = todayKey();
+  // Kandidaten: morgen bis in 7 Tagen, ohne den eigenen Tag. Vorschlag = der freieste.
+  const cands = [];
+  for (let i = 1; i <= 7; i++) {
+    const d = addDays(today, i);
+    if (d !== fromDate) cands.push({ date: d, min: dayMinutes(d) });
+  }
+  const best = cands.reduce((a, b) => (b.min < a.min ? b : a), cands[0]);
+  const input = moveDialog.querySelector("input[name=date]");
+  input.min = today;
+  input.value = best.date;
   document.getElementById("moveTitle").textContent = title;
   document.getElementById("moveText").textContent = text;
-  const input = moveDialog.querySelector("input[name=date]");
-  input.min = todayKey();
-  input.value = suggested;
+  document.getElementById("moveDays").replaceChildren(...cands.map(c => {
+    const info = loadInfo(c.min);
+    return h("li", {},
+      h("button", { type: "button", class: "row-btn pick", "data-pick": c.date },
+        h("span", { class: "row-main" }, shortDate(c.date), h("small", { text: fmtMin(c.min) + " · " + info.label })),
+        c.date === best.date ? h("span", { class: "tag", text: "Vorschlag" }) : null,
+        h("span", { class: "mini " + info.key }, h("i", { style: "width:" + loadPct(c.min) + "%" }))));
+  }));
   pendingMove = onDate;
   moveDialog.returnValue = "";
   moveDialog.showModal();
 }
+document.getElementById("moveDays").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-pick]");
+  if (b) moveDialog.querySelector("input[name=date]").value = b.dataset.pick;
+});
 moveDialog.addEventListener("close", () => {
   const date = moveDialog.querySelector("input[name=date]").value;
   if (moveDialog.returnValue === "ok" && date && pendingMove) pendingMove(date);
   pendingMove = null;
 });
 
-// Vorschlag im Datumsfeld: der Tag nach der Aufgabe (frühestens morgen).
-function suggestAfter(date) {
-  const today = todayKey();
-  return addDays(date < today ? today : date, 1);
-}
-
-
-/* ================================================================
-   DIALOGE: WIEDERKEHRENDE AUFGABEN
-   ================================================================ */
-
-const templatesDialog = document.getElementById("templatesDialog");
-const tplDialog = document.getElementById("tplDialog");
-const tplForm = document.getElementById("tplForm");
+/* ---------- Wiederkehrende Aufgaben ---------- */
 let editingTplId = null;
 
 function renderTemplateList() {
-  document.getElementById("tplList").replaceChildren(...templates.map(v =>
-    h("li", {},
-      h("button", { type: "button", "data-tpl": v.id },
-        h("span", { text: v.title + (v.note ? " – " + v.note : "") }),
-        h("span", { class: "tpl-days", text: daysLabel(v.days) + (v.fixed ? " · Termin" : "") })
-      )
-    )
-  ));
+  const groups = [
+    ["Feste Termine", templates.filter(v => v.fixed)],
+    ["Pro Woche", templates.filter(v => !v.fixed && !isDailyTemplate(v))],
+    ["Täglich", templates.filter(v => !v.fixed && isDailyTemplate(v))]
+  ];
+  const box = document.getElementById("tplList");
+  box.replaceChildren();
+  for (const [name, list] of groups) {
+    if (!list.length) continue;
+    box.append(h("h3", { class: "sec-title tpl-group", text: name }),
+      h("ul", { class: "list" }, list.map(v => {
+        const sec = ABSCHNITTE.find(a => a.id === v.section).name;
+        const range = v.from || v.until
+          ? " · " + (v.from ? "ab " + fmtDayMon.format(fromKey(v.from)) : "") + (v.from && v.until ? " " : "") +
+            (v.until ? "bis " + fmtDayMon.format(fromKey(v.until)) : "") : "";
+        return h("li", {},
+          h("button", { type: "button", class: "row-btn", "data-tpl": v.id },
+            h("span", { class: "row-main" }, v.title + (v.note ? " – " + v.note : ""),
+              h("small", { text: daysLabel(v.days) + " · " + sec + (v.mins ? " · " + fmtMin(v.mins) : "") + range }))));
+      })));
+  }
 }
 function openTemplates() {
   renderTemplateList();
@@ -849,21 +1313,23 @@ function openTemplates() {
 function openTemplate(id) {
   const v = templateById(id);
   editingTplId = v ? v.id : null;
-  document.getElementById("tplTitle").textContent = v ? "Wiederkehrende Aufgabe ändern" : "Neue wiederkehrende Aufgabe";
-  document.getElementById("tplDeleteBtn").hidden = !v;
-  tplForm.elements.title.value = v ? v.title : "";
-  tplForm.elements.note.value = v ? v.note : "";
-  tplForm.elements.fixed.checked = v ? v.fixed : false;
-  tplForm.querySelectorAll("#tplDays input").forEach(cb => {
-    cb.checked = v ? v.days.includes(Number(cb.value)) : false;
-  });
+  const f = tplForm.elements;
+  document.getElementById("tplTitle").textContent = v ? "Ändern" : "Neu";
+  document.getElementById("tplDeleteGroup").hidden = !v;
+  f.title.value = v ? v.title : "";
+  f.note.value = v ? v.note : "";
+  f.section.value = v ? v.section : "tag";
+  f.mins.value = v && v.mins ? v.mins : "";
+  f.fixed.checked = v ? v.fixed : false;
+  f.from.value = v ? v.from : "";
+  f.until.value = v ? v.until : "";
+  tplForm.querySelectorAll("#tplDays input").forEach(cb => { cb.checked = v ? v.days.includes(Number(cb.value)) : false; });
   tplDialog.returnValue = "";
   tplDialog.showModal();
 }
 function checkedDays() {
   return [...tplForm.querySelectorAll("#tplDays input:checked")].map(cb => Number(cb.value));
 }
-
 document.getElementById("tplList").addEventListener("click", (e) => {
   const b = e.target.closest("[data-tpl]");
   if (b) openTemplate(b.dataset.tpl);
@@ -873,7 +1339,6 @@ document.getElementById("templatesBtn").addEventListener("click", () => {
   menuDialog.close();
   openTemplates();
 });
-
 // Speichern nur mit mindestens einem Wochentag.
 tplForm.addEventListener("submit", (e) => {
   if (e.submitter && e.submitter.value === "save" && checkedDays().length === 0) {
@@ -883,17 +1348,16 @@ tplForm.addEventListener("submit", (e) => {
 });
 tplDialog.addEventListener("close", () => {
   const f = tplForm.elements;
-  if (tplDialog.returnValue === "save") {
-    saveTemplate(editingTplId, f.title.value, f.note.value, checkedDays(), f.fixed.checked);
-  }
-  if (tplDialog.returnValue === "delete") {
-    const v = templateById(editingTplId);
-    if (v && confirm("„" + v.title + "“ löschen?\nOffene Einträge ab heute verschwinden, Erledigtes bleibt.")) {
-      deleteTemplate(v.id);
-    }
-  }
+  const id = editingTplId;
   editingTplId = null;
-  renderTemplateList();
+  if (tplDialog.returnValue === "save") {
+    saveTemplate(id, { title: f.title.value, note: f.note.value, days: checkedDays(), fixed: f.fixed.checked,
+                       section: f.section.value, mins: f.mins.value, from: f.from.value, until: f.until.value });
+  } else if (tplDialog.returnValue === "delete") {
+    const v = templateById(id);
+    if (v && confirm("„" + v.title + "“ löschen?\nOffene Einträge ab heute verschwinden, Erledigtes bleibt.")) deleteTemplate(v.id);
+  }
+  if (templatesDialog.open) renderTemplateList();
 });
 
 
@@ -902,16 +1366,19 @@ tplDialog.addEventListener("close", () => {
    ================================================================ */
 
 document.addEventListener("click", (e) => {
+  const tab = e.target.closest("[data-tab]");
+  if (tab) { setView(tab.dataset.tab); return; }
   const btn = e.target.closest("[data-action]");
   if (!btn) return;
   const id = btn.dataset.id;
+  const today = todayKey();
   switch (btn.dataset.action) {
     case "toggle": toggleTask(id); break;
     case "edit":   openEdit(id); break;
+    case "add-frist": openEdit(null, { deadline: true }); break;
     case "move": {
       const t = findTask(id);
-      openMove("Aufgabe verschieben", "„" + t.title + "“ (bisher " + shortDate(t.date) + ")",
-               suggestAfter(t.date), (date) => moveTask(id, date));
+      openMove("Verschieben", "„" + t.title + "“ (bisher " + shortDate(t.date) + ")", t.date, (date) => moveTask(id, date));
       break;
     }
     case "move-day": {
@@ -919,31 +1386,43 @@ document.addEventListener("click", (e) => {
       const n = movableOpenTasks(from).length;
       openMove("Tag verschieben",
                (n === 1 ? "Die offene Aufgabe" : "Alle " + n + " offenen Aufgaben") + " von " + longDate(from) +
-               " auf (tägliche Aufgaben bleiben am Tag):",
-               suggestAfter(from), (date) => moveOpenTasks(from, date));
+               " (tägliche Aufgaben bleiben am Tag):",
+               from, (date) => moveOpenTasks(from, date));
       break;
     }
     case "overdue-today": moveOverdueToToday(); break;
+    case "menu": {
+      document.getElementById("menuInfo").textContent =
+        tasks.length + " Einträge, " + templates.length + " wiederkehrende gespeichert. Ramadan-Beginn: " +
+        fmtFull.format(fromKey(RAMADAN_START)) + ".";
+      menuDialog.showModal();
+      break;
+    }
     case "more": shownDays += DAYS_PER_PAGE; render(); break;
+    case "goto": goToDay(btn.dataset.date); break;
+    case "hifz": toggleHifz(Number(btn.dataset.n)); break;
+    case "week-prev": weekStart = addDays(weekStart, -7); render(); break;
+    case "week-next": weekStart = addDays(weekStart, 7); render(); break;
+    case "week-today": weekStart = weekStartOf(today); render(); break;
   }
 });
 
-// „Neue Aufgabe" – Enter oder „+" fügt hinzu, das Feld bleibt für die nächste aktiv.
+// „Neue Aufgabe" – Enter fügt hinzu, das Feld bleibt für die nächste aktiv.
 document.addEventListener("submit", (e) => {
   const form = e.target.closest("form.add");
   if (!form) return;
   e.preventDefault();
-  const date = form.dataset.date;
+  const { date, section } = form.dataset;
   const title = form.elements.title.value;
   if (!title.trim()) return;
-  addTask(date, title);
-  const again = document.querySelector('form.add[data-date="' + date + '"] input');
+  addTask(date, section, title);
+  const again = document.querySelector('form.add[data-date="' + date + '"][data-section="' + section + '"] input');
   if (again) again.focus();
 });
 
 // Wenn die App über Mitternacht offen bleibt: beim Zurückkehren neu zeichnen.
 document.addEventListener("visibilitychange", () => {
-  if (!document.hidden && renderedFor !== todayKey()) render();
+  if (!document.hidden && renderedFor !== todayKey()) { weekStart = weekStartOf(todayKey()); render(); }
 });
 
 
@@ -951,16 +1430,9 @@ document.addEventListener("visibilitychange", () => {
    EXPORT / IMPORT (Backup als JSON-Datei)
    ================================================================ */
 
-document.getElementById("menuBtn").addEventListener("click", () => {
-  document.getElementById("menuInfo").textContent =
-    tasks.length + " Einträge, " + templates.length + " wiederkehrende gespeichert · Ramadan-Beginn: " +
-    fmtFull.format(fromKey(RAMADAN_START));
-  menuDialog.showModal();
-});
-
 document.getElementById("exportBtn").addEventListener("click", async () => {
-  const json = JSON.stringify({ app: "tagesplan", version: 2, exported: new Date().toISOString(),
-                                tasks, templates }, null, 2);
+  const json = JSON.stringify({ app: "tagesplan", version: DATA_VERSION, exported: new Date().toISOString(),
+                                tasks, templates, hifzDone }, null, 2);
   const name = "tagesplan-backup-" + todayKey() + ".json";
   const file = new File([json], name, { type: "application/json" });
 
@@ -983,12 +1455,13 @@ importFile.addEventListener("change", async () => {
   const file = importFile.files[0];
   importFile.value = "";      // damit dieselbe Datei erneut gewählt werden kann
   if (!file) return;
-  let imported, importedTpl = null;
+  let imported, importedTpl = null, importedHifz = null;
   try {
     const data = JSON.parse(await file.text());
     if (!data || !Array.isArray(data.tasks)) throw new Error("kein tasks-Feld");
     imported = data.tasks.filter(isValidTask).map(cleanTask);
     if (Array.isArray(data.templates)) importedTpl = data.templates.filter(isValidTemplate).map(cleanTemplate);
+    if (Array.isArray(data.hifzDone)) importedHifz = cleanHifz(data.hifzDone);
   } catch (e) {
     alert("Diese Datei ist kein gültiges Tagesplan-Backup.");
     return;
@@ -996,7 +1469,8 @@ importFile.addEventListener("change", async () => {
   if (!confirm("Backup mit " + imported.length + " Einträgen laden?\nDer aktuelle Stand (" + tasks.length +
                " Einträge) wird dabei ersetzt.")) return;
   tasks = imported;
-  if (importedTpl) templates = importedTpl;   // ältere Backups ohne Vorlagen: Vorlagen bleiben
+  if (importedTpl) templates = importedTpl;     // ältere Backups ohne Vorlagen: Vorlagen bleiben
+  if (importedHifz) hifzDone = importedHifz;
   generateRecurring();
   commit();
   menuDialog.close();

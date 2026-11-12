@@ -3,7 +3,7 @@
    Version (und wird gespeichert). Ohne Internet wird die gespeicherte genutzt.
    Deine Aufgaben liegen NICHT hier, sondern im localStorage. */
 
-const CACHE = "tagesplan-v1";
+const CACHE = "tagesplan-v2";
 const FILES = ["./", "index.html", "manifest.webmanifest", "icon.svg",
                "icon-180.png", "icon-192.png", "icon-512.png"];
 
