@@ -220,6 +220,9 @@ button.lr:active { background: var(--fill); }
 .qc-ar { font-size: 64px; line-height: 1.7; }
 .qcard.flipped .qc-ar { font-size: 52px; }
 .qc-de { font-size: 24px; font-weight: 600; max-width: 32ch; overflow-wrap: anywhere; }
+.qc-front-de { font-size: 30px; font-weight: 600; line-height: 1.3; max-width: 22ch; overflow-wrap: anywhere;
+  hyphens: auto; padding-bottom: 18px; }
+.sheet .qc-de { font-size: 18px; font-weight: 500; color: var(--muted); }
 .qc-hint { position: absolute; bottom: 16px; font-size: 13px; color: var(--muted); }
 .qc-forms { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; width: 100%;
   border-top: .5px solid var(--border); padding-top: 14px; margin-top: 2px; }
@@ -537,6 +540,7 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); ou
   #main[data-view="heute"] .view > .hero { grid-row: span 2; }
   .qcard { min-height: 420px; }
   .qc-ar { font-size: 76px; }
+  .qc-front-de { font-size: 36px; }
   .decks { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .options { grid-template-columns: 1fr 1fr; }
   .words-list { display: grid; grid-template-columns: 1fr 1fr; }

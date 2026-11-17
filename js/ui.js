@@ -120,18 +120,22 @@ window.AR = window.AR || {};
   }
 
   /* ---------- Quran-Vokabelkarte ----------
-     Vorderseite: das Wort. Rückseite: Wort, Bedeutung und bei Verben
-     Vergangenheit, Präsens und Masdar. Mehr steht bewusst nicht drauf. */
-  function qcard(w, flipped, onFlip) {
+     Vorderseite: die deutsche Bedeutung. Rückseite: das arabische Wort und
+     bei Verben Vergangenheit, Präsens und Masdar. Mehr steht bewusst nicht
+     drauf. opts.showDe zeigt die Bedeutung zusätzlich klein unter dem
+     arabischen Wort (für das Wortblatt, das nur die Rückseite zeigt). */
+  function qcard(w, flipped, onFlip, opts) {
+    opts = opts || {};
     var card = el("div", { class: "qcard" + (flipped ? " flipped" : ""), role: "button",
       tabindex: "0", "aria-label": flipped ? "Karte" : "Karte umdrehen" });
     if (onFlip) card.addEventListener("click", function () { if (!flipped) onFlip(); });
-    card.appendChild(ar(w.ar, "qc-ar"));
     if (!flipped) {
+      card.appendChild(el("div", { class: "qc-front-de", text: w.de }));
       card.appendChild(el("div", { class: "qc-hint", text: "Tippen zum Umdrehen" }));
       return card;
     }
-    card.appendChild(el("div", { class: "qc-de", text: w.de }));
+    card.appendChild(ar(w.ar, "qc-ar"));
+    if (opts.showDe) card.appendChild(el("div", { class: "qc-de", text: w.de }));
     if (w.type === "verb") card.appendChild(verbForms(w));
     return card;
   }
@@ -148,7 +152,7 @@ window.AR = window.AR || {};
   function wordSheet(w) {
     var learned = AR.qplan.isLearned(w.id);
     AR.app.sheet(null, el("div", { class: "stack" }, [
-      qcard(w, true),
+      qcard(w, true, null, { showDe: true }),
       el("div", { class: "muted small center", text: (learned ? "✓ gelernt · " : "") +
         (w.list ? "Meine Liste · Gruppe " + w.group : w.count + "× im Quran · Rang " + w.rank) })
     ]));
