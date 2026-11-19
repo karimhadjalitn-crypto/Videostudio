@@ -660,7 +660,7 @@ window.QGRAMMAR={
        "sie beide",
        "[ar]ـهُمَا[/ar]",
        "[ar]كِتَابُهُمَا[/ar]",
-       "ihr beider Buch"
+       "ihrer beider Buch"
       ],
       [
        "ihr beide",
@@ -676,7 +676,7 @@ window.QGRAMMAR={
     },
     {
      "type": "p",
-     "text": "Im Mushaf siehst du das Suffix oft mit einem kleinen Zeichen, zum Beispiel [ar]رَبِّهِۦ[/ar] oder [ar]لَهُۥ[/ar]. Das ist nur die gedehnte Aussprache („-hī“, „-hū“). Die Bedeutung bleibt „sein“."
+     "text": "Im Mushaf siehst du das Suffix oft mit einem kleinen Zeichen, zum Beispiel [ar]رَبِّهِۦ[/ar] oder [ar]لَهُۥ[/ar]. Das ist nur die gedehnte Aussprache („-hī“, „-hū“). Die Bedeutung ändert sich nicht: Es bleibt das Suffix „er“ („sein“ am Nomen, „ihm“ in [ar]لَهُۥ[/ar])."
     },
     {
      "type": "tip",
@@ -2617,7 +2617,7 @@ window.QGRAMMAR={
       "ich war"
      ],
      "answer": 2,
-     "explain": "[ar]ـنَّا[/ar] mit Schadda und Alif steht für „wir“."
+     "explain": "[ar]كُنَّا[/ar] = [ar]كُنْ[/ar] + [ar]ـنَا[/ar] „wir“: Das Nūn der Wurzel und das Nūn der Endung verschmelzen zu [ar]نَّ[/ar]."
     },
     {
      "prompt": "Was bedeutet [ar]لَمْ يَكُنْ[/ar]?",
@@ -3259,7 +3259,7 @@ window.QGRAMMAR={
    "id": "nomen-adjektiv",
    "category": "Nomen-Grundlagen",
    "title": "Das Adjektiv und die Kongruenz",
-   "summary": "Das Adjektiv folgt dem Nomen und gleicht sich an Genus, Fall und Bestimmtheit an.",
+   "summary": "Das Adjektiv folgt dem Nomen und gleicht sich an Genus, Numerus, Fall und Bestimmtheit an.",
    "blocks": [
     {
      "type": "p",
@@ -3301,7 +3301,7 @@ window.QGRAMMAR={
     },
     {
      "type": "p",
-     "text": "Ist das Adjektiv **bestimmt**, bekommt es auch den Artikel: [ar]ٱلرَّحْمَٰنُ ٱلرَّحِيمُ[/ar]. Ohne Artikel am Nomen bleibt auch das Adjektiv unbestimmt."
+     "text": "Ist das Nomen **bestimmt**, bekommt auch das Adjektiv den Artikel: [ar]ٱلرَّحْمَٰنُ ٱلرَّحِيمُ[/ar]. Ohne Artikel am Nomen bleibt auch das Adjektiv unbestimmt."
     },
     {
      "type": "tip",
@@ -3643,7 +3643,7 @@ window.QGRAMMAR={
      "type": "example",
      "ar": "أَلَا لَهُ ٱلْخَلْقُ وَٱلْأَمْرُ",
      "highlight": "ٱلْخَلْقُ",
-     "de": "Gehört Ihm nicht die Schöpfung und der Befehl?",
+     "de": "Wahrlich, Ihm gehören die Schöpfung und der Befehl.",
      "ref": "7:54"
     }
    ],

@@ -1,5 +1,5 @@
 /* Service Worker – Offline-Cache für die Lern-App */
-var CACHE = "quran-wortschatz-v4";
+var CACHE = "quran-wortschatz-v5";
 var ASSETS = [
   "./",
   "index.html",
