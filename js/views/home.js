@@ -117,8 +117,8 @@ AR.views = AR.views || {};
 
     /* Was ist drin? */
     var parts = [];
-    if (plan.reviews.length) parts.push(plan.reviews.length + " Wiederholungen");
-    if (plan.fresh.length) parts.push(plan.fresh.length + " neue Wörter");
+    if (plan.reviews.length) parts.push(plan.reviews.length + (plan.reviews.length === 1 ? " Wiederholung" : " Wiederholungen"));
+    if (plan.fresh.length) parts.push(plan.fresh.length + (plan.fresh.length === 1 ? " neues Wort" : " neue Wörter"));
     var summary = parts.length ? parts.join(" · ") : "Nichts fällig – alles frisch.";
     card.appendChild(el("div", { class: "muted", style: "font-size:14px", text: summary }));
 

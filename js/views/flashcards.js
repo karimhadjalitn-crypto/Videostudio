@@ -282,8 +282,10 @@ AR.views = AR.views || {};
     var g = store.goalProgress(data.allCards());
     return ui.doneScreen({
       emoji: "🎉", title: "Sitzung geschafft!",
-      subtitle: Object.keys(session.done).length + " Karten gelernt · " +
-        c.gekonnt + "/" + c.total + " im Deck gekonnt\n" +
+      // Das Deck „Heute“ wird nach jeder Bewertung neu gebildet (gelernte Karten
+      // fallen heraus) – eine Deck-Zahl wäre dort irreführend.
+      subtitle: Object.keys(session.done).length + (Object.keys(session.done).length === 1 ? " Karte gelernt" : " Karten gelernt") +
+        (session.deckId === "today" ? "" : " · " + c.gekonnt + "/" + c.total + " im Deck gekonnt") + "\n" +
         (g.reached ? "🏆 Lernziel erreicht: " + g.known + " Wörter!"
                    : "Lernziel: " + g.known + " von " + g.goal + " – noch " + g.left),
       buttons: [

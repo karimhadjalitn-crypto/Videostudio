@@ -142,12 +142,18 @@ window.AR = window.AR || {};
     return { total: total, known: known, pct: total ? Math.round(known / total * 1000) / 10 : 0 };
   }
 
-  /* Tage in Folge, an denen die Tagesrunde fertig wurde */
+  /* Tage in Folge, an denen die Tagesrunde fertig wurde. Ein Wort zählt
+     für einen Tag nur, wenn es spätestens an diesem Tag gelernt wurde –
+     sonst würde ein liegengebliebener Tag nachträglich „fertig“, sobald
+     seine Reste am Folgetag gelernt sind. */
   function streak() {
     var q = AR.store.q(), d = new Date(), n = 0;
     function full(k) {
       var ids = q.days[k];
-      return ids && ids.length && ids.every(function (id) { return q.learned[id]; });
+      return ids && ids.length && ids.every(function (id) {
+        var l = q.learned[id];
+        return l && (typeof l !== "string" || l <= k);
+      });
     }
     if (!full(dayKey(d))) d.setDate(d.getDate() - 1);
     while (full(dayKey(d))) { n++; d.setDate(d.getDate() - 1); }

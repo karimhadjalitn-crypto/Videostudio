@@ -28,8 +28,9 @@ AR.views = AR.views || {};
     if (!t.started) {
       card.appendChild(el("div", { class: "hero-k", text: "Dein Lernplan" }));
       card.appendChild(el("div", { class: "hero-t", text: "Start " + qp.startLabel() }));
-      card.appendChild(el("p", { class: "muted", text: "Dann kommen jeden Tag " + qp.dailyNew() +
-        " neue Wörter – die häufigsten Wörter des Quran zuerst." }));
+      card.appendChild(el("p", { class: "muted", text: (qp.dailyNew() === 1 ? "Dann kommt jeden Tag 1 neues Wort"
+        : "Dann kommen jeden Tag " + qp.dailyNew() + " neue Wörter") +
+        " – zuerst deine eigene Liste, dann die häufigsten Wörter des Quran." }));
       card.appendChild(el("button", { class: "btn btn-tinted block",
         onclick: function () { AR.app.go("grammatik"); } }, "Bis dahin: Grammatik ansehen"));
       return card;
@@ -60,7 +61,7 @@ AR.views = AR.views || {};
 
     if (t.complete) {
       card.appendChild(el("p", { class: "muted", style: "margin:0",
-        text: "Morgen kommen die nächsten " + qp.dailyNew() + "." }));
+        text: morgenText() }));
       card.appendChild(el("button", { class: "btn btn-tinted block",
         onclick: function () { startSession("today-again", t.words); } }, "Heutige Wörter nochmal ansehen"));
     } else {
@@ -79,7 +80,7 @@ AR.views = AR.views || {};
       el("div", {}, [
         el("div", { class: "card-t", text: "Wiederholen" }),
         el("div", { class: "muted small", text: learned
-          ? (due.length ? due.length + " Wörter wären jetzt dran – freiwillig" : "Gerade nichts fällig")
+          ? (due.length ? (due.length === 1 ? "1 Wort wäre" : due.length + " Wörter wären") + " jetzt dran – freiwillig" : "Gerade nichts fällig")
           : "Sobald du Wörter gelernt hast" })
       ]),
       due.length ? el("span", { class: "pill", text: due.length }) : null
@@ -104,8 +105,12 @@ AR.views = AR.views || {};
       kpi(streak, streak === 1 ? "Tag in Folge" : "Tage in Folge")
     ]));
     card.appendChild(el("p", { class: "muted small", style: "margin:0",
-      text: "„des Quran-Textes“: Anteil aller Wortvorkommen im Quran, die deine gelernten Wörter abdecken." }));
+      text: "„des Quran-Textes“: Anteil aller Wortvorkommen im Quran, die deine gelernten Wörter aus dem Häufigkeitswortschatz abdecken. Wörter deiner eigenen Liste zählen hier erst mit, wenn sie dort an der Reihe sind." }));
     return card;
+  }
+  function morgenText() {
+    var n = qp.dailyNew();
+    return n === 1 ? "Morgen kommt das nächste." : "Morgen kommen die nächsten " + n + ".";
   }
   function kpi(n, l) {
     return el("div", { class: "kpi" }, [ el("div", { class: "n", text: n }), el("div", { class: "l", text: l }) ]);
@@ -175,8 +180,8 @@ AR.views = AR.views || {};
   function doneScreen() {
     var missed = Object.keys(S.missed).length;
     var msg = S.mode === "learn"
-      ? "Die heutigen Wörter sitzen. Morgen kommen die nächsten " + qp.dailyNew() + "."
-      : S.total + " Wörter durchgegangen" + (missed ? ", " + missed + " davon brauchten einen zweiten Anlauf." : ".");
+      ? "Die heutigen Wörter sitzen. " + morgenText()
+      : S.total + (S.total === 1 ? " Wort" : " Wörter") + " durchgegangen" + (missed ? ", " + missed + " davon " + (missed === 1 ? "brauchte" : "brauchten") + " einen zweiten Anlauf." : ".");
     return ui.doneScreen({
       emoji: "✓", title: S.mode === "learn" ? "Heute geschafft" : "Fertig",
       subtitle: msg,

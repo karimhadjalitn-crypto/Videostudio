@@ -101,18 +101,18 @@ Alles steckt in `tagesplan/index.html`; Ramadan-Datum, Startvorlagen und Fristen
 3. Läuft danach als App im Vollbild, mit eigenem Icon, Startbildschirm und offline.
 
 Auf Android führt der Weg über das Chrome-Menü (⋮) → „App installieren“. Bietet
-der Browser die Installation selbst an, steht auf der Startseite statt der
-Anleitung ein Knopf.
+der Browser die Installation selbst an, steht unter *Einstellungen → App
+installieren* statt der Anleitung ein Knopf.
 
-> Die App erkennt iPhone/iPad und zeigt die Schritte direkt an (Startseite oben
-> und unter *Einstellungen → App installieren*). Safe-Areas (Notch, Home-Indicator)
+> Die App erkennt iPhone/iPad und zeigt die Schritte unter
+> *Einstellungen → App installieren* an. Safe-Areas (Notch, Home-Indicator)
 > sind berücksichtigt.
 
-**Auf dem iPad** nutzt die App die Breite: ab 740 px steht links das
-Tagesprogramm und rechts Suche und Decks, die Decks stehen drei- bis vierspaltig,
-die vier Quizantworten als 2 × 2, und die Wortliste läuft zweispaltig.
-Karteikarten, das Formular für neue Wörter und die Suren behalten bewusst ihre
-ruhige Lesespalte. Hoch- und Querformat funktionieren beide.
+**Auf dem iPad** nutzt die App die Breite: ab 740 px läuft die Wortliste
+zweispaltig, die vier Quizantworten stehen als 2 × 2; in der Übersicht des
+Alltagsteils steht links das Tagesprogramm und rechts Suche und Decks, die
+Decks drei- bis vierspaltig. Karteikarten und das Formular für neue Wörter
+behalten bewusst ihre ruhige Lesespalte. Hoch- und Querformat funktionieren beide.
 
 **Lokal ausprobieren:**
 ```bash
@@ -128,17 +128,16 @@ python3 -m http.server 8000
 | Bereich | Beschreibung |
 |---|---|
 | 🃏 **Karteikarten** | **Nomen**: Einzahl und Mehrzahl nebeneinander, je volles Fuṣḥā und Sprechform darunter, dazu männlich/weiblich. **Adjektive**: männliche und weibliche Form. **Verben**: alle vier Formen (Vergangenheit · Präsens · Zukunft · Befehlsform) plus die verlangte Präposition (يَحْتَاجُ **إِلَى**) – oder die Warnung, wenn das Deutsche eine hat und das Arabische nicht (*warten auf*). Umdrehen, selbst einschätzen in vier Stufen (*Nochmal / Schwer / Gut / Leicht*) – unter jedem Knopf steht, wann die Karte wiederkommt. Richtung DE→AR, AR→DE oder gemischt. **Wischen** (rechts = Gut, links = Nochmal, hoch = Leicht, runter = Schwer), **Tastatur** (Leer = umdrehen, 1/2/3/4 = bewerten) und **⭐-Stern** zum Merken. |
-| 🎯 **Quiz** | **Sehen** (Multiple Choice) und **Hören** (Wort anhören, Bedeutung wählen). Tastatur 1–4. Speist denselben Fortschritt. |
+| 🎯 **Quiz** | Multiple Choice (DE→AR, AR→DE oder gemischt). Tastatur 1–4. Speist denselben Fortschritt. |
 | 💬 **Sätze** | **Baukasten** (Wörter ordnen), **Muster** (Satz-Karten), **Ersetzen** (Lückentext + Variante). |
 | ➕ **Neu** | Eigene Wörter **tippen** (mit arabischer Bildschirmtastatur), aus **Datei** (.txt/.csv/.docx) oder per **Bild** (Texterkennung) importieren. |
 | 🔍 **Suche** | Globale Suche auf der Startseite über alle Vokabeln (Deutsch oder Arabisch). |
 | ⚑ **Fehler melden** | An jeder Karte sitzt eine Fahne: Stimmt etwas nicht, antippen und kurz beschreiben. Die Meldungen sammeln sich in den Einstellungen und lassen sich als Liste kopieren. |
 | ⭐ **Favoriten** | Wörter mit dem Stern markieren und gezielt als eigenes Deck üben. |
-| 📖 **Quran** | Eigener Bereich: **343 Wörter** in fünf Lernstufen (die häufigsten Wörter, Nomen, Verben, Eigenschaften/Gottesnamen, Wörter aus den Gebetstexten) und **16 Texte Wort für Wort** – die Suren 104 bis 114 lückenlos, dazu al-Fātiḥa, al-Qadr, al-ʿAṣr sowie Taschahhud und die Adhkār aus Rukūʿ und Sujūd. Jedes Wort im Vers ist antippbar und zeigt Bedeutung, Grundform und Wurzel. Quranwörter behalten ihre Vokalzeichen immer. Dazu **7 Grammatik-Themen** – nur was man zum Verstehen braucht, jede Regel an einem Vers aus der App erklärt. |
-| ☀️ **Heute** | Das Tagesprogramm auf der Startseite, in drei Größen: **Kurz** (~5 Min), **Normal** (~15) und **Lang** (~30). Fällige Wiederholungen zuerst, neue Wörter je nach Größe – bis Ramadan mit Schwerpunkt Quran. Darunter der ehrliche Abgleich mit den beiden Zielterminen („im Plan" / „hinten dran"), ohne Streak-Druck. |
-| 🎯 **Lernziel** | Frei einstellbar (Standard 100 Wörter). Der Balken auf der Startseite zeigt, wie viele Wörter du schon sicher kannst – antippen zum Ändern. |
+| ☀️ **Tagesprogramm** | In der Übersicht des Alltagsteils, in drei Größen: **Kurz** (~5 Min), **Normal** (~15) und **Lang** (~30). Fällige Wiederholungen zuerst, neue Wörter je nach Größe. Darunter der Abgleich mit dem Zieltermin („im Plan" / „hinten dran"). (Der Quranteil hat seinen eigenen Tagesplan im Tab „Heute“, siehe oben.) |
+| 🎯 **Lernziel** | Frei einstellbar (Standard 100 Wörter). Der Balken in der Übersicht zeigt, wie viele Wörter du schon sicher kannst – antippen zum Ändern. |
 | 📊 **Statistik** | Was du kannst, Lernziel, Lernserie, schwierige Wörter, Favoriten, Fortschritt je Deck. |
-| ⚙️ **Einstellungen** | Design (hell/dunkel), Richtung, Sprechform/Harakat/Audio (+ Auswahl der arabischen Stimme, falls mehrere installiert sind), Sitzungsgröße, Lernziel, Installations­anleitung, Sichern/Laden. |
+| ⚙️ **Einstellungen** | Quran-Lernplan (neue Wörter pro Tag, erster Lerntag), Design (automatisch/hell/dunkel), Richtung, Sprechform/Harakat, Sitzungsgröße, Lernziel, Installations­anleitung, Sichern/Laden, getrenntes Zurücksetzen von Quran- und Alltagsfortschritt. |
 
 **Wiederholungssystem:** Karten wandern durch Boxen mit wachsenden Abständen
 (6 Std. · 1 · 3 · 7 · 14 · 30 Tage). Die Bewertung steuert das Tempo:
@@ -194,20 +193,25 @@ Buchform korrigiert. Alles hier steht auch in der App unter **Einstellungen → 
 index.html              App-Gerüst
 manifest.webmanifest    PWA-Manifest
 sw.js                   Service Worker (Offline)
-css/styles.css          Design (Sand & Teal, hell/dunkel)
-js/                     App-Code (store, data, srs, views …)
+css/styles.css          Design (Apple-Stil, hell/dunkel)
+js/                     App-Code (store mit Wiederholungssystem, data, path, qplan, ui, views …)
 data/
-  appdata.js            Datenbündel, das die App lädt
-  *.json                dieselben Daten als JSON (zum Nachschlagen)
+  quran-vocab.js        Quran-Wortschatz nach Häufigkeit (1008 Wörter)
+  quran-list.js         eigene Liste (110 Wörter in 10er-Gruppen)
+  quran-grammar.js      24 Grammatik-Lektionen mit Übungen
+  appdata.js            Datenbündel des Alltagsteils
+  *.json                Alltagsdaten als JSON (zum Nachschlagen); quran.json gehört
+                        zum früheren Quranteil und wird nicht mehr geladen
+assets/fonts/           KFGQPC-Hafs-Schrift
 assets/icons/           App-Icons
 tools/
   quelle_lernbuch.docx  Quelle
   build_data.py         Wortschatz aus .docx extrahieren
   imperative.py         Befehlsform (Imperativ) aus dem Präsens ableiten
-  quran_words.py        Quran-Grundwortschatz nach Lernstufen
-  quran_texts.py        Suren und Gebetstexte, Wort für Wort
-  quran_grammar.py      Grammatik für den Quran (7 Themen)
-  build_quran.py        -> data/quran.json, verknüpft Verse mit Wortschatz
+  quran_words.py        früherer Quranteil (nicht mehr in der App)
+  quran_texts.py        früherer Quranteil (nicht mehr in der App)
+  quran_grammar.py      früherer Quranteil (nicht mehr in der App)
+  build_quran.py        -> data/quran.json (früherer Quranteil)
   bundle.py             baut data/appdata.js aus den data/*.json
   noun_forms.py         Plural + Genus je Nomen, Pausalform-Regeln
   adjective_forms.py    weibliche Form der Adjektive
@@ -238,20 +242,15 @@ python3 tools/imperative.py        # alle Befehlsformen auflisten
 python3 tools/noun_forms.py        # Nomen-Tabelle + Pausalform-Beispiele
 python3 tools/adjective_forms.py   # Selbsttest der weiblichen Formen
 python3 tools/verb_prepositions.py # Anzahl und Überschneidungen
-python3 tools/build_quran.py       # Quran-Daten + Lückenbericht
 ```
 
-Der Quran-Teil wird getrennt gebaut:
-```bash
-python3 tools/build_quran.py     # data/quran.json + appdata.js
-```
-Es meldet dabei jedes Wort aus den Texten, das noch keine Vokabelkarte hat –
-diese Liste ist die Arbeitsvorlage, wenn weitere Suren dazukommen.
+Die Daten des heutigen Quranteils (`data/quran-vocab.js`, `data/quran-list.js`,
+`data/quran-grammar.js`) werden nicht von diesen Skripten erzeugt; sie liegen
+fertig im Ordner `data/`.
 
 ---
 
 ## Hinweise
-- **Audio** nutzt die Sprachausgabe des Geräts; eine arabische Stimme ist nicht überall vorhanden.
 - **Bild-Import (Texterkennung)** lädt die Erkennung beim ersten Mal aus dem Internet; danach bitte
   das Ergebnis prüfen und korrigieren (arabische OCR ist nicht perfekt).
 - **Datenschutz:** Es gibt keinen Server – Fortschritt und eigene Wörter bleiben auf deinem Gerät.

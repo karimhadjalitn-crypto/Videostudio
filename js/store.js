@@ -195,7 +195,9 @@ window.AR = window.AR || {};
       s.box = nextBox(s.box, g);
       s.due = now + delayFor(s.box, g);
     }
-    markStudied();
+    // Lerntage und Wiederholungszahl gehören zum Alltagsteil (Serie,
+    // „heute gelernt“, Statistik) – der Quranteil zählt eigenständig.
+    if (!isQuranId(id)) markStudied();
     save();
     return s;
   }
@@ -373,6 +375,7 @@ window.AR = window.AR || {};
     if (d.issues) state.issues = d.issues;
     if (d.q) state.q = Object.assign(freshQ(), d.q);
     saveNow();
+    applyTheme();   // ein importiertes Design sofort zeigen, nicht erst nach Neustart
   }
 
   AR.store = {
