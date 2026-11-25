@@ -56,6 +56,15 @@ window.AR = window.AR || {};
     });
     q.answered = A;
   }
+  /* q.ansFrom: erster Tag mit q.answered. Tage davor stammen aus der
+     früheren Fassung, die schon gelernte Listenwörter übersprungen hat;
+     diese werden nicht nachgeholt (siehe qplan.todayIds). */
+  function markAnsFrom() {
+    if (typeof state.q.ansFrom === "string" && state.q.ansFrom) return false;
+    var now = new Date(), p = function (n) { return n < 10 ? "0" + n : "" + n; };
+    state.q.ansFrom = now.getFullYear() + "-" + p(now.getMonth() + 1) + "-" + p(now.getDate());
+    return true;
+  }
   function hasAnswered(dq) {
     return !!(dq && dq.answered && typeof dq.answered === "object" && !Array.isArray(dq.answered));
   }
@@ -116,6 +125,7 @@ window.AR = window.AR || {};
       if (linkMerge()) save();
       if (raw && !hasAnswered(d.q)) { backfillAnswered(); save(); }
       if (!hasAnswered(state.q)) state.q.answered = {};
+      if (markAnsFrom()) save();
     } catch (e) { console.warn("Konnte Fortschritt nicht laden:", e); }
     // Altlasten aus der Zeit, als jede angesehene Liste leere Eintraege anlegte
     if (compact()) save();
@@ -433,6 +443,7 @@ window.AR = window.AR || {};
     if (d.q) state.q = Object.assign(freshQ(), d.q);
     linkMerge();
     if (d.q && !hasAnswered(d.q)) backfillAnswered();
+    markAnsFrom();
     saveNow();
     applyTheme();   // ein importiertes Design sofort zeigen, nicht erst nach Neustart
   }

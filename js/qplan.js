@@ -28,7 +28,8 @@ window.AR = window.AR || {};
   var L = (window.QLIST && window.QLIST.words) || [];
   var SEQ = L.concat(V);
   var byIdMap = {};
-  SEQ.forEach(function (w) { byIdMap[w.id] = w; });
+  var SEQ_POS = {};
+  SEQ.forEach(function (w, i) { byIdMap[w.id] = w; SEQ_POS[w.id] = i; });
   function canon(id) { return AR.store.canon(id); }
   /* Jedes echte Wort genau einmal (bei Paaren das Listenwort, weil es zuerst
      kommt) – für Gesamtzahl, Wiederholung und Zählungen */
@@ -117,7 +118,13 @@ window.AR = window.AR || {};
      nächsten Wörtern bzw. am Ende gekürzt (heute Beantwortetes bleibt drin).
      Die eigene Liste kommt vollständig und in ihrer Reihenfolge dran – auch
      ein Listenwort, das über seinen Partner schon gelernt ist; übersprungen
-     wird nur, was als Listenwort schon an einem Tag beantwortet wurde.
+     wird, was als Listenwort schon an einem Tag beantwortet wurde, und
+     ein schon gelerntes Listenwort, das nie in einem Tagesplan stand und
+     vor der Stelle liegt, bis zu der die Liste schon dran war (das hat
+     die frühere Fassung übersprungen – es wird nicht nachgeholt; gemeint
+     sind nur Tage vor q.ansFrom, dem ersten Tag mit dieser Fassung).
+     Liegengebliebene Wörter verpasster Tage standen im Plan und kommen
+     deshalb wie bisher zuerst wieder.
      Wörter des Häufigkeitsteils kommen nicht, wenn sie (auch über den
      Partner) schon gelernt sind oder ihr Partner heute schon dran ist. */
   function todayIds() {
@@ -129,9 +136,22 @@ window.AR = window.AR || {};
     if (list.length < n) {
       var haveId = {}, haveC = {}, done = answeredEver();
       list.forEach(function (id) { haveId[id] = true; haveC[canon(id)] = true; });
+      // Welche Listenwörter standen schon in einem Tagesplan, und wie weit
+      // war die Liste in den Tagen der früheren Fassung (vor q.ansFrom)
+      // schon dran (größte Stelle in SEQ)?
+      var planned = {}, reach = -1, from = q.ansFrom || "";
+      Object.keys(q.days).forEach(function (k) {
+        (Array.isArray(q.days[k]) ? q.days[k] : []).forEach(function (id) {
+          var w0 = byIdMap[id];
+          if (!w0 || !w0.list) return;
+          planned[id] = true;
+          if (k < from && SEQ_POS[id] > reach) reach = SEQ_POS[id];
+        });
+      });
       for (var i = 0; i < SEQ.length && list.length < n; i++) {
         var w = SEQ[i], c = canon(w.id);
-        var take = w.list ? (!haveId[w.id] && !done[w.id])
+        var passed = i < reach && !planned[w.id] && isLearned(w.id);
+        var take = w.list ? (!haveId[w.id] && !done[w.id] && !passed)
                           : (!haveC[c] && !isLearned(w.id));
         if (take) { list.push(w.id); haveId[w.id] = true; haveC[c] = true; changed = true; }
       }
