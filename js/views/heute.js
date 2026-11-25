@@ -51,9 +51,11 @@ AR.views = AR.views || {};
 
     var list = el("div", { class: "today-words" });
     t.words.forEach(function (w) {
-      var learned = qp.isLearned(w.id);
-      list.appendChild(el("div", { class: "tw" + (learned ? " ok" : "") }, [
-        el("span", { class: "tw-de", text: learned ? w.de : "?" }),
+      // Aufgedeckt wird, was heute in der Runde gewusst wurde – ein Listenwort,
+      // das über den Partner schon gelernt ist, bleibt bis dahin verdeckt.
+      var answered = qp.isAnsweredToday(w.id);
+      list.appendChild(el("div", { class: "tw" + (answered ? " ok" : "") }, [
+        el("span", { class: "tw-de", text: answered ? w.de : "?" }),
         ui.ar(w.ar, "tw-ar")
       ]));
     });
@@ -165,7 +167,10 @@ AR.views = AR.views || {};
   function answer(knew) {
     var w = S.current;
     if (knew) {
-      if (S.mode === "learn") qp.markLearned(w.id);
+      // Tagesrunde: gelernt (bleibt gelernt, falls schon über den Partner)
+      // und für heute beantwortet. Wiederholen und „nochmal ansehen“
+      // zählen nicht für den Tagesplan.
+      if (S.mode === "learn") { qp.markLearned(w.id); qp.markAnswered(w.id); }
       else if (S.mode === "review") AR.store.grade(w.id, "good");
       S.done++;
     } else {

@@ -21,8 +21,10 @@ window.AR = window.AR || {};
      Häufigkeitswortschatz weiter.
      Steht ein Listenwort auch im Häufigkeitsteil (Feld „qv“), haben beide
      einen gemeinsamen Fortschritt (AR.store.canon): Was auf der einen Seite
-     gelernt ist, gilt auf der anderen auch als gelernt und kommt dort nicht
-     noch einmal als neues Wort. */
+     gelernt ist, gilt auf der anderen auch als gelernt. Ein Wort des
+     Häufigkeitsteils kommt dann nicht noch einmal als neues Wort; ein Wort
+     der eigenen Liste kommt trotzdem an seinem Tag dran (wie eine
+     Wiederholung), damit die Liste vollständig durchläuft. */
   var L = (window.QLIST && window.QLIST.words) || [];
   var SEQ = L.concat(V);
   var byIdMap = {};
@@ -83,11 +85,41 @@ window.AR = window.AR || {};
   }
   function isLearned(id) { return !!AR.store.q().learned[canon(id)]; }
 
+  /* ---------- Beantwortet ----------
+     Getrennt von „gelernt“: q.answered[Tag] hält die Kennungen, die an
+     diesem Tag in der Tagesrunde gewusst wurden. Daran hängt, ob ein Wort
+     heute noch offen ist und ob der Tag fertig ist. */
+  function answeredOn(k) {
+    var a = AR.store.q().answered;
+    return (a && Array.isArray(a[k])) ? a[k] : [];
+  }
+  function isAnsweredToday(id) { return answeredOn(dayKey()).indexOf(id) >= 0; }
+  /* Listenwörter, die schon an irgendeinem Tag beantwortet wurden */
+  function answeredEver() {
+    var a = AR.store.q().answered || {}, set = {};
+    Object.keys(a).forEach(function (k) {
+      if (Array.isArray(a[k])) a[k].forEach(function (id) { set[id] = true; });
+    });
+    return set;
+  }
+  function markAnswered(id) {
+    var q = AR.store.q(), key = dayKey();
+    if ((q.days[key] || []).indexOf(id) < 0) return;   // nur Wörter des heutigen Plans
+    if (!q.answered || typeof q.answered !== "object" || Array.isArray(q.answered)) q.answered = {};
+    var a = Array.isArray(q.answered[key]) ? q.answered[key] : (q.answered[key] = []);
+    if (a.indexOf(id) < 0) { a.push(id); AR.store.save(); }
+  }
+
   /* ---------- Heutige Wörter ----------
      Einmal am Tag festgelegt und gespeichert, damit sich die Auswahl nicht
      verschiebt, während man lernt. Ändert sich die Zahl in den
      Einstellungen, wird die heutige Liste angepasst: aufgefüllt mit den
-     nächsten Wörtern bzw. am Ende gekürzt (Gelerntes bleibt drin). */
+     nächsten Wörtern bzw. am Ende gekürzt (heute Beantwortetes bleibt drin).
+     Die eigene Liste kommt vollständig und in ihrer Reihenfolge dran – auch
+     ein Listenwort, das über seinen Partner schon gelernt ist; übersprungen
+     wird nur, was als Listenwort schon an einem Tag beantwortet wurde.
+     Wörter des Häufigkeitsteils kommen nicht, wenn sie (auch über den
+     Partner) schon gelernt sind oder ihr Partner heute schon dran ist. */
   function todayIds() {
     if (!started()) return [];
     var q = AR.store.q(), key = dayKey(), n = dailyNew();
@@ -95,25 +127,26 @@ window.AR = window.AR || {};
     var changed = !q.days[key];
 
     if (list.length < n) {
-      // Schon Gelerntes (auch über den Partner) und Wörter, deren Partner
-      // heute schon dran ist, kommen nicht als neue Wörter.
-      var have = {};
-      list.forEach(function (id) { have[canon(id)] = true; });
+      var haveId = {}, haveC = {}, done = answeredEver();
+      list.forEach(function (id) { haveId[id] = true; haveC[canon(id)] = true; });
       for (var i = 0; i < SEQ.length && list.length < n; i++) {
         var w = SEQ[i], c = canon(w.id);
-        if (!have[c] && !isLearned(w.id)) { list.push(w.id); have[c] = true; changed = true; }
+        var take = w.list ? (!haveId[w.id] && !done[w.id])
+                          : (!haveC[c] && !isLearned(w.id));
+        if (take) { list.push(w.id); haveId[w.id] = true; haveC[c] = true; changed = true; }
       }
     } else if (list.length > n) {
+      var ans = answeredOn(key);
       for (var j = list.length - 1; j >= 0 && list.length > n; j--) {
-        if (!isLearned(list[j])) { list.splice(j, 1); changed = true; }
+        if (ans.indexOf(list[j]) < 0) { list.splice(j, 1); changed = true; }
       }
     }
     if (changed) { q.days[key] = list; AR.store.save(); }
     return list;
   }
   function today() {
-    var ids = todayIds();
-    var open = ids.filter(function (id) { return !isLearned(id); });
+    var ids = todayIds(), ans = answeredOn(dayKey());
+    var open = ids.filter(function (id) { return ans.indexOf(id) < 0; });
     return {
       started: started(),
       ids: ids,
@@ -166,18 +199,15 @@ window.AR = window.AR || {};
     return { total: total, known: known, pct: total ? Math.round(known / total * 1000) / 10 : 0 };
   }
 
-  /* Tage in Folge, an denen die Tagesrunde fertig wurde. Ein Wort zählt
-     für einen Tag nur, wenn es spätestens an diesem Tag gelernt wurde –
-     sonst würde ein liegengebliebener Tag nachträglich „fertig“, sobald
-     seine Reste am Folgetag gelernt sind. */
+  /* Tage in Folge, an denen die Tagesrunde fertig wurde: jedes Wort des
+     Tagesplans wurde an genau diesem Tag beantwortet (q.answered). Ein
+     liegengebliebener Tag wird nicht nachträglich „fertig“, wenn seine
+     Reste am Folgetag drankommen. */
   function streak() {
     var q = AR.store.q(), d = new Date(), n = 0;
     function full(k) {
-      var ids = q.days[k];
-      return ids && ids.length && ids.every(function (id) {
-        var l = q.learned[canon(id)];
-        return l && (typeof l !== "string" || l <= k);
-      });
+      var ids = q.days[k], ans = answeredOn(k);
+      return !!(ids && ids.length && ids.every(function (id) { return ans.indexOf(id) >= 0; }));
     }
     if (!full(dayKey(d))) d.setDate(d.getDate() - 1);
     while (full(dayKey(d))) { n++; d.setDate(d.getDate() - 1); }
@@ -191,6 +221,7 @@ window.AR = window.AR || {};
     dayKey: dayKey, started: started, startLabel: startLabel,
     dailyNew: dailyNew, today: today, isLearned: isLearned,
     markLearned: markLearned, markMissed: markMissed,
+    markAnswered: markAnswered, isAnsweredToday: isAnsweredToday,
     learnedWords: learnedWords, dueWords: dueWords, learnedCount: learnedCount,
     coverage: coverage, streak: streak
   };

@@ -29,9 +29,36 @@ window.AR = window.AR || {};
     settings: Object.assign({}, DEFAULT_SETTINGS),
     stats: { studyDates: {}, totalReviews: 0 },
     /* Quran-Wortschatz: eigener Fortschritt, getrennt vom Alltagsteil */
-    q: { days: {}, learned: {}, grammar: {} }
+    q: { days: {}, learned: {}, grammar: {}, answered: {} }
   };
-  function freshQ() { return { days: {}, learned: {}, grammar: {} }; }
+  /* q.answered: Tag -> Kennungen, die an diesem Tag in der Tagesrunde
+     gewusst wurden. Getrennt von „gelernt“, weil ein Wort der eigenen Liste
+     an seinem Tag drankommt, auch wenn es über den Partner schon gelernt ist. */
+  function freshQ() { return { days: {}, learned: {}, grammar: {}, answered: {} }; }
+
+  /* Einmalig für Stände von vor q.answered: Was in einem Tagesplan stand und
+     gelernt ist, gilt als an dem Tag beantwortet, an dem es gelernt wurde
+     (spätestens am Plantag: dieser Tag; sonst der Lerntag). So bleiben die
+     Serie und die schon durchgenommenen Listenwörter wie bisher. */
+  function backfillAnswered() {
+    var q = state.q, A = {};
+    function add(k, id) {
+      A[k] = A[k] || [];
+      if (A[k].indexOf(id) < 0) A[k].push(id);
+    }
+    Object.keys(q.days || {}).sort().forEach(function (k) {
+      (Array.isArray(q.days[k]) ? q.days[k] : []).forEach(function (id) {
+        var l = q.learned[canon(id)] || q.learned[id];
+        if (!l) return;
+        if (typeof l !== "string" || l <= k) add(k, id);
+        else add(l, id);
+      });
+    });
+    q.answered = A;
+  }
+  function hasAnswered(dq) {
+    return !!(dq && dq.answered && typeof dq.answered === "object" && !Array.isArray(dq.answered));
+  }
 
   /* ---------- Ein Wort, ein Fortschritt ----------
      Viele Wörter der eigenen Liste (ql…) stehen auch im Häufigkeitswortschatz
@@ -87,6 +114,8 @@ window.AR = window.AR || {};
       }
       state.q.listV1 = true;
       if (linkMerge()) save();
+      if (raw && !hasAnswered(d.q)) { backfillAnswered(); save(); }
+      if (!hasAnswered(state.q)) state.q.answered = {};
     } catch (e) { console.warn("Konnte Fortschritt nicht laden:", e); }
     // Altlasten aus der Zeit, als jede angesehene Liste leere Eintraege anlegte
     if (compact()) save();
@@ -403,6 +432,7 @@ window.AR = window.AR || {};
     if (d.issues) state.issues = d.issues;
     if (d.q) state.q = Object.assign(freshQ(), d.q);
     linkMerge();
+    if (d.q && !hasAnswered(d.q)) backfillAnswered();
     saveNow();
     applyTheme();   // ein importiertes Design sofort zeigen, nicht erst nach Neustart
   }
