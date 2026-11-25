@@ -95,7 +95,8 @@ AR.views = AR.views || {};
   }
 
   function progressCard() {
-    var learned = qp.learnedCount(), total = qp.allWords().length, cov = qp.coverage();
+    // Wörter, die in der Liste und im Häufigkeitsteil stehen, zählen einmal
+    var learned = qp.learnedCount(), total = qp.uniqueWords().length, cov = qp.coverage();
     var streak = qp.streak();
     var card = el("div", { class: "card stack" });
     card.appendChild(el("div", { class: "card-t", text: "Fortschritt" }));
@@ -105,7 +106,7 @@ AR.views = AR.views || {};
       kpi(streak, streak === 1 ? "Tag in Folge" : "Tage in Folge")
     ]));
     card.appendChild(el("p", { class: "muted small", style: "margin:0",
-      text: "„des Quran-Textes“: Anteil aller Wortvorkommen im Quran, die deine gelernten Wörter aus dem Häufigkeitswortschatz abdecken. Wörter deiner eigenen Liste zählen hier erst mit, wenn sie dort an der Reihe sind." }));
+      text: "„des Quran-Textes“: Anteil aller Wortvorkommen im Quran, die deine gelernten Wörter aus dem Häufigkeitswortschatz abdecken. Ein Wort deiner eigenen Liste, das auch dort steht, zählt mit, sobald du es gelernt hast." }));
     return card;
   }
   function morgenText() {

@@ -16,13 +16,25 @@ window.AR = window.AR || {};
   "use strict";
 
   var V = (window.QVOCAB && window.QVOCAB.words) || [];
-  /* Die eigene Liste (10er-Gruppen) kommt vor allen anderen Wörtern dran,
-     in ihrer Reihenfolge – auch Wörter, die schon gelernt wurden. Danach
-     geht es mit dem Häufigkeitswortschatz weiter. Doppelte sind gewollt. */
+  /* Die eigene Liste (Liste 1 und 2, 10er-Gruppen) kommt vor allen anderen
+     Wörtern dran, in ihrer Reihenfolge. Danach geht es mit dem
+     Häufigkeitswortschatz weiter.
+     Steht ein Listenwort auch im Häufigkeitsteil (Feld „qv“), haben beide
+     einen gemeinsamen Fortschritt (AR.store.canon): Was auf der einen Seite
+     gelernt ist, gilt auf der anderen auch als gelernt und kommt dort nicht
+     noch einmal als neues Wort. */
   var L = (window.QLIST && window.QLIST.words) || [];
   var SEQ = L.concat(V);
   var byIdMap = {};
   SEQ.forEach(function (w) { byIdMap[w.id] = w; });
+  function canon(id) { return AR.store.canon(id); }
+  /* Jedes echte Wort genau einmal (bei Paaren das Listenwort, weil es zuerst
+     kommt) – für Gesamtzahl, Wiederholung und Zählungen */
+  var UNIQ = [], seenC = {};
+  SEQ.forEach(function (w) {
+    var c = canon(w.id);
+    if (!seenC[c]) { seenC[c] = true; UNIQ.push(w); }
+  });
 
   /* Vier Häufigkeitsstufen nach Vorkommen im Quran */
   var CATS = [
@@ -32,15 +44,19 @@ window.AR = window.AR || {};
     { id: 4, name: "Selten",      range: "unter 10×",      min: 0,   max: 9 }
   ];
   function catOf(w) {
+    if (w.list) return w.cat || 4;   // Listenwörter: Stufe steht in den Daten
     for (var i = 0; i < CATS.length; i++) {
       if (w.count >= CATS[i].min && w.count <= CATS[i].max) return CATS[i].id;
     }
     return 4;
   }
 
+  function catName(w) { return CATS[catOf(w) - 1].name; }
+
   function words() { return V; }
   function listWords() { return L; }
   function allWords() { return SEQ; }
+  function uniqueWords() { return UNIQ; }
   function byId(id) { return byIdMap[id] || null; }
   function inCat(id) { return V.filter(function (w) { return catOf(w) === id; }); }
 
@@ -65,7 +81,7 @@ window.AR = window.AR || {};
     var n = parseInt(AR.store.get("dailyNew"), 10);
     return isFinite(n) && n > 0 ? Math.min(n, 50) : 10;
   }
-  function isLearned(id) { return !!AR.store.q().learned[id]; }
+  function isLearned(id) { return !!AR.store.q().learned[canon(id)]; }
 
   /* ---------- Heutige Wörter ----------
      Einmal am Tag festgelegt und gespeichert, damit sich die Auswahl nicht
@@ -79,11 +95,13 @@ window.AR = window.AR || {};
     var changed = !q.days[key];
 
     if (list.length < n) {
+      // Schon Gelerntes (auch über den Partner) und Wörter, deren Partner
+      // heute schon dran ist, kommen nicht als neue Wörter.
       var have = {};
-      list.forEach(function (id) { have[id] = true; });
+      list.forEach(function (id) { have[canon(id)] = true; });
       for (var i = 0; i < SEQ.length && list.length < n; i++) {
-        var w = SEQ[i];
-        if (!have[w.id] && !isLearned(w.id)) { list.push(w.id); changed = true; }
+        var w = SEQ[i], c = canon(w.id);
+        if (!have[c] && !isLearned(w.id)) { list.push(w.id); have[c] = true; changed = true; }
       }
     } else if (list.length > n) {
       for (var j = list.length - 1; j >= 0 && list.length > n; j--) {
@@ -109,8 +127,8 @@ window.AR = window.AR || {};
 
   /* Ein Wort gilt als gelernt, sobald es in der Tagesrunde „gewusst" wurde */
   function markLearned(id) {
-    var q = AR.store.q();
-    if (!q.learned[id]) { q.learned[id] = dayKey(); }
+    var q = AR.store.q(), c = canon(id);
+    if (!q.learned[c]) { q.learned[c] = dayKey(); }
     AR.store.grade(id, "good");
   }
   function markMissed(id) {
@@ -118,7 +136,7 @@ window.AR = window.AR || {};
   }
 
   /* ---------- Freiwillige Wiederholung ---------- */
-  function learnedWords() { return SEQ.filter(function (w) { return isLearned(w.id); }); }
+  function learnedWords() { return UNIQ.filter(function (w) { return isLearned(w.id); }); }
   function dueWords() {
     var now = Date.now();
     return learnedWords().filter(function (w) {
@@ -129,7 +147,13 @@ window.AR = window.AR || {};
       return (sa.box - sb.box) || (sb.wrong - sa.wrong);
     });
   }
-  function learnedCount() { return Object.keys(AR.store.q().learned).filter(function (id) { return byIdMap[id]; }).length; }
+  /* Jedes echte Wort zählt einmal: alte Einträge unter der Listenkennung
+     eines Paares zählen nicht extra (ihr Stand liegt beim Partner). */
+  function learnedCount() {
+    return Object.keys(AR.store.q().learned).filter(function (id) {
+      return byIdMap[id] && canon(id) === id;
+    }).length;
+  }
 
   /* Wie viel des Qurantextes decken die gelernten Wörter ab? Gemessen an
      allen Wortvorkommen im Quran (ohne angehängte Vorsilben und Pronomen),
@@ -151,7 +175,7 @@ window.AR = window.AR || {};
     function full(k) {
       var ids = q.days[k];
       return ids && ids.length && ids.every(function (id) {
-        var l = q.learned[id];
+        var l = q.learned[canon(id)];
         return l && (typeof l !== "string" || l <= k);
       });
     }
@@ -161,7 +185,8 @@ window.AR = window.AR || {};
   }
 
   AR.qplan = {
-    CATS: CATS, catOf: catOf, words: words, listWords: listWords, allWords: allWords,
+    CATS: CATS, catOf: catOf, catName: catName, words: words, listWords: listWords,
+    allWords: allWords, uniqueWords: uniqueWords, canon: canon,
     byId: byId, inCat: inCat,
     dayKey: dayKey, started: started, startLabel: startLabel,
     dailyNew: dailyNew, today: today, isLearned: isLearned,

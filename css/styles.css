@@ -229,6 +229,8 @@ button.lr:active { background: var(--fill); }
 .vfc { display: flex; flex-direction: column; align-items: center; min-width: 0; }
 .vfc small { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
 .vfc-ar { font-size: 30px; line-height: 1.8; }
+/* Plural bei Nomen aus der eigenen Liste: eine Zelle in der Breite der Verbformen */
+.qc-forms.qc-pl { grid-template-columns: minmax(0,1fr); }
 .answer-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .answer-row > .btn:only-child { grid-column: 1 / -1; }
 .answer.no { background: var(--danger-100); color: var(--danger); }

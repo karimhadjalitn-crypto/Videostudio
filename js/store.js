@@ -33,6 +33,32 @@ window.AR = window.AR || {};
   };
   function freshQ() { return { days: {}, learned: {}, grammar: {} }; }
 
+  /* ---------- Ein Wort, ein Fortschritt ----------
+     Viele Wörter der eigenen Liste (ql…) stehen auch im Häufigkeitswortschatz
+     (qv…). Die Liste nennt den Partner im Feld „qv“. Für ein solches Paar
+     gibt es nur einen Fortschritt: gespeichert wird unter der qv-Kennung,
+     egal von welcher Seite aus gelernt wird. Alles andere bleibt bei sich. */
+  var CANON = {};
+  ((window.QLIST && window.QLIST.words) || []).forEach(function (w) {
+    if (w.qv) CANON[w.id] = w.qv;
+  });
+  function canon(id) { return CANON[id] || id; }
+
+  /* Fortschritt, der früher unter der Listenkennung gespeichert wurde, auf
+     den gemeinsamen Eintrag übertragen. Die alten Einträge bleiben stehen.
+     Läuft bei jedem Laden; ändert nur etwas, wenn es Neues zu übertragen gibt. */
+  function linkMerge() {
+    var changed = false, L = state.q.learned;
+    for (var ql in CANON) {
+      var qv = CANON[ql];
+      var a = L[ql], b = L[qv];
+      if (a && (!b || (typeof a === "string" && typeof b === "string" && a < b))) { L[qv] = a; changed = true; }
+      var sa = state.srs[ql], sb = state.srs[qv];
+      if (sa && (!sb || (sa.last || 0) > (sb.last || 0))) { state.srs[qv] = Object.assign({}, sa); changed = true; }
+    }
+    return changed;
+  }
+
   /* ---------- Laden / Speichern ---------- */
   function load() {
     try {
@@ -60,6 +86,7 @@ window.AR = window.AR || {};
         save();
       }
       state.q.listV1 = true;
+      if (linkMerge()) save();
     } catch (e) { console.warn("Konnte Fortschritt nicht laden:", e); }
     // Altlasten aus der Zeit, als jede angesehene Liste leere Eintraege anlegte
     if (compact()) save();
@@ -141,6 +168,7 @@ window.AR = window.AR || {};
   /* Legt einen Eintrag an. Nur aufrufen, wenn danach wirklich etwas
      gespeichert wird – sonst peek() benutzen. */
   function cardState(id) {
+    id = canon(id);
     var s = state.srs[id];
     if (!s) { s = Object.assign({}, FRISCH); state.srs[id] = s; }
     if (s.hard == null) s.hard = 0;
@@ -152,7 +180,7 @@ window.AR = window.AR || {};
      Eintrag an – über tausend Stück, die dann in jedem Speichervorgang und
      in jeder Sicherungsdatei mitgeschleppt wurden. */
   function peek(id) {
-    return state.srs[id] || null;
+    return state.srs[canon(id)] || null;
   }
   /* Leere Einträge wegräumen (aus der Zeit, als sie noch angelegt wurden) */
   function compact() {
@@ -165,7 +193,7 @@ window.AR = window.AR || {};
   }
   // Ist die Karte "gekonnt"? („Gut" und „Leicht" zählen, „Schwer" noch nicht)
   function status(id) {
-    var s = state.srs[id];
+    var s = state.srs[canon(id)];
     if (!s || s.seen === 0) return "new";
     if (s.box >= KNOWN_BOX) return "known";
     return "learning";
@@ -205,7 +233,7 @@ window.AR = window.AR || {};
   /* Vorschau „wann kommt die Karte wieder?" – für die Knopf-Beschriftung */
   function previewInterval(id, g) {
     if (g === "again") return "gleich wieder";
-    var s = state.srs[id];
+    var s = state.srs[canon(id)];
     var box = nextBox(s ? s.box : 0, g);
     return humanDelay(delayFor(box, g));
   }
@@ -374,6 +402,7 @@ window.AR = window.AR || {};
     if (d.stats) state.stats = d.stats;
     if (d.issues) state.issues = d.issues;
     if (d.q) state.q = Object.assign(freshQ(), d.q);
+    linkMerge();
     saveNow();
     applyTheme();   // ein importiertes Design sofort zeigen, nicht erst nach Neustart
   }
@@ -396,7 +425,7 @@ window.AR = window.AR || {};
     resetProgress: resetProgress, resetQuran: resetQuran,
     exportData: exportData, importData: importData,
     q: function () { return state.q; },
-    peek: peek, compact: compact,
+    peek: peek, compact: compact, canon: canon,
     _state: state
   };
 })(window.AR);

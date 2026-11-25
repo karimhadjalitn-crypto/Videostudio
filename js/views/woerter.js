@@ -51,8 +51,9 @@ AR.views = AR.views || {};
         words = qp.allWords().filter(function (w) {
           if (w.de.toLowerCase().indexOf(q) >= 0) return true;
           if (!qb) return false;
-          var k = arKeys(w.ar);
-          return k[0].indexOf(qb) >= 0 || k[1].indexOf(qb) >= 0;
+          var k = arKeys(w.ar), p = w.plural ? arKeys(w.plural) : ["", ""];
+          return k[0].indexOf(qb) >= 0 || k[1].indexOf(qb) >= 0 ||
+            (!!w.plural && (p[0].indexOf(qb) >= 0 || p[1].indexOf(qb) >= 0));
         });
       }
       if (!words.length) {
@@ -81,7 +82,7 @@ AR.views = AR.views || {};
       el("span", { class: "wr-dot" + (learned ? " ok" : "") }),
       el("div", { class: "lr-main" }, [
         el("div", { class: "lr-t", text: w.de }),
-        el("div", { class: "lr-s", text: w.list ? "Meine Liste · Gruppe " + w.group : w.count + "×" })
+        el("div", { class: "lr-s", text: w.list ? "Meine Liste · Gruppe " + w.group + " · " + qp.catName(w) : w.count + "×" })
       ]),
       ui.ar(w.ar, "wr-ar")
     ]);

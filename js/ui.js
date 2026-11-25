@@ -137,6 +137,9 @@ window.AR = window.AR || {};
     card.appendChild(ar(w.ar, "qc-ar"));
     if (opts.showDe) card.appendChild(el("div", { class: "qc-de", text: w.de }));
     if (w.type === "verb") card.appendChild(verbForms(w));
+    else if (w.plural) card.appendChild(el("div", { class: "qc-forms qc-pl" }, [
+      el("div", { class: "vfc" }, [ el("small", { text: "Plural" }), ar(w.plural, "vfc-ar") ])
+    ]));
     return card;
   }
   function verbForms(w) {
@@ -150,11 +153,12 @@ window.AR = window.AR || {};
 
   /* Detailblatt zu einem Quranwort (aus der Wortliste) */
   function wordSheet(w) {
-    var learned = AR.qplan.isLearned(w.id);
+    var qp = AR.qplan, learned = qp.isLearned(w.id);
     AR.app.sheet(null, el("div", { class: "stack" }, [
       qcard(w, true, null, { showDe: true }),
       el("div", { class: "muted small center", text: (learned ? "✓ gelernt · " : "") +
-        (w.list ? "Meine Liste · Gruppe " + w.group : w.count + "× im Quran · Rang " + w.rank) })
+        (w.list ? "Meine Liste · Gruppe " + w.group : w.count + "× im Quran · Rang " + w.rank) +
+        " · " + qp.catName(w) })
     ]));
   }
 
